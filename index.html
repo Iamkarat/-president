@@ -4600,7 +4600,7 @@ img{content-visibility:auto;}
 #reviews h2{color:var(--zone-dark-ink) !important}
 </style>
 
-<section class="income-details" id="income-details-collapsible"><div class="income-details-inner"><button aria-controls="income-details-panel" aria-expanded="false" class="income-details__button" type="button"><span>Сколько я смогу заработать?</span><span aria-hidden="true" class="income-details__mark">+</span></button><div class="income-details__panel" id="income-details-panel"><div><p class="income-details__subtitle">Вместо 1000 слов покажу отчеты и наши результаты</p><div class="income-details__moodboard">
+<section class="income-details" id="income-details-collapsible"><div class="income-details-inner"><button aria-controls="income-details-panel" aria-expanded="false" class="income-details__button" type="button"><span>Сколько я смогу заработать?</span><span aria-hidden="true" class="income-details__mark income-details__mark--btn">Посмотрим?</span></button><div class="income-details__panel" id="income-details-panel"><div><p class="income-details__subtitle">Вместо 1000 слов покажу отчеты и наши результаты</p><div class="income-details__moodboard">
 <div class="income-mood-card v1"><video muted="" loop="" playsinline="" preload="none" src="assets/income-video-v1.mp4"></video><button aria-label="Включить звук" class="income-mood-sound" type="button"><svg class="icon-unmuted" fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/><path d="M19 6a9 9 0 0 1 0 12" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg><svg class="icon-muted" fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg></button></div>
 <div class="income-mood-card h1"><video muted="" loop="" playsinline="" preload="none" src="assets/income-video-h1.mov"></video><button aria-label="Включить звук" class="income-mood-sound" type="button"><svg class="icon-unmuted" fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/><path d="M19 6a9 9 0 0 1 0 12" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg><svg class="icon-muted" fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg></button></div>
 <div class="income-mood-card v2"><video muted="" loop="" playsinline="" preload="none" src="assets/income-video-v2.mp4"></video><button aria-label="Включить звук" class="income-mood-sound" type="button"><svg class="icon-unmuted" fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/><path d="M19 6a9 9 0 0 1 0 12" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg><svg class="icon-muted" fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg></button></div>
@@ -4660,6 +4660,20 @@ img{content-visibility:auto;}
 #income-details-collapsible .income-details__button[aria-expanded="true"]{border-radius:21px 21px 0 0 !important}
 #income-details-collapsible .income-details__button span:first-child{color:rgba(255,255,255,.92) !important}
 #income-details-collapsible .income-details__mark{border-color:rgba(255,255,255,.35) !important;color:rgba(255,255,255,.9)}
+#income-details-collapsible .income-details__mark--btn{
+  width:auto;height:auto;flex:0 0 auto;
+  padding:10px 16px;
+  border-radius:669px!important;
+  background:rgba(255,255,255,.08);
+  font:700 13px/1 Helvetica,Arial,sans-serif;
+  white-space:nowrap;
+  transition:background .3s ease,border-color .3s ease;
+}
+#income-details-collapsible .income-details__button[aria-expanded="true"] .income-details__mark--btn{transform:none}
+#income-details-collapsible .income-details__button:hover .income-details__mark--btn{
+  background:rgba(72,230,208,.14);
+  border-color:rgba(72,230,208,.4)!important;
+}
 #income-details-collapsible .income-details__button::before{
   content:"";
   position:absolute;
