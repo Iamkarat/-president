@@ -2618,11 +2618,23 @@ img{content-visibility:auto;}
   .trust-reference-mobile-text{
     display:block !important;
     position:relative;
-    background:#000 url("assets/trust-silhouette-mobile.jpg") no-repeat right center/48% auto;
+    overflow:hidden;
+    background:#000;
     color:rgba(255,255,255,.82);
     padding:26px 22px 34px;
     text-align:left;
   }
+  .trust-reference-mobile-text::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background:url("assets/trust-silhouette-mobile.jpg") no-repeat right top/50% auto;
+    -webkit-mask-image:radial-gradient(230px 230px at 78% 130px, #000 50%, transparent 100%);
+    mask-image:radial-gradient(230px 230px at 78% 130px, #000 50%, transparent 100%);
+  }
+  .trust-reference-mobile-text > *{position:relative;z-index:1}
   .trust-reference-mobile-text p{
     margin:0 0 15px;
     max-width:60%;
