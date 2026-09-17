@@ -2611,25 +2611,28 @@ img{content-visibility:auto;}
 }
 @media(max-width:850px){
   .trust-reference-block{overflow:hidden !important;}
-  .trust-reference-image{width:100% !important;height:auto !important;}
+  .trust-reference-image{display:none !important;}
 }
 .trust-reference-mobile-text{display:none}
 @media(max-width:850px){
   .trust-reference-mobile-text{
     display:block !important;
-    background:#000;
+    position:relative;
+    background:#000 url("assets/trust-silhouette-mobile.jpg") no-repeat right center/48% auto;
     color:rgba(255,255,255,.82);
     padding:26px 22px 34px;
     text-align:left;
   }
   .trust-reference-mobile-text p{
     margin:0 0 15px;
+    max-width:60%;
     font-size:18px;
     line-height:1.55;
   }
   .trust-reference-mobile-text strong{color:#fff;font-weight:700}
   .trust-reference-mobile-text h3{
     margin:16px 0 0;
+    max-width:78%;
     font:800 clamp(27px,8vw,36px)/1.16 Helvetica,Arial,sans-serif;
     letter-spacing:-.03em;
     color:#fff;
