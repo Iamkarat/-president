@@ -5432,9 +5432,11 @@ img{content-visibility:auto;}
   color:rgba(255,255,255,.42);
 }
 @media(max-width:520px){
-  #apply-calc{padding:13px 15px}
-  #apply-calc .apply-calc-row{flex-direction:column;align-items:flex-start;gap:3px}
-  #apply-calc .apply-calc-value{font-size:18px;text-align:left}
+  #apply-calc{padding:16px 18px}
+  #apply-calc .apply-calc-row{flex-direction:column;align-items:flex-start;gap:5px}
+  #apply-calc .apply-calc-label{font-size:13px}
+  #apply-calc .apply-calc-note{font-size:14px;margin-top:9px}
+  #apply-calc .apply-calc-value{font-size:21px;text-align:left}
 }
 </style>
 <section class="section" id="apply">
@@ -5953,8 +5955,15 @@ document.addEventListener('DOMContentLoaded',function(){
 (function(){
   document.querySelectorAll('#combined-application .choice-grid-dark input').forEach(function(input){
     input.addEventListener('change',function(){
-      var span=input.nextElementSibling;
-      if(span) span.classList.toggle('is-selected',input.checked);
+      if(input.type==='radio' && input.name){
+        document.querySelectorAll('#combined-application input[name="'+input.name+'"]').forEach(function(sibling){
+          var sSpan=sibling.nextElementSibling;
+          if(sSpan) sSpan.classList.toggle('is-selected',sibling.checked);
+        });
+      }else{
+        var span=input.nextElementSibling;
+        if(span) span.classList.toggle('is-selected',input.checked);
+      }
     });
   });
   document.querySelectorAll('#combined-application .info-dot').forEach(function(btn){
@@ -6001,7 +6010,7 @@ document.addEventListener('DOMContentLoaded',function(){
      единственное значение, которое нужно поменять.
      ============================================================ */
   var CALC_CONFIG = {
-    RATE_PER_HOUR: 1000,   // ⚠️ ЗАГЛУШКА — замените на реальную ставку, ₽/час
+    RATE_PER_HOUR: 2350,   // ⚠️ ЗАГЛУШКА — замените на реальную ставку, ₽/час
     WEEKS_PER_MONTH: 4.33
   };
 
