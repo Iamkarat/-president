@@ -6050,6 +6050,113 @@ document.addEventListener('DOMContentLoaded',function(){
   recalc();
 })();
 </script>
+<style id="telegram-application-submit-style">
+#combined-application .application-submit-status{
+  margin-top:10px;
+  font:500 9px/1.45 Helvetica,Arial,sans-serif;
+  display:none;
+}
+#combined-application .application-submit-status.is-visible{display:block}
+#combined-application .application-submit-status.is-success{color:#5aebd7}
+#combined-application .application-submit-status.is-error{color:#ff7a7a}
+#combined-application .btn.submit:disabled{opacity:.6;cursor:default}
+@media(max-width:520px){
+  #combined-application .application-submit-status{font-size:14px}
+}
+</style>
+<script id="telegram-application-submit">
+(function(){
+  var form = document.getElementById('combined-application');
+  if(!form) return;
+  var ENDPOINT = 'https://president-telegram-relay.vercel.app/api/send-application';
+  var submitBtn = form.querySelector('.btn.submit');
+  var noteEl = form.querySelector('.application-note');
+  var statusEl = document.createElement('div');
+  statusEl.className = 'application-submit-status';
+  if(noteEl && noteEl.parentNode){ noteEl.parentNode.insertBefore(statusEl, noteEl); }
+  else { form.appendChild(statusEl); }
+
+  function setStatus(msg, type){
+    statusEl.textContent = msg;
+    statusEl.className = 'application-submit-status is-visible' + (type ? ' is-'+type : '');
+  }
+
+  function buildApplicationText(){
+    var lines = [];
+    lines.push('Новая заявка — PRESIDENT AGENCY');
+    lines.push('');
+    var get = function(name){
+      var el = form.querySelector('[name="'+name+'"]');
+      return el ? el.value.trim() : '';
+    };
+    lines.push('Имя: ' + (get('name') || '—'));
+    lines.push('Возраст: ' + (get('age') || '—'));
+    lines.push('Telegram: ' + (get('telegram') || '—'));
+    var city = get('city'); if(city) lines.push('Город: ' + city);
+    var hw = get('heightWeight'); if(hw) lines.push('Рост/вес: ' + hw);
+    var exp = get('experience'); if(exp) lines.push('Опыт: ' + exp);
+    var comment = get('comment'); if(comment) lines.push('Комментарий: ' + comment);
+    lines.push('');
+    lines.push('— Мини-опрос —');
+    form.querySelectorAll('.survey-dark-step').forEach(function(step){
+      var h4 = step.querySelector('h4');
+      var label = h4 ? h4.textContent.trim() : '';
+      var checked = Array.prototype.map.call(step.querySelectorAll('input:checked'), function(i){ return i.value; });
+      if(checked.length) lines.push(label + ': ' + checked.join(', '));
+    });
+    var calcEl = document.getElementById('apply-calc-hidden');
+    var calc = calcEl ? calcEl.value.trim() : '';
+    if(calc){ lines.push(''); lines.push('Предварительный расчёт: ' + calc); }
+    return lines.join('\n');
+  }
+
+  function resetCalcDisplay(){
+    var valueEl = document.getElementById('apply-calc-value');
+    var hiddenEl = document.getElementById('apply-calc-hidden');
+    var block = document.getElementById('apply-calc');
+    if(valueEl) valueEl.textContent = 'Выберите часы и дни выше';
+    if(hiddenEl) hiddenEl.value = '';
+    if(block) block.classList.remove('is-ready');
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!form.checkValidity()){
+      form.reportValidity();
+      return;
+    }
+    var text = buildApplicationText();
+    if(submitBtn){
+      submitBtn.disabled = true;
+      if(!submitBtn.dataset.originalText) submitBtn.dataset.originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Отправка...';
+    }
+    setStatus('Отправляем заявку…', null);
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text })
+    }).then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(data){
+        if(!res.ok || !data.ok) throw new Error((data && data.error) || 'Ошибка отправки');
+        return data;
+      });
+    }).then(function(){
+      setStatus('Заявка отправлена! Мы свяжемся с вами в ближайшее время.', 'success');
+      form.reset();
+      form.querySelectorAll('.choice-grid-dark .is-selected').forEach(function(el){ el.classList.remove('is-selected'); });
+      resetCalcDisplay();
+    }).catch(function(err){
+      setStatus('Не удалось отправить заявку. Попробуйте ещё раз или напишите нам напрямую в Telegram. (' + err.message + ')', 'error');
+    }).finally(function(){
+      if(submitBtn){
+        submitBtn.disabled = false;
+        submitBtn.textContent = submitBtn.dataset.originalText || 'Отправить заявку →';
+      }
+    });
+  });
+})();
+</script>
 <script id="president-mobile-final-js">
 (function(){
   function closeTrust(modal,image){
