@@ -5531,7 +5531,7 @@ img{content-visibility:auto;}
 <div class="survey-attachment-note">Ответы мини-опроса будут автоматически приложены к этой заявке.</div>
 <div class="form-grid">
 <input name="name" placeholder="Имя" required=""/>
-<input max="30" min="20" name="age" placeholder="Возраст 20–30" required="" type="number"/>
+<input max="45" min="20" name="age" placeholder="Возраст 20–45" required="" type="number"/>
 <input name="telegram" placeholder="@telegram" required=""/>
 <input name="city" placeholder="Город"/>
 <input name="heightWeight" placeholder="Рост / вес"/>
@@ -6061,6 +6061,10 @@ document.addEventListener('DOMContentLoaded',function(){
   recalc();
 })();
 </script>
+<style id="survey-scroll-perf">
+#apply .survey-dark-step,
+#apply .choice-grid-dark label{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+</style>
 <style id="telegram-application-submit-style">
 #combined-application .application-submit-status{
   margin-top:10px;
