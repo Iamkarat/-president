@@ -2526,7 +2526,55 @@ img{content-visibility:auto;}
 </script>
 
 <header class="header"><div class="container header-inner"><img alt="PRESIDENT" class="logo" decoding="async" fetchpriority="high" src="assets/president-logo-original-transparent.png" loading="eager"><nav class="nav" id="nav"><a href="#about">Кто мы</a><a href="#format">Как всё проходит</a><a href="#start">Как всё происходит</a><a href="#terms">Что вас ждёт</a><a href="#terms-safety">Всё о безопасности</a><a class="cta" href="#apply">Хочу попробовать</a></nav><button class="menu" id="menu">☰</button></div></header>
-<section class="hero"><img alt="PRESIDENT AGENCY" decoding="async" fetchpriority="low" loading="lazy" src="assets/asset-02.webp"/><div class="container hero-content"><div class="eyebrow">МОСКВА</div><h1>Мама, я пошла<br/>в эскорт!</h1><p class="lead">И я знаю зачем…</p><div class="hero-links"><a href="#income-details-collapsible">Сколько я смогу заработать?</a><a href="#terms-trial">Попробовать 3 дня</a><a href="#terms-safety">Всё о безопасности</a><a href="#result-block">Что я получу</a></div></div></section>
+<section class="hero"><img alt="PRESIDENT AGENCY" decoding="async" fetchpriority="low" loading="lazy" src="assets/asset-02.webp"/><div class="container hero-content"><div class="eyebrow">МОСКВА</div><h1>Мама, я пошла<br/>в эскорт!</h1><p class="lead">И я знаю зачем…</p><div class="hero-links"><a href="#hero-start" data-hero-tab="try" aria-controls="hero-start">Хочу попробовать</a><a href="#hero-start" data-hero-tab="flow" aria-controls="hero-start">Как всё проходит</a><a href="#hero-start" data-hero-tab="expect" aria-controls="hero-start">Что меня ждёт</a><a href="#hero-start" data-hero-tab="safety" aria-controls="hero-start">Всё о безопасности</a></div></div>
+<div class="container hero-start" id="hero-start">
+<div class="hero-start-panel">
+<div class="hero-start-views">
+<div class="hero-start-view" data-hero-view="try">
+<div class="hero-start-bubble"><p class="hero-start-msg" id="hero-msg-text">Привет! Я увидела ваше агентство и решила написать 😊
+Мне интересно попробовать себя в этой сфере и узнать подробнее, как проходит сотрудничество. Подскажите, пожалуйста, как можно начать?</p></div>
+</div>
+<div class="hero-start-view" data-hero-view="flow" hidden>
+<div class="hero-start-label">Как всё проходит</div>
+<h3 class="hero-start-title">Четыре простых шага</h3>
+<ol class="hero-start-list hero-start-steps">
+<li>Вы знакомитесь с информацией на сайте.</li>
+<li>Пишете агентству в Telegram.</li>
+<li>Получаете ответ и уточняете детали.</li>
+<li>Принимаете решение о дальнейших шагах.</li>
+</ol>
+</div>
+<div class="hero-start-view" data-hero-view="expect" hidden>
+<div class="hero-start-label">Что меня ждёт</div>
+<h3 class="hero-start-title">После первого сообщения</h3>
+<ul class="hero-start-list">
+<li><strong>Общение.</strong> Вам ответят и объяснят, как всё устроено.</li>
+<li><strong>Обсуждение деталей.</strong> Условия, формат и ваши пожелания.</li>
+<li><strong>Ответы на вопросы.</strong> Спрашивайте столько, сколько нужно.</li>
+<li><strong>Дальнейшие шаги.</strong> Если решите продолжить, вы вместе договоритесь, что делать дальше.</li>
+</ul>
+</div>
+<div class="hero-start-view" data-hero-view="safety" hidden>
+<div class="hero-start-label">Всё о безопасности</div>
+<h3 class="hero-start-title">Спокойно и по вашим правилам</h3>
+<ul class="hero-start-list">
+<li>Вы можете задавать вопросы до принятия решения.</li>
+<li>Важно, чтобы вы понимали условия сотрудничества.</li>
+<li>Ваши личные границы должны уважаться.</li>
+<li>Решение о сотрудничестве остаётся за вами.</li>
+<li>Если появятся вопросы, вы всегда можете связаться с агентством.</li>
+</ul>
+</div>
+</div>
+<div class="hero-start-actions">
+<a class="hero-start-cta" data-hero-tg href="https://t.me/Video_lifeee" target="_blank" rel="noopener noreferrer">Написать в Telegram</a>
+<p class="hero-start-hint">Сообщение уже подготовлено: в Telegram останется нажать «Отправить».</p>
+<div class="hero-start-contacts"><a href="tel:+79266178080">+79266178080</a><a data-hero-tg href="https://t.me/Video_lifeee" target="_blank" rel="noopener noreferrer">@Video_lifeee</a></div>
+</div>
+</div>
+</div>
+</section>
+
 <section class="trust-phone-widget" id="about">
 <div class="container trust-phone-inner">
 <h2 class="trust-phone-title">ПОЧЕМУ ЛЮДИ НЕ ДОВЕРЯЮТ</h2>
@@ -6071,6 +6119,207 @@ document.addEventListener('DOMContentLoaded',function(){
 #apply .survey-dark-step,
 #apply .choice-grid-dark label{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 </style>
+<style id="hero-start-style">
+.hero{display:flex;flex-direction:column;background:#050505!important}
+.hero img{bottom:auto;height:100svh}
+.hero:after{-webkit-mask-image:linear-gradient(180deg,transparent,#000 55%);mask-image:linear-gradient(180deg,transparent,#000 55%)}
+.hero:before{content:"";position:absolute;left:0;right:0;top:calc(100svh - 340px);height:364px;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(5,5,5,0),rgba(5,5,5,.6) 58%,#050505 100%)}
+.hero-content{flex:0 0 auto}
+#hero-start{position:relative;z-index:2;flex:0 0 auto}
+#hero-start .hero-start-panel{padding:8px 0 54px;color:#fff;scroll-margin-top:84px}
+#hero-start.hero-start-js .hero-start-panel{opacity:0;transform:translateY(14px);transition:opacity .7s var(--lg-ease),transform .7s var(--lg-ease)}
+#hero-start.hero-start-js .hero-start-panel.is-visible{opacity:1;transform:none}
+#hero-start [hidden]{display:none!important}
+#hero-start .hero-start-view:not([hidden]){animation:heroStartIn .45s var(--lg-ease) both}
+@keyframes heroStartIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#hero-start .hero-start-label{
+  font:700 11px/1.3 Helvetica,Arial,sans-serif;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--zone-teal,#48e6d0);
+}
+#hero-start .hero-start-title{
+  margin:8px 0 14px;
+  font:800 clamp(25px,7.4vw,30px)/1.08 Helvetica,Arial,sans-serif;
+  letter-spacing:-.035em;
+  color:#fff;
+  text-shadow:0 4px 22px rgba(0,0,0,.45);
+}
+#hero-start .hero-start-bubble{
+  padding:16px 16px;
+  border-radius:22px 22px 22px 6px;
+  background:rgba(255,255,255,.075);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 12px 34px rgba(0,0,0,.28);
+  backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);
+}
+#hero-start .hero-start-msg{
+  margin:0;
+  font:500 16px/1.55 Helvetica,Arial,sans-serif;
+  color:rgba(255,255,255,.94);
+  white-space:pre-line;
+}
+#hero-start .hero-start-list{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:10px;
+  font:500 15.5px/1.5 Helvetica,Arial,sans-serif;
+  color:rgba(255,255,255,.9);
+  text-shadow:0 2px 14px rgba(0,0,0,.4);
+  counter-reset:heroStep;
+}
+#hero-start .hero-start-list li{position:relative;padding-left:32px}
+#hero-start .hero-start-list li::before{
+  content:"";
+  position:absolute;
+  left:4px;
+  top:.55em;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--zone-teal,#48e6d0);
+  box-shadow:0 0 12px rgba(72,230,208,.45);
+}
+#hero-start .hero-start-steps li{counter-increment:heroStep}
+#hero-start .hero-start-steps li::before{
+  content:counter(heroStep);
+  left:0;
+  top:.05em;
+  width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:rgba(72,230,208,.12);
+  border:1px solid rgba(72,230,208,.5);
+  box-shadow:none;
+  font:700 12px/1 Helvetica,Arial,sans-serif;
+  color:var(--zone-teal,#48e6d0);
+}
+#hero-start .hero-start-list strong{color:#fff;font-weight:700}
+#hero-start .hero-start-actions{
+  margin-top:22px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px 22px;
+}
+#hero-start .hero-start-cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  min-height:58px;
+  padding:0 28px;
+  border-radius:669px;
+  font:800 16px/1 Helvetica,Arial,sans-serif;
+  text-decoration:none;
+  color:#0b0e0e;
+  background:linear-gradient(135deg,var(--zone-teal,#48e6d0),#2fc9b4);
+  border:1px solid rgba(72,230,208,.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 10px 26px rgba(72,230,208,.28);
+  transition:transform .45s var(--lg-ease),background .35s ease,box-shadow .45s ease;
+}
+#hero-start .hero-start-cta::after{content:"→";transition:transform .35s ease}
+#hero-start .hero-start-cta:hover{
+  transform:translateY(-2px) scale(1.02);
+  background:linear-gradient(135deg,#5ef0da,var(--zone-teal,#48e6d0));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 14px 34px rgba(72,230,208,.4);
+}
+#hero-start .hero-start-cta:hover::after{transform:translateX(3px)}
+#hero-start .hero-start-cta:active{transform:scale(.975)}
+#hero-start .hero-start-hint{
+  flex:1 1 100%;
+  margin:0;
+  font:500 13px/1.45 Helvetica,Arial,sans-serif;
+  color:rgba(255,255,255,.62);
+  text-shadow:0 2px 12px rgba(0,0,0,.5);
+}
+#hero-start .hero-start-contacts{
+  flex:1 1 100%;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 24px;
+  font:600 16px/1.3 Helvetica,Arial,sans-serif;
+}
+#hero-start .hero-start-contacts a{
+  color:rgba(255,255,255,.86);
+  text-decoration:none;
+  border-bottom:1px solid rgba(255,255,255,.32);
+  padding-bottom:2px;
+  overflow-wrap:anywhere;
+  transition:color .3s ease,border-color .3s ease;
+}
+#hero-start .hero-start-contacts a:hover{color:#fff;border-color:rgba(72,230,208,.7)}
+@media(min-width:851px){
+  .hero-content{min-height:0;flex:1 1 auto;justify-content:flex-end;padding-bottom:40px}
+  #hero-start .hero-start-panel{
+    display:grid;
+    grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);
+    column-gap:40px;
+    align-items:end;
+    padding:0 0 38px;
+  }
+  #hero-start .hero-start-views{min-height:272px;display:flex;flex-direction:column}
+  #hero-start .hero-start-view[data-hero-view="try"]{margin-top:auto}
+  #hero-start .hero-start-title{font-size:clamp(26px,2.6vw,32px);margin-bottom:12px}
+  #hero-start .hero-start-bubble{padding:14px 18px}
+  #hero-start .hero-start-msg{font-size:15.5px}
+  #hero-start .hero-start-list{font-size:15px;gap:8px}
+  #hero-start .hero-start-actions{margin-top:0;flex-direction:column;align-items:stretch;gap:12px}
+  #hero-start .hero-start-cta{min-height:54px;font-size:15px}
+  #hero-start .hero-start-hint{flex:none;font-size:12.5px}
+  #hero-start .hero-start-contacts{flex:none;font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){
+  #hero-start.hero-start-js .hero-start-panel{transition:none}
+  #hero-start .hero-start-view:not([hidden]){animation:none}
+}
+</style>
+<script id="hero-start-js">
+(function(){
+  var section=document.getElementById('hero-start');
+  if(!section) return;
+  var panel=section.querySelector('.hero-start-panel');
+  var msgEl=document.getElementById('hero-msg-text');
+  var views=Array.prototype.slice.call(section.querySelectorAll('[data-hero-view]'));
+  var tabs=Array.prototype.slice.call(document.querySelectorAll('.hero-links [data-hero-tab]'));
+  var message=msgEl.textContent.split('\n').map(function(l){return l.trim();}).filter(Boolean).join('\n');
+  var tgUrl='https://t.me/Video_lifeee?text='+encodeURIComponent(message);
+  Array.prototype.forEach.call(section.querySelectorAll('[data-hero-tg]'),function(a){a.href=tgUrl;});
+
+  function show(name){
+    views.forEach(function(v){v.hidden=(v.getAttribute('data-hero-view')!==name);});
+    tabs.forEach(function(a){
+      if(a.getAttribute('data-hero-tab')===name) a.setAttribute('aria-current','true');
+      else a.removeAttribute('aria-current');
+    });
+  }
+  tabs.forEach(function(a){
+    a.addEventListener('click',function(e){
+      e.preventDefault();
+      show(a.getAttribute('data-hero-tab'));
+      panel.scrollIntoView({behavior:'smooth',block:window.innerWidth>850?'nearest':'start'});
+    });
+  });
+
+  section.classList.add('hero-start-js');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){panel.classList.add('is-visible');io.disconnect();}
+      });
+    },{threshold:.08});
+    io.observe(panel);
+  }else{
+    panel.classList.add('is-visible');
+  }
+})();
+</script>
 <style id="telegram-application-submit-style">
 #combined-application .application-submit-status{
   margin-top:10px;
