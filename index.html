@@ -6414,11 +6414,13 @@ document.addEventListener('DOMContentLoaded',function(){
       });
     }).then(function(){
       setStatus('Заявка отправлена! Мы свяжемся с вами в ближайшее время.', 'success');
+      if(window.paTrack) window.paTrack('form_submit_success', { form_id: 'combined-application' });
       form.reset();
       form.querySelectorAll('.choice-grid-dark .is-selected').forEach(function(el){ el.classList.remove('is-selected'); });
       resetCalcDisplay();
     }).catch(function(err){
       setStatus('Не удалось отправить заявку. Попробуйте ещё раз или напишите нам напрямую в Telegram. (' + err.message + ')', 'error');
+      if(window.paTrack) window.paTrack('form_submit_error', { form_id: 'combined-application', reason: err.message });
     }).finally(function(){
       if(submitBtn){
         submitBtn.disabled = false;
