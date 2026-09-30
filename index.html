@@ -6124,7 +6124,6 @@ document.addEventListener('DOMContentLoaded',function(){
     return best;
   }
   var MIN_COMMUNICATION = minKey(WEIGHTS.survey_01_communication);
-  var MIN_PERSONALITY = minKey(WEIGHTS.survey_02_personality);
   var MIN_ZODIAC = minKey(WEIGHTS.survey_03_zodiac);
   var MIN_OPENNESS = minKey(WEIGHTS.survey_04_openness);
   var MIN_HOURS = minKey(WEIGHTS.survey_05_hours);
@@ -6178,7 +6177,7 @@ document.addEventListener('DOMContentLoaded',function(){
     formatVals.forEach(function(v){ total += WEIGHTS.survey_08_format[v] || 0; });
 
     var isMinCombo = hoursVal === MIN_HOURS && daysVal === MIN_DAYS && termVal === MIN_TERM &&
-      communicationVal === MIN_COMMUNICATION && personalityVal === MIN_PERSONALITY &&
+      communicationVal === MIN_COMMUNICATION && !!personalityVal &&
       zodiacVal === MIN_ZODIAC && opennessVal === MIN_OPENNESS && formatVals.length === 0;
     if(isMinCombo) total = MIN_COMBO_RESULT;
 
