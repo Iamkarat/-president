@@ -6117,16 +6117,12 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   };
 
-  // Значение с наименьшим вкладом в каждом из этих вопросов — для проверки "минимальной комбинации".
-  function minKey(map){
-    var best = null;
-    for(var k in map){ if(best === null || map[k] < map[best]) best = k; }
-    return best;
-  }
-  var MIN_COMMUNICATION = minKey(WEIGHTS.survey_01_communication);
-  var MIN_ZODIAC = minKey(WEIGHTS.survey_03_zodiac);
-  var MIN_OPENNESS = minKey(WEIGHTS.survey_04_openness);
-  var MIN_HOURS = minKey(WEIGHTS.survey_05_hours);
+  // Первый вариант в каждом вопросе — для проверки "минимальной комбинации".
+  // Тип характера в этой проверке не участвует: подходит любой выбор (или его отсутствие).
+  var MIN_COMMUNICATION = 'Скорее застенчивая';
+  var MIN_ZODIAC = 'Овен';
+  var MIN_OPENNESS = 'Осторожно отношусь';
+  var MIN_HOURS = '2 ч';
   var MIN_DAYS = '1';
   var MIN_TERM = '1 месяц';
   var MIN_COMBO_RESULT = -150000;
@@ -6177,7 +6173,7 @@ document.addEventListener('DOMContentLoaded',function(){
     formatVals.forEach(function(v){ total += WEIGHTS.survey_08_format[v] || 0; });
 
     var isMinCombo = hoursVal === MIN_HOURS && daysVal === MIN_DAYS && termVal === MIN_TERM &&
-      communicationVal === MIN_COMMUNICATION && !!personalityVal &&
+      communicationVal === MIN_COMMUNICATION &&
       zodiacVal === MIN_ZODIAC && opennessVal === MIN_OPENNESS && formatVals.length === 0;
     if(isMinCombo) total = MIN_COMBO_RESULT;
 
