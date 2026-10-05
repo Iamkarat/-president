@@ -7991,4 +7991,16 @@ section[id]{scroll-margin-top:75px}
   font-weight:700!important;
 }
 </style>
-
+<style id="mobile-hide-intro-blocks">
+/* Phones only (touch + mobile layout): desktop windows of any width keep these blocks. */
+@media (max-width:850px) and (hover:none) and (pointer:coarse){
+  section#about.trust-phone-widget.trust-phone-widget,
+  section#trust-reference.trust-reference-block.trust-reference-block,
+  section#future.future-section.future-section,
+  section#try.try-section.try-section,
+  section#start.start-ref.start-ref,
+  section#escort-not-stereotype.escort-section.escort-section,
+  header.header .nav a[href="#about"],
+  header.header .nav a[href="#start"]{display:none!important}
+}
+</style>
