@@ -5335,36 +5335,51 @@ img{content-visibility:auto;}
 })();
 </script>
 
-<section id="income-grammy-block">
-<div class="income-grammy-inner">
-<div class="income-grammy-copy">
-<h3>Что за грамоты?</h3>
-<p>Каждая ЗП по договору сопровождается корпоративом и праздником в вашу честь, где все вместе обсуждаем, за счёт чего вышел такой результат и как его повторить другим командам.</p>
-<p>Дискотека, еда, поездка на море или загород — формат выбираем так, чтобы отметить результат вместе.</p>
+<section aria-label="Наши результаты" id="results-reports">
+<div class="rr-panel">
+<div class="rr-head">
+<h2 class="rr-title">НАШИ РЕЗУЛЬТАТЫ</h2>
+<p class="rr-sub">ЕЖЕДНЕВНЫЕ ОТЧЁТЫ</p>
 </div>
-<div class="income-grammy-media"><img alt="" decoding="async" loading="lazy" src="assets/income-photo-h1.jpg"/></div>
+<div class="rr-marquee">
+<div class="rr-track">
+<img alt="Ежедневный отчёт 1" class="rr-img" decoding="async" height="1034" loading="lazy" src="assets/report-01.jpg" width="720"/>
+<img alt="Ежедневный отчёт 2" class="rr-img" decoding="async" height="912" loading="lazy" src="assets/report-02.jpg" width="720"/>
+<img alt="Ежедневный отчёт 3" class="rr-img" decoding="async" height="955" loading="lazy" src="assets/report-03.jpg" width="720"/>
+<img alt="Ежедневный отчёт 4" class="rr-img" decoding="async" height="963" loading="lazy" src="assets/report-04.jpg" width="720"/>
+<img alt="Ежедневный отчёт 5" class="rr-img" decoding="async" height="1024" loading="lazy" src="assets/report-05.jpg" width="720"/>
+<img alt="Ежедневный отчёт 6" class="rr-img" decoding="async" height="908" loading="lazy" src="assets/report-06.jpg" width="720"/>
+<img alt="Ежедневный отчёт 7" class="rr-img" decoding="async" height="1033" loading="lazy" src="assets/report-07.jpg" width="720"/>
+<img alt="" aria-hidden="true" class="rr-img" decoding="async" height="1034" loading="lazy" src="assets/report-01.jpg" width="720"/>
+<img alt="" aria-hidden="true" class="rr-img" decoding="async" height="912" loading="lazy" src="assets/report-02.jpg" width="720"/>
+<img alt="" aria-hidden="true" class="rr-img" decoding="async" height="955" loading="lazy" src="assets/report-03.jpg" width="720"/>
+<img alt="" aria-hidden="true" class="rr-img" decoding="async" height="963" loading="lazy" src="assets/report-04.jpg" width="720"/>
+<img alt="" aria-hidden="true" class="rr-img" decoding="async" height="1024" loading="lazy" src="assets/report-05.jpg" width="720"/>
+<img alt="" aria-hidden="true" class="rr-img" decoding="async" height="908" loading="lazy" src="assets/report-06.jpg" width="720"/>
+<img alt="" aria-hidden="true" class="rr-img" decoding="async" height="1033" loading="lazy" src="assets/report-07.jpg" width="720"/>
+</div>
+</div>
 </div>
 </section>
-<style id="income-grammy-liquid-glass">
-#income-grammy-block{
+<style id="results-reports-css">
+#results-reports{
+  --rr-h:480px;
   position:relative;
   background:var(--grain), #050505;
   padding:13px 16px 48px;
+  contain-intrinsic-size:auto 720px;
 }
-#income-grammy-block .income-grammy-inner{
+#results-reports .rr-panel{
   position:relative;
   max-width:791px;
   margin:0 auto;
-  display:grid;
-  grid-template-columns:1.3fr 1fr;
-  align-items:center;
-  gap:clamp(19px,5vw,38px);
+  overflow:hidden;
   background:rgba(15,19,19,.58);
   backdrop-filter:blur(16px) saturate(130%);
   -webkit-backdrop-filter:blur(16px) saturate(130%);
   border:1px solid rgba(255,255,255,.14);
   border-radius:21px;
-  padding:clamp(21px,4vw,35px);
+  padding:clamp(21px,4vw,35px) 0;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.12),
     inset 0 -1px 0 rgba(255,255,255,.04),
@@ -5373,89 +5388,86 @@ img{content-visibility:auto;}
   transform:translateY(16px);
   transition:opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1);
 }
-#income-grammy-block.is-revealed .income-grammy-inner{opacity:1;transform:translateY(0)}
-#income-grammy-block .income-grammy-inner::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-  border-radius:21px;
-  background:linear-gradient(120deg, rgba(255,255,255,0), rgba(255,255,255,.09), rgba(255,255,255,0));
-  background-repeat:no-repeat;
-  background-size:220% 220%;
-  background-position:15% 40%;
-  filter:url(#terms-liquid-glass-filter);
+#results-reports.is-revealed .rr-panel{opacity:1;transform:translateY(0)}
+#results-reports .rr-head{
+  padding:0 clamp(21px,4vw,35px);
+  margin-bottom:clamp(16px,3vw,24px);
+  text-align:center;
 }
-#income-grammy-block .income-grammy-copy,
-#income-grammy-block .income-grammy-media{position:relative;z-index:1}
-#income-grammy-block h3{
-  margin:0 0 12px;
-  font:800 clamp(16px,2.6vw,25px)/1.1 Helvetica,Arial,sans-serif;
+#results-reports .rr-title{
+  margin:0;
+  font:800 clamp(20px,4.4vw,34px)/1.05 Helvetica,Arial,sans-serif;
   letter-spacing:-.03em;
   color:#fff;
 }
-#income-grammy-block .income-grammy-copy p{
-  margin:0 0 9px;
-  font:400 clamp(10px,1.3vw,12px)/1.55 Helvetica,Arial,sans-serif;
-  color:rgba(255,255,255,.68);
+#results-reports .rr-sub{
+  margin:10px 0 0;
+  font:700 clamp(10px,1.5vw,12px)/1.3 Helvetica,Arial,sans-serif;
+  letter-spacing:.14em;
+  color:rgba(255,255,255,.56);
 }
-#income-grammy-block .income-grammy-copy p:last-child{margin-bottom:0}
-#income-grammy-block .income-grammy-media{
+#results-reports .rr-marquee{
   position:relative;
   overflow:hidden;
-  border-radius:16px;
-  aspect-ratio:3/4;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.03);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.16),
-    0 12px 31px rgba(0,0,0,.4);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
 }
-#income-grammy-block .income-grammy-media img{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
+#results-reports .rr-track{
+  display:flex;
+  width:max-content;
+  padding:6px 0 14px;
+  animation:rr-scroll 60s linear infinite;
+  will-change:transform;
+}
+#results-reports .rr-img{
+  flex:0 0 auto;
   display:block;
+  height:var(--rr-h);
+  width:auto;
+  max-width:none;
+  margin-right:12px;
+  border-radius:15px;
+  background:rgba(255,255,255,.03);
+  box-shadow:0 0 0 1px rgba(255,255,255,.16),0 12px 31px rgba(0,0,0,.35);
+  content-visibility:visible;
 }
-#income-grammy-block .income-grammy-media::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:1;
-  pointer-events:none;
-  background:linear-gradient(180deg, rgba(255,255,255,.10), transparent 32%);
+@keyframes rr-scroll{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-50%,0,0)}
 }
-
+#results-reports.is-offscreen .rr-track{animation-play-state:paused}
+@media(hover:hover){
+  #results-reports .rr-marquee:hover .rr-track{animation-play-state:paused}
+}
 @media(max-width:760px){
-  #income-grammy-block{padding:8px 16px 56px}
-  #income-grammy-block .income-grammy-inner{
-    grid-template-columns:1fr;
-    padding:26px 22px;
-    border-radius:26px;
-  }
-  #income-grammy-block .income-grammy-media{
-    order:2;
-    aspect-ratio:3/4;
-    margin-top:4px;
-  }
-  #income-grammy-block .income-grammy-media img{object-fit:contain}
-  #income-grammy-block .income-grammy-copy{order:1}
+  #results-reports{--rr-h:clamp(360px,108vw,440px);padding:8px 16px 56px}
+  #results-reports .rr-panel{border-radius:26px}
 }
 @media(prefers-reduced-motion:reduce){
-  #income-grammy-block .income-grammy-inner{opacity:1;transform:none;transition:none}
+  #results-reports .rr-panel{opacity:1;transform:none;transition:none}
+  #results-reports .rr-track{animation:none}
+  #results-reports .rr-marquee{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
 }
 </style>
-<script id="income-grammy-reveal-js">
+<script id="results-reports-js">
 (function(){
-  const el=document.getElementById('income-grammy-block');
-  if(!el||!('IntersectionObserver' in window))return;
-  const io=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){if(e.isIntersecting){el.classList.add('is-revealed');io.disconnect();}});
+  const el=document.getElementById('results-reports');
+  if(!el)return;
+  const imgs=el.querySelectorAll('img');
+  if(!('IntersectionObserver' in window)){el.classList.add('is-revealed');return;}
+  // Images sit inside a clipped, moving track: load them all shortly before the block
+  // scrolls into view so none pops in while the strip is running.
+  const near=new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting){imgs.forEach(function(i){i.loading='eager';});near.disconnect();}
+  },{rootMargin:'1500px 0px'});
+  near.observe(el);
+  const vis=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      el.classList.toggle('is-offscreen',!e.isIntersecting);
+      if(e.isIntersecting)el.classList.add('is-revealed');
+    });
   },{threshold:.15});
-  io.observe(el);
+  vis.observe(el);
 })();
 </script>
 
