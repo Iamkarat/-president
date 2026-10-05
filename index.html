@@ -2578,6 +2578,161 @@ img{content-visibility:auto;}
 </div>
 </section>
 
+<style id="video-reviews-css">
+/* Video reviews: compact strip under the hero, "Отзывы" block after the earnings block and a
+   shared lightbox. Built on <div role="region"> on purpose: the page-wide
+   section:not(.hero) content-visibility rule would reserve 536px for a new <section> and
+   would also trap the position:fixed lightbox. */
+.vr{position:relative;background:var(--grain),#050505}
+.vr__inner{position:relative;max-width:791px;margin:0 auto}
+.vr-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+.vr-tile{
+  position:relative;display:block;margin:0;padding:0;overflow:hidden;
+  border-radius:15px;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.03);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 12px 31px rgba(0,0,0,.35);
+  color:#fff;font:inherit;text-align:left;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+}
+.vr-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.vr-tile::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(0deg,rgba(0,0,0,.5),transparent 42%),linear-gradient(180deg,rgba(255,255,255,.10),transparent 32%);
+}
+.vr-play{
+  position:absolute;left:50%;top:50%;z-index:2;width:34px;height:34px;margin:-17px 0 0 -17px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(20,24,24,.55);
+  backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);
+  border:1px solid rgba(255,255,255,.28);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 12px rgba(0,0,0,.35);
+  color:#fff;transition:background .3s ease,transform .3s ease,border-color .3s ease;
+}
+.vr-play svg{display:block;margin-left:2px}
+.vr-tile:hover .vr-play{background:rgba(30,34,34,.72);transform:scale(1.07);border-color:rgba(72,230,208,.55)}
+.vr-tile:focus-visible{outline:2px solid var(--zone-teal,#48e6d0);outline-offset:2px}
+.vr-dur{position:absolute;right:8px;bottom:7px;z-index:2;font:700 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.01em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.vr-label{position:absolute;left:11px;bottom:7px;z-index:2;font:700 12px/1 Helvetica,Arial,sans-serif;letter-spacing:-.01em;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+
+/* strip under the hero */
+.vr--top{padding:14px 16px 20px}
+.vr--top .vr__inner{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  background:rgba(15,19,19,.58);
+  backdrop-filter:blur(16px) saturate(130%);-webkit-backdrop-filter:blur(16px) saturate(130%);
+  border:1px solid rgba(255,255,255,.14);border-radius:21px;padding:12px 16px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(255,255,255,.04),0 17px 47px rgba(0,0,0,.45);
+}
+.vr-top__title{margin:0;font:800 clamp(16px,2.6vw,25px)/1.1 Helvetica,Arial,sans-serif;letter-spacing:-.03em;color:#fff}
+.vr-top__row{display:flex;gap:10px;flex:0 0 auto}
+.vr-top__row .vr-tile{width:84px;height:84px}
+
+/* "Отзывы" block */
+.vr--reviews{padding:13px 16px 48px}
+.vr--reviews .vr__inner{
+  background:rgba(15,19,19,.58);
+  backdrop-filter:blur(16px) saturate(130%);-webkit-backdrop-filter:blur(16px) saturate(130%);
+  border:1px solid rgba(255,255,255,.14);border-radius:21px;
+  padding:clamp(21px,4vw,35px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(255,255,255,.04),0 17px 47px rgba(0,0,0,.45);
+  opacity:0;transform:translateY(16px);
+  transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);
+}
+.vr--reviews.is-revealed .vr__inner{opacity:1;transform:translateY(0)}
+.vr-reviews__title{margin:0 0 12px;font:800 clamp(16px,2.6vw,25px)/1.1 Helvetica,Arial,sans-serif;letter-spacing:-.03em;color:#fff}
+.vr-reviews__lead{margin:0 0 16px;font:700 clamp(10px,1.3vw,12px)/1.55 Helvetica,Arial,sans-serif;color:rgba(255,255,255,.68)}
+.vr-reviews__track{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.vr-card{aspect-ratio:1/1}
+.vr-card .vr-play{width:46px;height:46px;margin:-23px 0 0 -23px}
+.vr-card .vr-play svg{width:18px;height:18px}
+.vr-reviews__dots{display:none}
+
+/* lightbox */
+.vr-lb{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:13px;overscroll-behavior:contain}
+.vr-lb[hidden]{display:none}
+.vr-lb__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(2.5px);-webkit-backdrop-filter:blur(2.5px)}
+.vr-lb__dialog{
+  position:relative;margin-top:44px;
+  width:min(100%,560px,calc(100vh - 170px));
+  width:min(100%,560px,calc(100svh - 170px));
+}
+.vr-lb__stage{
+  position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:21px;background:#000;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 17px 54px rgba(0,0,0,.6);
+}
+.vr-lb__stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;display:block}
+.vr-lb__nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:14px}
+.vr-lb__btn{
+  width:44px;height:44px;margin:0;padding:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(20,24,24,.55);
+  backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);
+  border:1px solid rgba(255,255,255,.28);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 12px rgba(0,0,0,.35);
+  color:#fff;cursor:pointer;
+  transition:background .3s ease,border-color .3s ease;
+  -webkit-appearance:none;appearance:none;
+}
+.vr-lb__btn:hover{background:rgba(30,34,34,.72);border-color:rgba(72,230,208,.55)}
+.vr-lb__btn:focus-visible{outline:2px solid var(--zone-teal,#48e6d0);outline-offset:2px}
+.vr-lb__btn svg{display:block}
+.vr-lb__close{position:absolute;right:0;top:-48px}
+.vr-lb__count{min-width:56px;text-align:center;font:700 13px/1 Helvetica,Arial,sans-serif;letter-spacing:.02em;color:rgba(255,255,255,.85)}
+
+@media(max-width:760px){
+  .vr--reviews{padding:8px 16px 56px}
+  .vr--reviews .vr__inner{padding:26px 22px;border-radius:26px}
+  .vr-reviews__track{
+    display:flex;gap:12px;overflow-x:auto;
+    margin:0 -22px -16px;padding:6px 22px 22px;scroll-padding:0 22px;
+    scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+    scrollbar-width:none;
+  }
+  .vr-reviews__track::-webkit-scrollbar{display:none}
+  .vr-card{flex:0 0 72%;scroll-snap-align:start}
+  .vr-reviews__dots{display:flex;justify-content:center;gap:7px;margin-top:8px}
+  .vr-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.28);transition:background .3s ease,width .3s ease}
+  .vr-dot.is-active{width:20px;border-radius:7px;background:rgba(72,230,208,.9)}
+}
+@media(max-width:560px){
+  .vr--top{padding:10px 16px 16px}
+  .vr--top .vr__inner{flex-direction:column;align-items:stretch;gap:12px;padding:16px;border-radius:26px}
+  .vr-top__row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .vr-top__row .vr-tile{width:auto;height:auto;aspect-ratio:1/1}
+}
+@media(prefers-reduced-motion:reduce){
+  .vr--reviews .vr__inner{opacity:1;transform:none;transition:none}
+  .vr-play,.vr-lb__btn,.vr-dot{transition:none}
+}
+</style>
+<div class="vr vr--top" role="region" aria-label="Видео-отзывы">
+<div class="vr__inner">
+<h2 class="vr-top__title">Видео-отзывы</h2>
+<div class="vr-top__row">
+<button aria-label="Видео-отзыв 1" class="vr-tile" data-vr="0" id="video-review-top-1" type="button">
+<img alt="" decoding="async" height="240" loading="lazy" src="assets/review-01-thumb.jpg" width="240"/>
+<span aria-hidden="true" class="vr-play"><svg fill="none" height="14" viewbox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 4.5v15l12-7.5-12-7.5z" fill="currentColor"/></svg></span>
+<span class="vr-sr">Видео-отзыв 1</span>
+<span aria-hidden="true" class="vr-dur">0:36</span>
+</button>
+<button aria-label="Видео-отзыв 2" class="vr-tile" data-vr="1" id="video-review-top-2" type="button">
+<img alt="" decoding="async" height="240" loading="lazy" src="assets/review-02-thumb.jpg" width="240"/>
+<span aria-hidden="true" class="vr-play"><svg fill="none" height="14" viewbox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 4.5v15l12-7.5-12-7.5z" fill="currentColor"/></svg></span>
+<span class="vr-sr">Видео-отзыв 2</span>
+<span aria-hidden="true" class="vr-dur">0:25</span>
+</button>
+<button aria-label="Видео-отзыв 3" class="vr-tile" data-vr="2" id="video-review-top-3" type="button">
+<img alt="" decoding="async" height="240" loading="lazy" src="assets/review-03-thumb.jpg" width="240"/>
+<span aria-hidden="true" class="vr-play"><svg fill="none" height="14" viewbox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 4.5v15l12-7.5-12-7.5z" fill="currentColor"/></svg></span>
+<span class="vr-sr">Видео-отзыв 3</span>
+<span aria-hidden="true" class="vr-dur">0:35</span>
+</button>
+</div>
+</div>
+</div>
+
 <section class="trust-phone-widget" id="about">
 <div class="container trust-phone-inner">
 <h2 class="trust-phone-title">ПОЧЕМУ ЛЮДИ НЕ ДОВЕРЯЮТ</h2>
@@ -4996,6 +5151,187 @@ img{content-visibility:auto;}
       }
     });
   });
+})();
+</script>
+
+<div class="vr vr--reviews" role="region" aria-label="Отзывы">
+<div class="vr__inner">
+<h2 class="vr-reviews__title">Отзывы</h2>
+<p class="vr-reviews__lead">Реальные видео-отзывы — нажмите, чтобы посмотреть.</p>
+<div class="vr-reviews__track">
+<button aria-label="Видео-отзыв 1" class="vr-tile vr-card" data-vr="0" id="video-review-card-1" type="button">
+<img alt="" decoding="async" height="640" loading="lazy" src="assets/review-01-poster.jpg" width="640"/>
+<span aria-hidden="true" class="vr-play"><svg fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M7 4.5v15l12-7.5-12-7.5z" fill="currentColor"/></svg></span>
+<span class="vr-label">Отзыв 1</span>
+<span aria-hidden="true" class="vr-dur">0:36</span>
+</button>
+<button aria-label="Видео-отзыв 2" class="vr-tile vr-card" data-vr="1" id="video-review-card-2" type="button">
+<img alt="" decoding="async" height="640" loading="lazy" src="assets/review-02-poster.jpg" width="640"/>
+<span aria-hidden="true" class="vr-play"><svg fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M7 4.5v15l12-7.5-12-7.5z" fill="currentColor"/></svg></span>
+<span class="vr-label">Отзыв 2</span>
+<span aria-hidden="true" class="vr-dur">0:25</span>
+</button>
+<button aria-label="Видео-отзыв 3" class="vr-tile vr-card" data-vr="2" id="video-review-card-3" type="button">
+<img alt="" decoding="async" height="640" loading="lazy" src="assets/review-03-poster.jpg" width="640"/>
+<span aria-hidden="true" class="vr-play"><svg fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M7 4.5v15l12-7.5-12-7.5z" fill="currentColor"/></svg></span>
+<span class="vr-label">Отзыв 3</span>
+<span aria-hidden="true" class="vr-dur">0:35</span>
+</button>
+</div>
+<div aria-hidden="true" class="vr-reviews__dots"><span class="vr-dot is-active"></span><span class="vr-dot"></span><span class="vr-dot"></span></div>
+</div>
+</div>
+<div aria-label="Видео-отзыв" aria-modal="true" class="vr-lb" hidden id="vr-lightbox" role="dialog">
+<div class="vr-lb__backdrop"></div>
+<div class="vr-lb__dialog">
+<button aria-label="Закрыть" class="vr-lb__btn vr-lb__close" id="video-review-close" type="button"><svg fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button>
+<div class="vr-lb__stage"></div>
+<div class="vr-lb__nav">
+<button aria-label="Предыдущий отзыв" class="vr-lb__btn" id="video-review-prev" type="button"><svg fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></button>
+<span aria-live="polite" class="vr-lb__count">1 / 3</span>
+<button aria-label="Следующий отзыв" class="vr-lb__btn" id="video-review-next" type="button"><svg fill="none" height="18" viewbox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg></button>
+</div>
+</div>
+</div>
+<script id="video-reviews-js">
+(function(){
+  var lb=document.getElementById('vr-lightbox');
+  if(!lb)return;
+  var VIDEOS=[
+    {id:'review_01',src:'assets/review-01.mp4',poster:'assets/review-01-poster.jpg'},
+    {id:'review_02',src:'assets/review-02.mp4',poster:'assets/review-02-poster.jpg'},
+    {id:'review_03',src:'assets/review-03.mp4',poster:'assets/review-03-poster.jpg'}
+  ];
+  var stage=lb.querySelector('.vr-lb__stage');
+  var counter=lb.querySelector('.vr-lb__count');
+  var btnClose=document.getElementById('video-review-close');
+  var btnPrev=document.getElementById('video-review-prev');
+  var btnNext=document.getElementById('video-review-next');
+  var video=null,current=0,opener=null,started=false,completed=false;
+
+  // Reuses the tracker's existing video events (video_play / video_complete, "video" key).
+  // The <video> is created on first open, so the tracker's own per-video listeners and the
+  // video-0..3 ids of the earnings videos are left untouched.
+  function track(name,meta){try{if(window.paTrack)window.paTrack(name,meta);}catch(e){}}
+
+  function ensureVideo(){
+    if(video)return video;
+    video=document.createElement('video');
+    video.setAttribute('playsinline','');
+    video.setAttribute('controlslist','nodownload');
+    video.controls=true;
+    video.preload='metadata';
+    video.addEventListener('play',function(){
+      if(started)return;
+      started=true;
+      track('video_play',{video:VIDEOS[current].id});
+    });
+    video.addEventListener('ended',function(){
+      if(completed)return;
+      completed=true;
+      track('video_complete',{video:VIDEOS[current].id});
+    });
+    stage.appendChild(video);
+    return video;
+  }
+
+  function show(i){
+    current=(i+VIDEOS.length)%VIDEOS.length;
+    var d=VIDEOS[current],v=ensureVideo();
+    started=false;completed=false;
+    v.poster=d.poster;
+    v.src=d.src;
+    counter.textContent=(current+1)+' / '+VIDEOS.length;
+    var p=v.play();
+    if(p&&p.catch)p.catch(function(){});
+  }
+
+  function open(i,from){
+    opener=from||null;
+    lb.hidden=false;
+    document.body.style.overflow='hidden';
+    show(i);
+    btnClose.focus({preventScroll:true});
+  }
+
+  function close(){
+    if(lb.hidden)return;
+    if(video){video.pause();video.removeAttribute('src');video.load();}
+    lb.hidden=true;
+    document.body.style.overflow='';
+    if(opener&&opener.focus)opener.focus({preventScroll:true});
+    opener=null;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-vr]'),function(btn){
+    btn.addEventListener('click',function(){open(parseInt(btn.getAttribute('data-vr'),10)||0,btn);});
+  });
+  btnClose.addEventListener('click',close);
+  lb.querySelector('.vr-lb__backdrop').addEventListener('click',close);
+  btnPrev.addEventListener('click',function(){show(current-1);});
+  btnNext.addEventListener('click',function(){show(current+1);});
+
+  document.addEventListener('keydown',function(e){
+    if(lb.hidden)return;
+    if(e.key==='Escape'){e.preventDefault();close();return;}
+    if((e.key==='ArrowLeft'||e.key==='ArrowRight')&&e.target!==video){
+      e.preventDefault();
+      show(current+(e.key==='ArrowRight'?1:-1));
+      return;
+    }
+    if(e.key==='Tab'){
+      var f=Array.prototype.filter.call(lb.querySelectorAll('button,video'),function(el){return el.offsetParent!==null;});
+      if(!f.length)return;
+      var first=f[0],last=f[f.length-1];
+      if(!lb.contains(document.activeElement)){e.preventDefault();first.focus();}
+      else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+    }
+  });
+
+  // Horizontal swipe on the video switches the review. The bottom strip with the native
+  // controls (seek bar) is ignored so scrubbing never changes the video.
+  var sx=0,sy=0,swiping=false;
+  stage.addEventListener('touchstart',function(e){
+    if(e.touches.length!==1){swiping=false;return;}
+    var r=stage.getBoundingClientRect(),t=e.touches[0];
+    swiping=(t.clientY-r.top)<(r.height-64);
+    sx=t.clientX;sy=t.clientY;
+  },{passive:true});
+  stage.addEventListener('touchend',function(e){
+    if(!swiping)return;
+    swiping=false;
+    var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5)show(current+(dx<0?1:-1));
+  },{passive:true});
+
+  // Mobile carousel: keep the dots in sync with the swipe position.
+  var rail=document.querySelector('.vr-reviews__track');
+  var dots=document.querySelectorAll('.vr-dot');
+  if(rail&&dots.length){
+    var ticking=false;
+    var updateDots=function(){
+      ticking=false;
+      var cards=rail.children;
+      if(!cards.length)return;
+      var step=cards.length>1?cards[1].offsetLeft-cards[0].offsetLeft:cards[0].offsetWidth;
+      var idx=step>0?Math.round(rail.scrollLeft/step):0;
+      if(rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-4)idx=dots.length-1;
+      idx=Math.max(0,Math.min(dots.length-1,idx));
+      Array.prototype.forEach.call(dots,function(d,k){d.classList.toggle('is-active',k===idx);});
+    };
+    rail.addEventListener('scroll',function(){if(!ticking){ticking=true;requestAnimationFrame(updateDots);}},{passive:true});
+  }
+
+  var block=document.querySelector('.vr--reviews');
+  if(block){
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(e){if(e.isIntersecting){block.classList.add('is-revealed');io.disconnect();}});
+      },{threshold:.15});
+      io.observe(block);
+    }else{block.classList.add('is-revealed');}
+  }
 })();
 </script>
 
