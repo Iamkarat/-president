@@ -323,6 +323,28 @@
         font-size:12px;
       }
     }
+      /* Закреплённая кнопка: только на телефонах, пока основная кнопка ещё ниже экрана */
+    .sticky-cta{display:none}
+    @media (max-width:850px) and (hover:none) and (pointer:coarse){
+      .sticky-cta{
+        position:fixed;
+        left:0;
+        right:0;
+        bottom:0;
+        z-index:60;
+        display:flex;
+        justify-content:center;
+        padding:34px 14px calc(14px + env(safe-area-inset-bottom));
+        background:linear-gradient(180deg,rgba(5,5,5,0),rgba(5,5,5,.94) 46%);
+        pointer-events:none;
+        opacity:0;
+        transform:translateY(16px);
+        transition:opacity .25s ease,transform .25s ease;
+      }
+      .sticky-cta.is-on{opacity:1;transform:none}
+      .sticky-cta .btn{pointer-events:auto;width:min(100%,420px);margin:0}
+      .sticky-cta:not(.is-on) .btn{pointer-events:none}
+    }
   </style>
   <script defer src="https://president-analytics.vercel.app/s.js"></script>
 </head>
@@ -384,5 +406,21 @@
     <span>© 2026 PRESIDENT</span>
     <span>Private Agency · Moscow</span>
   </footer>
+<script id="sticky-cta-js">
+(function(){
+  var btn=document.querySelector('a[data-analytics-cta="onepage-yes"]');
+  if(!btn||!('IntersectionObserver' in window)) return;
+  var bar=document.createElement('div');
+  bar.className='sticky-cta';
+  var clone=btn.cloneNode(true);
+  clone.id='onepage-yes-sticky';
+  bar.appendChild(clone);
+  document.body.appendChild(bar);
+  new IntersectionObserver(function(entries){
+    var e=entries[entries.length-1];
+    bar.classList.toggle('is-on',!e.isIntersecting&&e.boundingClientRect.top>0);
+  }).observe(btn);
+})();
+</script>
 </body>
 </html>
