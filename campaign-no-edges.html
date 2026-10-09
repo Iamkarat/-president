@@ -400,5 +400,48 @@ html, body, .page, .visual {
     <div class="badge">FRESH · PRIVATE AGENCY</div>
   </section>
 </main>
+<style id="sticky-cta-css">
+/* Закреплённая кнопка внизу экрана: только на телефонах */
+.sticky-cta{display:none}
+@media (max-width:900px) and (hover:none) and (pointer:coarse){
+  .sticky-cta{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:60;
+    display:flex;
+    justify-content:center;
+    padding:34px 16px calc(16px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(247,246,243,0),rgba(247,246,243,.95) 46%);
+    pointer-events:none;
+  }
+  .sticky-cta .cta{
+    pointer-events:auto;
+    width:min(100%,420px) !important;
+    min-height:56px;
+    margin:0 !important;
+    align-self:auto !important;
+    justify-content:center !important;
+    font-size:17px !important;
+  }
+  /* основная кнопка прячется только после того, как закреплённая создана */
+  .has-sticky-cta .left > .cta{display:none !important}
+  .has-sticky-cta .page{padding-bottom:104px !important}
+}
+</style>
+<script id="sticky-cta-js">
+(function(){
+  var btn=document.querySelector('button[data-analytics-cta="main-site"]');
+  if(!btn) return;
+  var bar=document.createElement('div');
+  bar.className='sticky-cta';
+  var clone=btn.cloneNode(true);
+  clone.id='main-site-sticky';
+  bar.appendChild(clone);
+  document.body.appendChild(bar);
+  document.documentElement.classList.add('has-sticky-cta');
+})();
+</script>
 </body>
 </html>
