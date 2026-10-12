@@ -345,7 +345,7 @@
 .application-form{margin-top:19px}
 .survey-inline{border-top:0;padding-top:20px}
 .survey-inline-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:8px}
-.survey-inline-head h3,.application-contact h3{margin:6.5px 0 0;font-size:23px;letter-spacing:-.04em}
+.survey-inline-head h3{margin:6.5px 0 0;font-size:23px;letter-spacing:-.04em}
 .survey-inline-note{color:#aaa;font-size:9px}
 .survey-dark-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 23px}
 .survey-dark-step{padding:19px 0;border-top:1px solid #333}.survey-dark-grid>.survey-dark-step:nth-child(-n+2){border-top:0}
@@ -359,123 +359,15 @@
 .choice-grid-dark input:checked+span{border-color:#fff;background:#fff;color:#111}
 .choice-grid-dark strong{display:block;margin-bottom:2px;color:inherit}.choice-grid-dark small{display:block;line-height:1.3;opacity:.68}
 
-.format-choice{position:relative;min-height:51px;padding-right:32px!important}
-.format-choice strong{font-size:12px;line-height:1.15}
-.format-choice em{display:none;font-style:normal;line-height:1.35;opacity:.72;margin-top:4.5px;font-size:8px}
-.format-choice.open em{display:block}
-.format-choice.open{border-color:#777}
-.info-dot:focus-visible{outline:1.5px solid #fff;outline-offset:1.5px}
-.info-dot{position:absolute;top:7.5px;right:7.5px;width:16px;height:16px;border:1px solid #666;border-radius:50%;background:transparent;color:#ccc;font:700 9px/15px Helvetica,Arial,sans-serif;cursor:pointer;padding:0}
-.info-dot:hover{border-color:#fff;color:#fff}
-.compact-dark{grid-template-columns:repeat(4,minmax(0,1fr))}.seven-dark{grid-template-columns:repeat(7,minmax(0,1fr))}.term-dark{grid-template-columns:repeat(4,minmax(0,1fr))}.format-dark{grid-template-columns:repeat(5,minmax(0,1fr))}
-.application-contact{margin-top:17px;padding-top:23px;border-top:1px solid #444}
-.application-contact h3{color:#fff;margin-bottom:12px}
-.application-contact .form-grid{margin-top:0}.application-note{margin-top:9px;color:#888;font-size:8px}
-@media(max-width:850px){#apply.apply{padding:30px 20px 34px}.survey-dark-grid{grid-template-columns:1fr}.survey-dark-wide{grid-column:auto}.survey-inline-head{display:block}.survey-inline-note{margin-top:10px}.choice-grid-dark,.compact-dark,.seven-dark,.term-dark,.format-dark{grid-template-columns:repeat(2,minmax(0,1fr))}.application-contact{margin-top:16px}}
-@media(max-width:520px){.choice-grid-dark{grid-template-columns:1fr 1fr}.survey-dark-step h4{font-size:18px}.survey-inline-head h3,.application-contact h3{font-size:28px}}
+.compact-dark{grid-template-columns:repeat(4,minmax(0,1fr))}.seven-dark{grid-template-columns:repeat(7,minmax(0,1fr))}
+@media(max-width:850px){#apply.apply{padding:30px 20px 34px}.survey-dark-grid{grid-template-columns:1fr}.survey-dark-wide{grid-column:auto}.survey-inline-head{display:block}.survey-inline-note{margin-top:10px}.choice-grid-dark,.compact-dark,.seven-dark{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.choice-grid-dark{grid-template-columns:1fr 1fr}.survey-dark-step h4{font-size:18px}.survey-inline-head h3{font-size:28px}}
 </style>
 <style id="survey-fix">
 /* Restored yesterday's mini-survey layout; explanations are allowed to overflow their cards. */
 #apply .survey-dark-grid{overflow:visible}
 #apply .survey-dark-step{overflow:visible}
-#apply .format-choice{overflow:visible}
-#apply .format-choice em{max-width:100%;box-sizing:border-box}
-#apply .info-dot{z-index:3}
 #apply .application-form{display:block}
-#apply .application-contact{display:block}
-</style>
-<style id="format-tooltip-fix">
-#apply .format-dark{align-items:start}
-#apply .format-dark>label{position:relative;min-width:0}
-#apply .format-choice{min-height:51px!important;display:block;position:relative;overflow:visible!important;padding:13px 32px 12px 12px!important}
-#apply .format-choice em{
-  display:none!important;
-  position:absolute;
-  left:0;
-  top:calc(100% + 5.5px);
-  width:100%;
-  min-width:147px;
-  padding:8px 9px;
-  margin:0;
-  border:1px solid #555;
-  border-radius:8px;
-  background:#191919;
-  color:#cfcfcf;
-  line-height:1.4;
-  font-size:8px;
-  font-style:normal;
-  box-shadow:0 8px 19px rgba(0,0,0,.38);
-  z-index:50;
-}
-#apply .format-choice.open em{display:block!important}
-#apply .format-choice.open{border-color:#777!important}
-#apply .format-dark>label:has(.format-choice.open){z-index:100}
-#apply .format-choice .info-dot{z-index:60}
-@media(max-width:850px){
-  #apply .format-choice em{min-width:190px}
-}
-</style>
-<style id="combined-application-final-fix">
-#combined-application .application-contact{
-  margin-top:23px;
-  padding-top:25px;
-  border-top:1px solid #3b3b3b;
-}
-#combined-application .application-contact h3{
-  margin:5.5px 0 15px;
-  color:#fff;
-  font:800 clamp(24px,4vw,35px)/1.02 Helvetica,Arial,sans-serif;
-  letter-spacing:-.045em;
-}
-#combined-application .form-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:11px;
-}
-#combined-application .form-grid input,
-#combined-application .form-grid textarea{
-  width:100%;
-  box-sizing:border-box;
-  border:0;
-  border-radius:11px;
-  background:#fff;
-  color:#111;
-  padding:12px 13px;
-  font:500 12px/1.25 Helvetica,Arial,sans-serif;
-  outline:none;
-}
-#combined-application .form-grid input{height:44px}
-#combined-application .form-grid textarea{min-height:95px;resize:vertical}
-#combined-application .form-grid input::placeholder,
-#combined-application .form-grid textarea::placeholder{color:#858585;opacity:1}
-#combined-application .form-grid input:focus,
-#combined-application .form-grid textarea:focus{box-shadow:0 0 0 1.5px #fff inset}
-#combined-application .form-grid .full{grid-column:1/-1}
-#combined-application .btn.submit{
-  margin-top:13px;
-  min-width:189px;
-  height:44px;
-  border-radius:23px;
-  border:0;
-  background:#fff;
-  color:#111;
-  font:800 12px/1 Helvetica,Arial,sans-serif;
-  cursor:pointer;
-}
-#combined-application .application-note{
-  margin-top:9px;
-  color:#888;
-  font:500 9px/1.45 Helvetica,Arial,sans-serif;
-}
-#combined-application .survey-attachment-note{
-  margin:-5.5px 0 15px;
-  color:#8f8f8f;
-  font:500 9px/1.45 Helvetica,Arial,sans-serif;
-}
-@media(max-width:850px){
-  #combined-application .form-grid{grid-template-columns:1fr}
-  #combined-application .form-grid .full{grid-column:auto}
-}
 </style>
 <style id="president-mobile-final">
 /* FINAL RESPONSIVE PASS: mobile/tablet without changing desktop composition */
@@ -5787,52 +5679,6 @@ img{content-visibility:auto;}
 
 .zodiac-dark{grid-template-columns:repeat(6,minmax(0,1fr))}
 
-#apply .format-choice{
-  min-height:40px!important;
-  padding:10px 28px 9px 11px!important;
-  border-radius:9px;
-}
-#apply .format-choice strong{font-size:10px}
-#apply .format-choice em{
-  background:linear-gradient(135deg,rgba(20,26,26,.94),rgba(14,18,18,.94));
-  border-color:rgba(255,255,255,.12);
-  color:rgba(255,255,255,.75);
-  box-shadow:0 12px 27px rgba(0,0,0,.45);
-}
-#apply .info-dot{border-color:rgba(255,255,255,.28);color:rgba(255,255,255,.7)}
-#apply .info-dot:hover{border-color:rgba(90,235,215,.7);color:#eafffb}
-#apply .format-choice strong{overflow-wrap:break-word;word-break:break-word}
-
-#combined-application .application-contact{
-  margin-top:15px;
-  padding-top:15px;
-  border-top:1px solid rgba(255,255,255,.10);
-}
-#combined-application .application-contact h3{
-  margin:0 0 8px;
-  font:800 clamp(15px,2.4vw,20px)/1.08 Helvetica,Arial,sans-serif;
-}
-#combined-application .survey-attachment-note{margin:-2.5px 0 9px}
-#combined-application .form-grid{gap:8px}
-#combined-application .form-grid input,
-#combined-application .form-grid textarea{
-  height:auto;
-  padding:9px 11px;
-  border-radius:9px;
-  background:linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,.02));
-  border:1px solid rgba(255,255,255,.12);
-  color:#fff;
-  font-size:10px;
-}
-#combined-application .form-grid input{height:35px}
-#combined-application .form-grid textarea{min-height:70px}
-#combined-application .form-grid input::placeholder,
-#combined-application .form-grid textarea::placeholder{color:rgba(255,255,255,.4)}
-#combined-application .form-grid input:focus,
-#combined-application .form-grid textarea:focus{box-shadow:0 0 0 1.5px rgba(90,235,215,.55) inset}
-#combined-application .btn.submit{margin-top:11px;height:38px;min-width:161px}
-#combined-application .application-note{margin-top:6.5px}
-
 @media(max-width:850px){
   #apply .apply{padding:26px 20px 28px;border-radius:22px}
   .survey-dark-grid{gap:12px}
@@ -5851,17 +5697,12 @@ img{content-visibility:auto;}
   .choice-grid-dark strong{font-size:15px!important}
   .choice-grid-dark small{font-size:13px!important;line-height:1.4!important}
   .survey-inline-note{font-size:13px!important}
-  .application-note{font-size:12px!important}
-  .application-contact h3{font-size:24px!important}
-}
-@media(max-width:480px){
-  .format-dark{grid-template-columns:1fr}
 }
 @media(max-width:380px){
   .zodiac-dark{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
-/* Compact "предварительный расчёт" strip inside the application form — reuses
+/* Compact "предварительный расчёт" strip below the selected conditions — reuses
    the same dark-glass + teal-accent language as the rest of #apply, sized to
    read as part of the form, not a separate calculator widget. */
 #apply-calc{
@@ -5908,16 +5749,50 @@ img{content-visibility:auto;}
   #apply-calc .apply-calc-note{font-size:14px;margin-top:9px}
   #apply-calc .apply-calc-value{font-size:21px;text-align:left}
 }
+.apply-telegram-cta{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  margin-top:12px;
+  padding:17px 20px;
+  border:1px solid rgba(119,255,235,.7);
+  border-radius:12px;
+  background:#48e6d0;
+  color:#071513;
+  text-align:center;
+  text-decoration:none;
+  font:800 15px/1.3 Helvetica,Arial,sans-serif;
+  font-family:inherit;
+  cursor:pointer;
+  transition:background .2s ease,transform .2s ease;
+}
+.apply-telegram-cta:hover{background:#72f1df;transform:translateY(-1px)}
+.apply-telegram-cta:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.apply-telegram-note{margin:9px 0 0;color:rgba(255,255,255,.62);text-align:center;font:400 13px/1.45 Helvetica,Arial,sans-serif}
+@media(max-width:520px){.apply-telegram-cta{padding:16px 14px;font-size:14px}}
+.variant-request-panel{margin:18px 0 20px}
+.variant-request-panel>h3{margin:0 0 10px;color:rgba(255,255,255,.72);font:700 13px/1.4 Helvetica,Arial,sans-serif}
+.variant-request-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.variant-request-card{position:relative;display:flex;align-items:center;min-width:0;min-height:78px;box-sizing:border-box;padding:16px;border:1px solid rgba(72,230,208,.25);border-radius:8px;background:#191d1d;cursor:pointer;transition:background .2s ease,border-color .2s ease,box-shadow .2s ease}
+.variant-request-card input{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.variant-request-title{color:#f4f7f6;font:800 23px/1.15 Helvetica,Arial,sans-serif;overflow-wrap:anywhere}
+.variant-request-card.is-selected{border-color:#48e6d0;background:rgba(72,230,208,.12);box-shadow:inset 0 0 0 1px rgba(72,230,208,.18)}
+.variant-request-card.is-selected .variant-request-title{color:#a8fff2}
+.variant-request-card.is-selected .variant-request-title:after{content:"Выбрано";display:block;margin-top:6px;color:#72f1df;font:600 11px/1.2 Helvetica,Arial,sans-serif}
+.variant-request-card:has(input:focus-visible){outline:2px solid #fff;outline-offset:3px}
+.application-submit-status{margin:10px 0 0;color:rgba(255,255,255,.7);font:500 13px/1.45 Helvetica,Arial,sans-serif}
+.application-submit-status.is-success{color:#72f1df}
+.application-submit-status.is-error{color:#ff8b8b}
+@media(max-width:620px){.variant-request-grid{grid-template-columns:1fr}.variant-request-card{min-height:68px}.variant-request-title{font-size:22px}}
 </style>
 <section class="section" id="apply">
 <div class="container">
 <div class="apply-intro-reveal" id="apply-intro">
 <h2>На какой профессиональный результат вы сможете выйти в PRESIDENT?</h2>
-<div class="apply-intro-note">Заполните форму — мы свяжемся с вами в течение 40 минут, обсудим результаты и дадим рекомендации в рамках выбранного профессионального направления.</div>
+<div class="apply-intro-note">Выберите часы, дни и подходящие условия для предварительного расчёта, а детали обсудите с нами в Telegram.</div>
 </div>
 <div class="apply">
 <form class="application-form" id="combined-application">
-<input id="survey_answers" name="survey_answers" type="hidden" value=""/>
 <div class="survey-dark-grid">
 <div class="survey-dark-step">
 <h4>На сколько вы общительны с мужчинами?</h4>
@@ -5965,49 +5840,25 @@ img{content-visibility:auto;}
 <label><input name="survey_06_days" required="" type="radio" value="1"/><span>1</span></label><label><input name="survey_06_days" type="radio" value="2"/><span>2</span></label><label><input name="survey_06_days" type="radio" value="3"/><span>3</span></label><label><input name="survey_06_days" type="radio" value="4"/><span>4</span></label><label><input name="survey_06_days" type="radio" value="5"/><span>5</span></label><label><input name="survey_06_days" type="radio" value="6"/><span>6</span></label><label><input name="survey_06_days" type="radio" value="7"/><span>7</span></label>
 </div>
 </div>
-<div class="survey-dark-step">
-<h4>На сколько вы планируете задержаться в сфере?</h4>
-<div class="choice-grid-dark compact-dark term-dark">
-<label><input name="survey_07_term" required="" type="radio" value="1 месяц"/><span>1 месяц</span></label><label><input name="survey_07_term" type="radio" value="2 месяца"/><span>2 месяца</span></label><label><input name="survey_07_term" type="radio" value="3 месяца"/><span>3 месяца</span></label><label><input name="survey_07_term" type="radio" value="4 месяца"/><span>4 месяца</span></label>
-<label><input name="survey_07_term" type="radio" value="5 месяцев"/><span>5 месяцев</span></label><label><input name="survey_07_term" type="radio" value="6 месяцев"/><span>6 месяцев</span></label><label><input name="survey_07_term" type="radio" value="7 месяцев"/><span>7 месяцев</span></label><label><input name="survey_07_term" type="radio" value="Зависит от ощущений"/><span>Зависит от ощущений</span></label>
+ </div>
+<section class="variant-request-panel" aria-labelledby="variant-request-heading">
+<h3 id="variant-request-heading">Выберите подходящие варианты</h3>
+<div class="variant-request-grid">
+<label class="variant-request-card"><input type="checkbox" name="selected_variants" value="Нежность"/><span class="variant-request-title">Нежность</span></label>
+<label class="variant-request-card"><input type="checkbox" name="selected_variants" value="Гармония"/><span class="variant-request-title">Гармония</span></label>
+<label class="variant-request-card"><input type="checkbox" name="selected_variants" value="Особенное"/><span class="variant-request-title">Особенное</span></label>
 </div>
-</div>
-<div class="survey-dark-step survey-dark-wide">
-<h4>Выберите, что для вас приемлемо</h4>
-<div class="choice-grid-dark format-dark">
-<label><input name="survey_08_format" type="checkbox" value="Классика"/><span class="format-choice"><strong>Классика</strong><button aria-label="Подробнее о классике" class="info-dot" type="button">?</button><em>Минет без резинки.</em></span></label>
-<label><input name="survey_08_format" type="checkbox" value="Поцелуи"/><span class="format-choice"><strong>Поцелуи</strong><button aria-label="Подробнее о поцелуях" class="info-dot" type="button">?</button><em>Поцелуй с языком.</em></span></label>
-<label><input name="survey_08_format" type="checkbox" value="Куни"/><span class="format-choice"><strong>Куни</strong><button aria-label="Подробнее о куни" class="info-dot" type="button">?</button><em>Куни вам.</em></span></label>
-<label><input name="survey_08_format" type="checkbox" value="Горло"/><span class="format-choice"><strong>Горло</strong><button aria-label="Подробнее о горле" class="info-dot" type="button">?</button><em>Горловой минет.</em></span></label>
-<label><input name="survey_08_format" type="checkbox" value="Массаж с маслом"/><span class="format-choice"><strong>Массаж с маслом</strong><button aria-label="Подробнее о массаже с маслом" class="info-dot" type="button">?</button><em>Топлес.</em></span></label>
-<label><input name="survey_08_format" type="checkbox" value="Поездка"/><span class="format-choice"><strong>Поездка</strong><button aria-label="Подробнее о поездке" class="info-dot" type="button">?</button><em>Поехать к человеку, который уже был у вас, к нему домой или с ним отдыхать куда-то.</em></span></label>
-<label><input name="survey_08_format" type="checkbox" value="Обнимашки"/><span class="format-choice"><strong>Обнимашки</strong><button aria-label="Подробнее об обнимашках" class="info-dot" type="button">?</button><em>Обнимашки.</em></span></label>
-</div>
-</div></div>
-<div class="application-contact">
-<div class="survey-label-dark">ЗАЯВКА</div>
-<h3>Ваши контактные данные</h3>
-<div class="survey-attachment-note">Ответы мини-опроса будут автоматически приложены к этой заявке.</div>
-<div class="form-grid">
-<input name="name" placeholder="Имя" required=""/>
-<input max="27" min="18" name="age" placeholder="Возраст 18–27" required="" type="number"/>
-<input name="telegram" placeholder="@telegram" required=""/>
-<input name="city" placeholder="Город"/>
-<input name="heightWeight" placeholder="Рост / вес"/>
-<input name="experience" placeholder="Опыт (если есть)"/>
-<textarea class="full" name="comment" placeholder="Комментарий"></textarea>
-</div>
+</section>
 <div class="apply-calc" id="apply-calc">
 <div class="apply-calc-row">
 <span class="apply-calc-label">Предварительный расчёт</span>
-<span class="apply-calc-value" id="apply-calc-value">Выберите часы и дни выше</span>
+<span class="apply-calc-value" id="apply-calc-value">Выберите вариант, часы и дни</span>
 </div>
-<p class="apply-calc-note">Расчёт предварительный и зависит от выбранных условий.</p>
+<p class="apply-calc-note">Интерфейсный ориентир по выбранным параметрам; не подтверждает реальные ставки или доход.</p>
 </div>
-<input id="apply-calc-hidden" name="survey_09_calc_estimate" type="hidden" value=""/>
-<button class="btn submit" type="submit">Отправить заявку →</button>
-<div class="application-note">Все ответы опроса сохраняются вместе с контактными данными в одной заявке.</div>
-</div>
+<button class="apply-telegram-cta" type="submit">Нравится результат? Обсудим в Telegram →</button>
+<div class="application-submit-status" id="application-submit-status" role="status" aria-live="polite" hidden></div>
+<p class="apply-telegram-note">Напишите нам — обсудим детали и подберём условия.</p>
 </form>
 </div></div></section>
 <style id="unified-color-system-tokens">
@@ -6436,106 +6287,30 @@ document.addEventListener('DOMContentLoaded',function(){
       }
     });
   });
-  document.querySelectorAll('#combined-application .info-dot').forEach(function(btn){
-    btn.addEventListener('click',function(e){
-      e.preventDefault(); e.stopPropagation();
-      var card=btn.closest('.format-choice');
-      if(!card) return;
-      document.querySelectorAll('#combined-application .format-choice.open').forEach(function(other){
-        if(other!==card) other.classList.remove('open');
-      });
-      card.classList.toggle('open');
+  document.querySelectorAll('#combined-application .variant-request-card input').forEach(function(input){
+    input.addEventListener('change',function(){
+      var card=input.closest('.variant-request-card');
+      if(card) card.classList.toggle('is-selected',input.checked);
     });
-  });
-})();
-</script>
-<script id="combined-application-serialize">
-(function(){
-  const form=document.getElementById('combined-application');
-  const hidden=document.getElementById('survey_answers');
-  if(!form||!hidden)return;
-  form.addEventListener('submit',function(){
-    const answers=[];
-    const fields=[...form.querySelectorAll('[name^="survey_"]')];
-    const names=[...new Set(fields.map(el=>el.name))];
-    names.forEach(function(name){
-      const els=[...form.querySelectorAll('[name="'+CSS.escape(name)+'"]')];
-      const values=els.filter(function(el){return (el.type==='checkbox'||el.type==='radio') ? el.checked : true;}).map(function(el){return el.value;});
-      if(values.length) answers.push(name.replace(/^survey_/, '')+': '+values.join(', '));
-    });
-    hidden.value=answers.join('\n');
   });
 })();
 </script>
 <script id="apply-calc-js">
 (function(){
-  /* Живой "предварительный расчёт" в форме заявки.
-     Складывает вклад (в ₽) каждого выбранного варианта ответа по всем
-     вопросам мини-опроса. Хоть один вопрос без ответа — просто не
-     добавляет свою часть в сумму (кроме часов/дней — без них расчёт не
-     показывается вовсе, как и раньше).
-     Все значения пропорционально уменьшены (коэффициент ≈0.4573) так,
-     чтобы максимум при выборе лучшего варианта в каждом вопросе и ВСЕХ
-     пунктов в "Что для вас приемлемо" составлял ровно 976 345 ₽. */
-  var WEIGHTS = {
-    survey_01_communication: {
-      'Скорее застенчивая': 13719,
-      'Легко знакомлюсь': 18292,
-      'Очень общительная': 22865
-    },
-    survey_02_personality: {
-      'Меланхолик': 9146,
-      'Сангвиник': 22865,
-      'Холерик': 6860,
-      'Флегматик': 4573
-    },
-    survey_03_zodiac: {
-      'Овен': 2287, 'Телец': 2744, 'Близнецы': 4573, 'Рак': 3201,
-      'Лев': 4116, 'Дева': 4573, 'Весы': 6860, 'Скорпион': 1829,
-      'Стрелец': 3201, 'Козерог': 3658, 'Водолей': 6860, 'Рыбы': 4573
-    },
-    survey_04_openness: {
-      'Осторожно отношусь': 2287,
-      'Открыта к общению': 18292,
-      'Полностью открыта': 22865
-    },
-    survey_05_hours: {
-      '2 ч': -22865, '4 ч': -13719, '6 ч': 45730, '8 ч': 68596
-    },
-    survey_06_days: {
-      '1': -45730, '2': -32011, '3': 22865, '4': 32011,
-      '5': 45730, '6': 68596, '7': 91461
-    },
-    survey_07_term: {
-      '1 месяц': 22865, '2 месяца': 45730, '3 месяца': 68596,
-      '4 месяца': 114326, '5 месяцев': 114326, '6 месяцев': 114326,
-      '7 месяцев': 114326, 'Зависит от ощущений': 0
-    },
-    survey_08_format: {
-      'Классика': 320114, 'Поцелуи': 22865, 'Куни': 22865,
-      'Горло': 114326, 'Массаж с маслом': 22865, 'Поездка': 114326,
-      'Обнимашки': 9146
-    }
+  var DISPLAY_CALC_CONFIG = {
+    base: 2000000,
+    hours: {'2 ч': 0, '4 ч': 200000, '6 ч': 450000, '8 ч': 700000},
+    days: {'1': 0, '2': 150000, '3': 300000, '4': 450000, '5': 600000, '6': 800000, '7': 1000000},
+    variants: {'Нежность': 0, 'Гармония': 50000, 'Особенное': 100000}
   };
-
-  // Первый вариант в каждом вопросе — для проверки "минимальной комбинации".
-  // Тип характера в этой проверке не участвует: подходит любой выбор (или его отсутствие).
-  var MIN_COMMUNICATION = 'Скорее застенчивая';
-  var MIN_ZODIAC = 'Овен';
-  var MIN_OPENNESS = 'Осторожно отношусь';
-  var MIN_HOURS = '2 ч';
-  var MIN_DAYS = '1';
-  var MIN_TERM = '1 месяц';
-  var MIN_COMBO_RESULT = -150000;
 
   var form = document.getElementById('combined-application');
   var block = document.getElementById('apply-calc');
   var valueEl = document.getElementById('apply-calc-value');
-  var hiddenEl = document.getElementById('apply-calc-hidden');
-  if(!form || !block || !valueEl || !hiddenEl) return;
+  if(!form || !block || !valueEl) return;
 
   function formatRub(n){
-    return Math.round(n).toLocaleString('ru-RU') + ' ₽';
+    return n.toLocaleString('ru-RU') + ' ₽';
   }
 
   function checkedValue(name){
@@ -6545,49 +6320,28 @@ document.addEventListener('DOMContentLoaded',function(){
   function checkedValues(name){
     return Array.prototype.map.call(form.querySelectorAll('input[name="'+name+'"]:checked'), function(el){ return el.value; });
   }
-
   function recalc(){
     var hoursVal = checkedValue('survey_05_hours');
     var daysVal = checkedValue('survey_06_days');
-    if(!hoursVal || !daysVal){
-      valueEl.textContent = 'Выберите часы и дни выше';
-      hiddenEl.value = '';
+    var variants = checkedValues('selected_variants');
+    if(!hoursVal || !daysVal || !variants.length){
+      valueEl.textContent = 'Выберите вариант, часы и дни';
       block.classList.remove('is-ready');
       return;
     }
 
-    var communicationVal = checkedValue('survey_01_communication');
-    var personalityVal = checkedValue('survey_02_personality');
-    var zodiacVal = checkedValue('survey_03_zodiac');
-    var opennessVal = checkedValue('survey_04_openness');
-    var termVal = checkedValue('survey_07_term');
-    var formatVals = checkedValues('survey_08_format');
-
-    var total = 0;
-    if(communicationVal) total += WEIGHTS.survey_01_communication[communicationVal] || 0;
-    if(personalityVal) total += WEIGHTS.survey_02_personality[personalityVal] || 0;
-    if(zodiacVal) total += WEIGHTS.survey_03_zodiac[zodiacVal] || 0;
-    if(opennessVal) total += WEIGHTS.survey_04_openness[opennessVal] || 0;
-    total += WEIGHTS.survey_05_hours[hoursVal] || 0;
-    total += WEIGHTS.survey_06_days[daysVal] || 0;
-    if(termVal) total += WEIGHTS.survey_07_term[termVal] || 0;
-    formatVals.forEach(function(v){ total += WEIGHTS.survey_08_format[v] || 0; });
-
-    var isMinCombo = hoursVal === MIN_HOURS && daysVal === MIN_DAYS && termVal === MIN_TERM &&
-      communicationVal === MIN_COMMUNICATION &&
-      zodiacVal === MIN_ZODIAC && opennessVal === MIN_OPENNESS && formatVals.length === 0;
-    if(isMinCombo) total = MIN_COMBO_RESULT;
-
-    var text = '≈ ' + formatRub(total) + ' / мес';
+    var total = DISPLAY_CALC_CONFIG.base + DISPLAY_CALC_CONFIG.hours[hoursVal] + DISPLAY_CALC_CONFIG.days[daysVal];
+    variants.forEach(function(variant){
+      total += DISPLAY_CALC_CONFIG.variants[variant];
+    });
+    var text = formatRub(total);
     valueEl.textContent = text;
-    hiddenEl.value = text + ' (предварительно, при ' + hoursVal + ' ч/день и ' + daysVal + ' дн/нед)';
     block.classList.add('is-ready');
   }
 
   var WATCHED_NAMES = {
-    survey_01_communication: 1, survey_02_personality: 1, survey_03_zodiac: 1,
-    survey_04_openness: 1, survey_05_hours: 1, survey_06_days: 1,
-    survey_07_term: 1, survey_08_format: 1
+    survey_05_hours: 1, survey_06_days: 1,
+    selected_variants: 1
   };
   form.addEventListener('change', function(e){
     if(e.target && WATCHED_NAMES[e.target.name]){
@@ -6595,6 +6349,77 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   });
   recalc();
+})();
+</script>
+<style id="application-submit-status-style">
+#combined-application .application-submit-status:not([hidden]){display:block}
+</style>
+<script id="telegram-application-submit">
+(function(){
+  var form=document.getElementById('combined-application');
+  if(!form)return;
+  var endpoint='https://president-telegram-relay.vercel.app/api/send-application';
+  var submitButton=form.querySelector('[type="submit"]');
+  var status=document.getElementById('application-submit-status');
+
+  function selectedValues(name){
+    return Array.prototype.map.call(form.querySelectorAll('input[name="'+name+'"]:checked'),function(input){return input.value;});
+  }
+  function applicationText(){
+    var lines=['Новая заявка — PRESIDENT AGENCY',''];
+    form.querySelectorAll('.survey-dark-step').forEach(function(step){
+      var heading=step.querySelector('h4');
+      var checked=Array.prototype.map.call(step.querySelectorAll('input:checked'),function(input){return input.value;});
+      if(heading&&checked.length)lines.push(heading.textContent.trim()+': '+checked.join(', '));
+    });
+    var variants=selectedValues('selected_variants');
+    lines.push('Выбранные варианты: '+(variants.length?variants.join(', '):'не выбраны'));
+    var estimate=document.getElementById('apply-calc-value');
+    if(estimate&&estimate.textContent.trim()!=='Выберите вариант, часы и дни'){
+      lines.push('Предварительный расчёт: '+estimate.textContent.trim());
+    }
+    return lines.join('\n');
+  }
+  function setStatus(message,type){
+    if(!status)return;
+    status.hidden=false;
+    status.className='application-submit-status'+(type?' is-'+type:'');
+    status.textContent=message;
+  }
+
+  form.addEventListener('submit',function(event){
+    event.preventDefault();
+    if(!form.checkValidity()){
+      form.reportValidity();
+      return;
+    }
+    var originalText=submitButton?submitButton.textContent:'';
+    if(submitButton){submitButton.disabled=true;submitButton.textContent='Отправка…';}
+    setStatus('Отправляем заявку…');
+    fetch(endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:applicationText()})
+    }).then(function(response){
+      return response.json().catch(function(){return {};}).then(function(data){
+        if(!response.ok||!data.ok)throw new Error((data&&data.error)||'Ошибка отправки');
+      });
+    }).then(function(){
+      form.reset();
+      form.querySelectorAll('.choice-grid-dark .is-selected,.variant-request-card.is-selected').forEach(function(card){card.classList.remove('is-selected');});
+      var estimate=document.getElementById('apply-calc-value');
+      var calc=document.getElementById('apply-calc');
+      if(estimate)estimate.textContent='Выберите вариант, часы и дни';
+      if(calc)calc.classList.remove('is-ready');
+      setStatus('Заявка отправлена! Мы свяжемся с вами в ближайшее время.','success');
+      if(window.paTrack)window.paTrack('form_submit_success',{form_id:'combined-application'});
+    }).catch(function(error){
+      setStatus('Не удалось отправить заявку. Попробуйте ещё раз или напишите нам напрямую в Telegram. ('+error.message+')','error');
+      if(window.paTrack)window.paTrack('form_submit_error',{form_id:'combined-application',reason:error.message});
+    }).finally(function(){
+      if(submitButton){submitButton.disabled=false;submitButton.textContent=originalText;}
+    });
+  });
 })();
 </script>
 <style id="survey-scroll-perf">
@@ -6800,115 +6625,6 @@ document.addEventListener('DOMContentLoaded',function(){
   }else{
     panel.classList.add('is-visible');
   }
-})();
-</script>
-<style id="telegram-application-submit-style">
-#combined-application .application-submit-status{
-  margin-top:10px;
-  font:500 9px/1.45 Helvetica,Arial,sans-serif;
-  display:none;
-}
-#combined-application .application-submit-status.is-visible{display:block}
-#combined-application .application-submit-status.is-success{color:#5aebd7}
-#combined-application .application-submit-status.is-error{color:#ff7a7a}
-#combined-application .btn.submit:disabled{opacity:.6;cursor:default}
-@media(max-width:520px){
-  #combined-application .application-submit-status{font-size:14px}
-}
-</style>
-<script id="telegram-application-submit">
-(function(){
-  var form = document.getElementById('combined-application');
-  if(!form) return;
-  var ENDPOINT = 'https://president-telegram-relay.vercel.app/api/send-application';
-  var submitBtn = form.querySelector('.btn.submit');
-  var noteEl = form.querySelector('.application-note');
-  var statusEl = document.createElement('div');
-  statusEl.className = 'application-submit-status';
-  if(noteEl && noteEl.parentNode){ noteEl.parentNode.insertBefore(statusEl, noteEl); }
-  else { form.appendChild(statusEl); }
-
-  function setStatus(msg, type){
-    statusEl.textContent = msg;
-    statusEl.className = 'application-submit-status is-visible' + (type ? ' is-'+type : '');
-  }
-
-  function buildApplicationText(){
-    var lines = [];
-    lines.push('Новая заявка — PRESIDENT AGENCY');
-    lines.push('');
-    var get = function(name){
-      var el = form.querySelector('[name="'+name+'"]');
-      return el ? el.value.trim() : '';
-    };
-    lines.push('Имя: ' + (get('name') || '—'));
-    lines.push('Возраст: ' + (get('age') || '—'));
-    lines.push('Telegram: ' + (get('telegram') || '—'));
-    var city = get('city'); if(city) lines.push('Город: ' + city);
-    var hw = get('heightWeight'); if(hw) lines.push('Рост/вес: ' + hw);
-    var exp = get('experience'); if(exp) lines.push('Опыт: ' + exp);
-    var comment = get('comment'); if(comment) lines.push('Комментарий: ' + comment);
-    lines.push('');
-    lines.push('— Мини-опрос —');
-    form.querySelectorAll('.survey-dark-step').forEach(function(step){
-      var h4 = step.querySelector('h4');
-      var label = h4 ? h4.textContent.trim() : '';
-      var checked = Array.prototype.map.call(step.querySelectorAll('input:checked'), function(i){ return i.value; });
-      if(checked.length) lines.push(label + ': ' + checked.join(', '));
-    });
-    var calcEl = document.getElementById('apply-calc-hidden');
-    var calc = calcEl ? calcEl.value.trim() : '';
-    if(calc){ lines.push(''); lines.push('Предварительный расчёт: ' + calc); }
-    return lines.join('\n');
-  }
-
-  function resetCalcDisplay(){
-    var valueEl = document.getElementById('apply-calc-value');
-    var hiddenEl = document.getElementById('apply-calc-hidden');
-    var block = document.getElementById('apply-calc');
-    if(valueEl) valueEl.textContent = 'Выберите часы и дни выше';
-    if(hiddenEl) hiddenEl.value = '';
-    if(block) block.classList.remove('is-ready');
-  }
-
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    if(!form.checkValidity()){
-      form.reportValidity();
-      return;
-    }
-    var text = buildApplicationText();
-    if(submitBtn){
-      submitBtn.disabled = true;
-      if(!submitBtn.dataset.originalText) submitBtn.dataset.originalText = submitBtn.textContent;
-      submitBtn.textContent = 'Отправка...';
-    }
-    setStatus('Отправляем заявку…', null);
-    fetch(ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text })
-    }).then(function(res){
-      return res.json().catch(function(){ return {}; }).then(function(data){
-        if(!res.ok || !data.ok) throw new Error((data && data.error) || 'Ошибка отправки');
-        return data;
-      });
-    }).then(function(){
-      setStatus('Заявка отправлена! Мы свяжемся с вами в ближайшее время.', 'success');
-      if(window.paTrack) window.paTrack('form_submit_success', { form_id: 'combined-application' });
-      form.reset();
-      form.querySelectorAll('.choice-grid-dark .is-selected').forEach(function(el){ el.classList.remove('is-selected'); });
-      resetCalcDisplay();
-    }).catch(function(err){
-      setStatus('Не удалось отправить заявку. Попробуйте ещё раз или напишите нам напрямую в Telegram. (' + err.message + ')', 'error');
-      if(window.paTrack) window.paTrack('form_submit_error', { form_id: 'combined-application', reason: err.message });
-    }).finally(function(){
-      if(submitBtn){
-        submitBtn.disabled = false;
-        submitBtn.textContent = submitBtn.dataset.originalText || 'Отправить заявку →';
-      }
-    });
-  });
 })();
 </script>
 <script id="president-mobile-final-js">
@@ -8033,7 +7749,7 @@ section[id]{scroll-margin-top:75px}
   /* "Мы не обещаем вам новую жизнь..." description */
   #end .president-final-small{font-size:19px!important;line-height:1.55!important;max-width:100%!important}
 
-  /* "Заполните форму — мы свяжемся с вами..." above the survey */
+  /* Introductory copy above the conditions and calculator. */
   #apply .apply-intro-note{font-size:19px!important;line-height:1.55!important}
 }
 </style>
