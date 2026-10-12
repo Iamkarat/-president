@@ -5780,6 +5780,11 @@ img{content-visibility:auto;}
 .variant-request-card.is-selected .variant-request-title{color:#a8fff2}
 .variant-request-card.is-selected .variant-request-title:after{content:"Выбрано";display:block;margin-top:6px;color:#72f1df;font:600 11px/1.2 Helvetica,Arial,sans-serif}
 .variant-request-card:has(input:focus-visible){outline:2px solid #fff;outline-offset:3px}
+.telegram-contact-field{margin:0 0 18px}
+.telegram-contact-field label{display:block;margin:0 0 8px;color:#f4f7f6;font:600 14px/1.4 Helvetica,Arial,sans-serif}
+.telegram-contact-field input{display:block;width:100%;min-height:46px;box-sizing:border-box;padding:11px 13px;border:1px solid #444;border-radius:9px;background:#191919;color:#f4f7f6;font:500 15px/1.35 Helvetica,Arial,sans-serif}
+.telegram-contact-field input::placeholder{color:rgba(255,255,255,.42)}
+.telegram-contact-field input:focus{border-color:rgba(72,230,208,.7);outline:2px solid rgba(72,230,208,.2);outline-offset:1px}
 .application-submit-status{margin:10px 0 0;color:rgba(255,255,255,.7);font:500 13px/1.45 Helvetica,Arial,sans-serif}
 .application-submit-status.is-success{color:#72f1df}
 .application-submit-status.is-error{color:#ff8b8b}
@@ -5841,6 +5846,10 @@ img{content-visibility:auto;}
 </div>
 </div>
  </div>
+<div class="telegram-contact-field">
+<label for="telegram-username">Ваш Telegram для связи</label>
+<input id="telegram-username" name="telegram_username" type="text" placeholder="@username" autocomplete="username" required/>
+</div>
 <section class="variant-request-panel" aria-labelledby="variant-request-heading">
 <h3 id="variant-request-heading">Выберите подходящие варианты</h3>
 <div class="variant-request-grid">
@@ -6361,12 +6370,23 @@ document.addEventListener('DOMContentLoaded',function(){
   var endpoint='https://president-telegram-relay.vercel.app/api/send-application';
   var submitButton=form.querySelector('[type="submit"]');
   var status=document.getElementById('application-submit-status');
+  var telegramInput=form.querySelector('[name="telegram_username"]');
+
+  function normalizeTelegramUsername(){
+    if(!telegramInput)return '';
+    var username=telegramInput.value.trim();
+    if(username&&username.charAt(0)!=='@')username='@'+username;
+    telegramInput.value=username;
+    return username;
+  }
+  if(telegramInput)telegramInput.addEventListener('blur',normalizeTelegramUsername);
 
   function selectedValues(name){
     return Array.prototype.map.call(form.querySelectorAll('input[name="'+name+'"]:checked'),function(input){return input.value;});
   }
   function applicationText(){
     var lines=['Новая заявка — PRESIDENT AGENCY',''];
+    lines.push('Telegram пользователя: '+normalizeTelegramUsername());
     form.querySelectorAll('.survey-dark-step').forEach(function(step){
       var heading=step.querySelector('h4');
       var checked=Array.prototype.map.call(step.querySelectorAll('input:checked'),function(input){return input.value;});
@@ -6389,6 +6409,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
   form.addEventListener('submit',function(event){
     event.preventDefault();
+    normalizeTelegramUsername();
     if(!form.checkValidity()){
       form.reportValidity();
       return;
