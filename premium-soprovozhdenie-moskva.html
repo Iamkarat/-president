@@ -11,7 +11,6 @@
   <link rel="canonical" href="https://presidentmodel.io/premium-soprovozhdenie-moskva.html">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon-192x192.png" type="image/png">
-  <link rel="preload" href="assets/president-logo-original-transparent.png" as="image" type="image/png">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ru_RU">
   <meta property="og:site_name" content="PRESIDENT PRIVATE AGENCY">
@@ -53,7 +52,10 @@
   <header class="site-header">
     <nav class="navigation" aria-label="Основная навигация">
       <a class="brand" href="/" aria-label="PRESIDENT PRIVATE AGENCY — главная">
-        <img src="assets/president-logo-original-transparent.png" width="320" height="320" alt="Логотип PRESIDENT PRIVATE AGENCY" fetchpriority="high">
+        <video class="brand__video" width="72" height="40" autoplay muted loop playsinline preload="metadata" poster="assets/president-logo-original-transparent.png" aria-hidden="true">
+          <source src="assets/president-logo.webm" type="video/webm">
+          <img src="assets/president-logo-original-transparent.png" width="320" height="320" alt="">
+        </video>
       </a>
       <div class="navigation__links">
         <a href="#services">Услуги</a>
