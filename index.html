@@ -7830,17 +7830,16 @@ section[id]{scroll-margin-top:75px}
   .header-social-icon{flex-basis:16px;width:16px;height:16px}
 }
 @media(max-width:850px){
-  .header-inner{gap:6px!important}
-  .header .logo{max-width:calc(100% - 170px)!important;min-width:0!important;flex:0 1 auto}
-  .header-social-links{margin-left:auto;gap:4px}
-  .header-social-links a{width:34px;height:34px;padding:0;justify-content:center}
-  .header-social-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  .header .menu{margin-left:0!important;flex:0 0 42px}
+  .header-inner{height:auto!important;flex-wrap:wrap;gap:6px!important;row-gap:8px!important;padding:8px 10px 10px 14px!important;border-radius:30px!important}
+  .header .logo{min-width:0!important;flex:0 1 auto}
+  .header-social-links{order:3;flex:1 0 100%;justify-content:center;gap:6px}
+  .header-social-links a{flex:1 1 0;min-width:0;width:auto;max-width:128px;height:34px;padding:0 8px;gap:6px;font-size:12px}
+  .header .menu{margin-left:auto!important;flex:0 0 42px}
 }
 @media(max-width:360px){
-  .header .logo{max-width:calc(100% - 162px)!important}
-  .header-social-links{gap:3px}
-  .header-social-links a{width:32px;height:32px}
+  .header-social-links{gap:5px}
+  .header-social-links a{padding:0 6px;gap:4px;font-size:11px}
+  .header-social-icon{flex-basis:14px;width:14px;height:14px}
 }
 @media(prefers-reduced-motion:reduce){
   .header-social-links a{transition:none}
