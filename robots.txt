@@ -8,4 +8,4 @@ Disallow: /campaign-no-edges.html
 Disallow: /president-onepage-v5.html
 Disallow: /premium-soprovozhdenie-moskva.html
 
-Sitemap: https://presidentmodel.io
+Sitemap: https://presidentmodel.io/sitemap.xml
