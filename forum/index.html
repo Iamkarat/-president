@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#121613">
+  <!-- Скрытая страница: не индексировать, не переходить по ссылкам, не кэшировать -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="yandex" content="noindex, nofollow">
+  <!-- Не передавать адрес форума внешним сайтам в Referer -->
+  <meta name="referrer" content="no-referrer">
+  <title>Официальный форум агентства «Президент»</title>
+  <meta name="description" content="Мы за то, чтобы комьюнити эскорта становилось лучше. Оставьте отзыв о модели или агентстве либо задайте вопрос — вам обязательно подскажут.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="home">
+  <main class="container" id="top">
+    <!-- Приветствие -->
+    <section class="hero glass light">
+      <div>
+        <span class="eyebrow">PRESIDENT PRIVATE AGENCY COMMUNITY</span>
+        <h1>Выбирайте осознанно.<br><span class="hero-accent">Обсуждайте открыто.</span></h1>
+        <p>Комьюнити, где делятся опытом, публикуют отзывы об агентствах и моделях, обсуждают условия сотрудничества и помогают друг другу находить ответы на важные вопросы. Изучайте мнения участников, задавайте свои вопросы и принимайте решения на основе реального опыта.</p>
+        <div class="chips">
+          <a class="btn btn-light" href="#ask">Задать вопрос</a>
+          <a class="btn btn-ghost hero-discussions" href="#qa">Читать обсуждения</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Задать вопрос -->
+    <section class="section" id="ask">
+      <div class="ask glass">
+        <div>
+          <h2>Есть вопрос?</h2>
+          <p class="muted">Напишите его, и он сразу появится в блоке «Вопрос — ответ». Регистрация не нужна.</p>
+        </div>
+        <button class="btn btn-light" id="ask-toggle" aria-expanded="false" aria-controls="ask-form">Задать вопрос</button>
+      </div>
+      <form class="form glass light" id="ask-form" hidden novalidate style="margin-top:14px">
+        <div class="field">
+          <label for="q-name">Имя <span class="note">(необязательно)</span></label>
+          <input class="input" id="q-name" name="name" maxlength="40" autocomplete="nickname" placeholder="Аноним">
+        </div>
+        <div class="field">
+          <label for="q-text">Ваш вопрос</label>
+          <textarea class="textarea" id="q-text" name="text" required minlength="10" maxlength="1000" placeholder="Например: какие документы нужны для работы за границей?"></textarea>
+        </div>
+        <fieldset class="avatar-picker">
+          <legend>Аватар</legend>
+          <input type="hidden" name="avatar" value="assets/avatars/president-dark-hair.png">
+          <div class="avatar-options">
+            <button class="avatar-option" type="button" data-avatar-choice="assets/avatars/president-long-hair.png" aria-label="Длинные светло-коричневые волосы" aria-pressed="false"><img src="assets/avatars/president-long-hair.png" alt=""></button>
+            <button class="avatar-option selected" type="button" data-avatar-choice="assets/avatars/president-dark-hair.png" aria-label="Тёмные волосы и глянцевый макияж — стандартный аватар" aria-pressed="true"><img src="assets/avatars/president-dark-hair.png" alt=""></button>
+            <button class="avatar-option" type="button" data-avatar-choice="assets/avatars/president-veil.png" aria-label="Кружевная фата" aria-pressed="false"><img src="assets/avatars/president-veil.png" alt=""></button>
+            <label class="avatar-upload">Загрузить свой аватар<input type="file" accept="image/png,image/jpeg,image/webp" aria-label="Загрузить свой аватар"></label>
+          </div>
+          <div class="avatar-preview" aria-live="polite"><img src="assets/avatars/president-dark-hair.png" alt=""><span>Стандартный аватар</span></div>
+          <div class="note" data-avatar-status role="status"></div>
+        </fieldset>
+        <div class="hp" aria-hidden="true"><input tabindex="-1" autocomplete="off" name="website"></div>
+        <button class="btn btn-light" style="justify-self:start">Опубликовать</button>
+        <div data-status role="status"></div>
+        <p class="note">Ссылки, реклама и оскорбления удаляются. Не публикуйте личные данные.</p>
+      </form>
+    </section>
+
+    <!-- Вопрос — ответ -->
+    <section class="section" id="qa">
+      <div class="section-head"><h2>Вопрос — ответ</h2><span class="muted" style="font-size:14px">Сначала новые</span></div>
+      <div id="qa-list" aria-live="polite"></div>
+    </section>
+
+    <!-- Темы -->
+    <section class="section" id="topics">
+      <div class="section-head"><h2>Темы</h2></div>
+      <div id="topic-status" role="status" aria-live="polite"></div>
+      <div id="topic-list"></div>
+    </section>
+
+    <!-- Приветствие -->
+    <section class="section welcome glass light" id="welcome">
+      <h2>Добро пожаловать в школу <span class="hero-accent">PRESIDENT</span></h2>
+      <!-- Приветственный текст -->
+      <p class="welcome-text"></p>
+      <div class="edu-grid">
+        <article class="edu-card glass">
+          <span class="edu-tag">Кто мы</span>
+          <h3>Кто мы</h3>
+          <p>Общая информация об организации.</p>
+          <a class="edu-link" href="https://telegra.ph/Kto-my-07-30-2" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Кто мы</span>
+          <h3>Что отличает PRESIDENT от большинства агентств</h3>
+          <p>О том, чем PRESIDENT отличается от других агентств.</p>
+          <a class="edu-link" href="https://telegra.ph/CHto-otlichaet-PRESIDENT-ot-bolshinstva-agentstv-07-30" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Кто мы</span>
+          <h3>Почему мы не работаем со всеми подряд</h3>
+          <p>О подходе к выбору тех, с кем мы работаем.</p>
+          <a class="edu-link" href="https://telegra.ph/Pochemu-my-ne-rabotaem-so-vsemi-podryad-07-30" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Общение и этикет</span>
+          <h3>Правила общения</h3>
+          <p>Основные правила общения.</p>
+          <a class="edu-link" href="https://telegra.ph/Pravila-obshcheniya-07-30-2" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Общение и этикет</span>
+          <h3>Этикет</h3>
+          <p>Материал о деловом этикете.</p>
+          <a class="edu-link" href="https://telegra.ph/EHtiket-07-30" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Безопасность</span>
+          <h3>Безопасность</h3>
+          <p>Материал о безопасности и личных границах.</p>
+          <a class="edu-link" href="https://telegra.ph/Bezopasnost-07-30-2" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Финансы</span>
+          <h3>Финансовое мышление</h3>
+          <p>Материал о финансовом мышлении и отношении к деньгам.</p>
+          <a class="edu-link" href="https://telegra.ph/Finansovoe-myshlenie-07-30" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Новичкам</span>
+          <h3>Как проходит отбор</h3>
+          <p>О том, как устроен процесс отбора.</p>
+          <a class="edu-link" href="https://telegra.ph/Kak-prohodit-otbor-07-30" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Новичкам</span>
+          <h3>Первые 30 дней в PRESIDENT</h3>
+          <p>О первом месяце в PRESIDENT.</p>
+          <a class="edu-link" href="https://telegra.ph/Pervye-30-dnej-v-PRESIDENT-07-30" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Новичкам</span>
+          <h3>Ошибки новичков</h3>
+          <p>О частых ошибках на старте.</p>
+          <a class="edu-link" href="https://telegra.ph/Oshibki-novichkov-07-30" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+        <article class="edu-card glass">
+          <span class="edu-tag">Рекомендации</span>
+          <h3>Как стать девушкой высокого уровня</h3>
+          <p>Общие рекомендации для профессиональной среды.</p>
+          <a class="edu-link" href="https://telegra.ph/Kak-stat-devushkoj-vysokogo-urovnya-07-30" target="_blank" rel="noopener noreferrer">Читать материал →</a>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
