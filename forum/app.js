@@ -46,12 +46,20 @@ const AVATARS = [
 ];
 const DEFAULT_AVATAR = AVATARS[1].src;
 
+// Safari и WebView на iOS (в т.ч. браузер Telegram) не показывают прозрачность webm —
+// там и на мобильных логотип — прозрачная PNG, как на основном сайте.
+const STATIC_LOGO = matchMedia("(max-width: 860px)").matches
+  || (/AppleWebKit/.test(navigator.userAgent) && !/Chrome|Chromium|Android/.test(navigator.userAgent));
+const LOGO_MARK = `<span class="logo-mark" aria-hidden="true">${STATIC_LOGO
+  ? '<img class="logo-video" src="assets/president-logo.png" alt="">'
+  : '<video class="logo-video" autoplay loop muted playsinline><source src="assets/president-logo.webm" type="video/webm"></video>'}</span>`;
+
 function shell() {
   document.body.insertAdjacentHTML("afterbegin", `
     <div class="backdrop"><span></span><span></span><span></span></div>
     <div class="nav-wrap">
       <nav class="nav" aria-label="Основная навигация">
-        <a class="logo" href="#top"><span class="logo-mark" aria-hidden="true"><video class="logo-video" autoplay loop muted playsinline><source src="assets/president-logo.webm" type="video/webm"></video></span><span>PRESIDENT PRIVATE AGENCY FORUM</span></a>
+        <a class="logo" href="#top">${LOGO_MARK}<span>PRESIDENT PRIVATE AGENCY FORUM</span></a>
         <ul class="nav-links">
           ${NAV.map((n) => `<li><a href="${n.href}">${n.label}</a></li>`).join("")}
         </ul>
@@ -68,7 +76,7 @@ function shell() {
 
   document.body.insertAdjacentHTML("beforeend", `
     <footer><div class="container"><div class="footer glass">
-      <div><a class="logo"><span class="logo-mark" aria-hidden="true"><video class="logo-video" autoplay loop muted playsinline><source src="assets/president-logo.webm" type="video/webm"></video></span><span>PRESIDENT PRIVATE AGENCY FORUM</span></a>
+      <div><a class="logo">${LOGO_MARK}<span>PRESIDENT PRIVATE AGENCY FORUM</span></a>
       <p>Официальный форум агентства.</p></div>
       <div><h5>Разделы</h5>${NAV.map((n) => `<a href="${n.href}">${n.label}</a>`).join("")}</div>
       <div><h5>Правила публикации</h5><p>Не публикуйте ссылки, рекламу и личные данные. Будьте уважительны к участникам.</p><a href="#ask">Как задать вопрос</a></div>
