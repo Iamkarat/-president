@@ -1465,3 +1465,11 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
   #topic-list .topic-tile h3 { font-size: 0.88rem; }
   #topic-list .topic-more { grid-column: 2; font-size: 0.74rem; }
 }
+
+/* Мобильная версия: непрозрачный чёрный фон под всей страницей — в том числе
+   за краем прокрутки и под системными панелями, где во встроенных браузерах
+   (Telegram, Instagram) иначе просвечивает приложение. Слой с градиентами не нужен. */
+@media (max-width: 860px) {
+  html, body { background: #000000; }
+  .backdrop { display: none; }
+}
