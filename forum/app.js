@@ -3,6 +3,7 @@
 
 const NAV = [
   { href: "#top", label: "Главная" },
+  { href: "#ai", label: "AI-поиск" },
   { href: "#qa", label: "Вопрос — ответ" },
   { href: "#topics", label: "Темы" },
 ];
@@ -99,7 +100,7 @@ function shell() {
       links.forEach((a) => a.toggleAttribute("aria-current", a.getAttribute("href") === `#${en.target.id}`));
     });
   }, { rootMargin: "-45% 0px -50% 0px" });
-  ["top", "qa", "topics"].forEach((id) => spy.observe(document.getElementById(id)));
+  ["top", "ai", "qa", "topics"].forEach((id) => spy.observe(document.getElementById(id)));
 }
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -161,8 +162,10 @@ let questions = [];
 
 const CONFIG = { access: "link", passwordSha256: "", apiBase: "", ...window.FORUM_CONFIG };
 
+const apiUrl = (path) => CONFIG.apiBase.replace(/\/$/, "") + path;
+
 async function api(path, body) {
-  const res = await fetch(CONFIG.apiBase.replace(/\/$/, "") + path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const res = await fetch(apiUrl(path), body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || "Не удалось связаться с сервером");
   return data;
@@ -534,11 +537,323 @@ function bindReader() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
 }
 
+// ---------- PRESIDENT AI SEARCH: поиск с ответом по источникам (бэкенд — ai_search.py) ----------
+const AI_MODES = {
+  quick: { label: "Quick Search", note: "Быстрый поиск и краткий ответ" },
+  deep: { label: "Deep Research", note: "Углублённое исследование: больше источников, 1–3 минуты" },
+};
+const AI_HISTORY_KEY = "ai-history";
+let aiMode = "quick";
+let aiTurns = [];
+let aiBusy = false;
+
+function aiHistory() {
+  try { return JSON.parse(localStorage.getItem(AI_HISTORY_KEY)) || []; } catch { return []; }
+}
+function saveAiHistory(list) {
+  try { localStorage.setItem(AI_HISTORY_KEY, JSON.stringify(list.slice(0, 20))); } catch {}
+}
+
+// Ссылки в ответе кликабельны, только если этот URL действительно нашёл поиск
+const normUrl = (u) => u.replace(/([?&])utm_source=openai(&|$)/, (m, a, b) => (b ? a : "")).replace(/[?#/]+$/, "");
+const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return u; } };
+
+function mdInline(text, allowed) {
+  return esc(text)
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (m, label, url) =>
+      allowed.has(normUrl(url.replace(/&amp;/g, "&"))) ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>` : label)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+
+function md(src, allowed) {
+  const out = [];
+  let list = null;
+  const close = () => { if (list) out.push(`</${list}>`); list = null; };
+  for (const line of src.split("\n")) {
+    const t = line.trim();
+    let m;
+    if (!t) { close(); continue; }
+    if ((m = t.match(/^(#{1,4})\s+(.*)$/))) {
+      close();
+      const h = m[1].length <= 2 ? "h3" : "h4";
+      out.push(`<${h}>${mdInline(m[2], allowed)}</${h}>`);
+    } else if ((m = t.match(/^(?:[-*•]|(\d+)[.)])\s+(.*)$/))) {
+      const tag = m[1] ? "ol" : "ul";
+      if (list !== tag) { close(); out.push(`<${tag}>`); list = tag; }
+      out.push(`<li>${mdInline(m[2], allowed)}</li>`);
+    } else {
+      close();
+      out.push(`<p>${mdInline(t, allowed)}</p>`);
+    }
+  }
+  close();
+  return out.join("");
+}
+
+const aiAllowed = (turn) => new Set([...turn.citations, ...turn.sources].map((s) => normUrl(s.url)));
+
+const aiSteps = (turn) => `
+  <ol class="ai-steps">
+    ${turn.steps.map((st, i) => `<li class="${i === turn.steps.length - 1 && turn.pending ? "active" : "done"}">${esc(st)}</li>`).join("")}
+  </ol>`;
+
+function aiSources(turn) {
+  const cited = new Set(turn.citations.map((c) => normUrl(c.url)));
+  const rest = turn.sources.filter((s) => !cited.has(normUrl(s.url)));
+  const item = (s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title || hostOf(s.url))}</a><span>${esc(hostOf(s.url))}</span></li>`;
+  if (!turn.citations.length && !rest.length) return "";
+  return `
+    <div class="ai-sources">
+      ${turn.citations.length ? `<h4>Использованные источники · ${turn.citations.length}</h4><ol>${turn.citations.map(item).join("")}</ol>` : ""}
+      ${rest.length ? `<details><summary>Также просмотрено · ${rest.length}</summary><ol>${rest.map(item).join("")}</ol></details>` : ""}
+    </div>`;
+}
+
+function aiTurnHtml(turn, i) {
+  const last = i === aiTurns.length - 1;
+  return `
+  <article class="ai-turn glass" data-turn="${i}">
+    <div class="ai-q"><span class="tag">${AI_MODES[turn.mode].label}</span><h3>${esc(turn.query)}</h3></div>
+    ${turn.pending && !turn.answer ? aiSteps(turn) : ""}
+    <div class="prose ai-answer">${md(turn.answer, aiAllowed(turn))}${turn.pending && turn.answer ? '<span class="ai-caret" aria-hidden="true"></span>' : ""}</div>
+    ${turn.error ? `<div class="alert error">${esc(turn.error)}</div>` : ""}
+    ${turn.incomplete && !turn.pending ? '<p class="note">Ответ мог оборваться из-за ограничений сервиса. Попробуйте «Повторить» или режим Quick Search.</p>' : ""}
+    ${turn.pending ? "" : aiSources(turn)}
+    ${turn.pending ? "" : `
+    <div class="ai-actions">
+      ${turn.id ? `<button class="btn btn-ghost btn-sm" type="button" data-ai-copy="${i}">Копировать</button>
+      <button class="btn btn-ghost btn-sm" type="button" data-ai-share="${i}">Поделиться</button>` : ""}
+      ${last ? `<button class="btn btn-ghost btn-sm" type="button" data-ai-repeat>Повторить</button>` : ""}
+    </div>`}
+  </article>`;
+}
+
+function drawAi() {
+  const last = aiTurns[aiTurns.length - 1];
+  $("#ai-thread").innerHTML = aiTurns.map(aiTurnHtml).join("") + (last && !aiBusy && last.id ? `
+    <form class="ai-follow glass" id="ai-follow" novalidate>
+      <div class="search">
+        <input name="query" maxlength="600" autocomplete="off" enterkeyhint="send" placeholder="Уточните или задайте следующий вопрос" aria-label="Уточняющий вопрос">
+        <button class="btn btn-light">Спросить</button>
+      </div>
+      <div data-status role="status"></div>
+    </form>
+    <button class="link-btn" type="button" data-ai-new>Новый поиск</button>` : "");
+}
+
+function drawAiHistory() {
+  const list = aiHistory();
+  const box = $("#ai-history");
+  box.hidden = !list.length;
+  box.innerHTML = list.length ? `
+    <span class="note">Недавние:</span>
+    <div class="chips">${list.map((h) => `<button class="chip" type="button" data-ai-open="${esc(h.id)}" title="${esc(h.query)}">${esc(h.query.length > 48 ? h.query.slice(0, 47) + "…" : h.query)}</button>`).join("")}</div>
+    <button class="link-btn" type="button" data-ai-clear>Очистить</button>` : "";
+}
+
+// Читает поток событий SSE из POST-ответа
+async function aiStream(body, on) {
+  const res = await fetch(apiUrl("/api/ai/search"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!res.ok || !res.body) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "AI-поиск временно недоступен");
+  }
+  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buf = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += value;
+    let cut;
+    while ((cut = buf.indexOf("\n\n")) >= 0) {
+      const chunk = buf.slice(0, cut);
+      buf = buf.slice(cut + 2);
+      const event = /^event: (.*)$/m.exec(chunk)?.[1];
+      const data = /^data: (.*)$/m.exec(chunk)?.[1];
+      if (event && data) on[event]?.(JSON.parse(data));
+    }
+  }
+}
+
+async function aiRun(query, mode, parent) {
+  if (aiBusy) return;
+  aiBusy = true;
+  $("#ai-submit").disabled = true;
+  const turn = { query, mode, parent, answer: "", citations: [], sources: [], steps: ["Анализирую вопрос"], pending: true };
+  aiTurns.push(turn);
+  drawAi();
+  $(`[data-turn="${aiTurns.length - 1}"]`).scrollIntoView({ behavior: "smooth", block: "start" });
+
+  // Перерисовка карточки текущего ответа не чаще раза за кадр
+  let frame = 0;
+  const redraw = () => {
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      const i = aiTurns.indexOf(turn);
+      $(`[data-turn="${i}"]`).outerHTML = aiTurnHtml(turn, i);
+    });
+  };
+
+  let finished = false;
+  try {
+    await aiStream({ query, mode, parent }, {
+      status(s) {
+        if (s.stage === "searched") {
+          turn.steps.push(s.action === "search" && s.query ? `Ищу: «${s.query}»` : s.action === "open_page" ? `Читаю ${hostOf(s.query)}` : "Проверяю найденное");
+          if (s.sources) turn.steps.push(`Изучено источников: ${s.sources}`);
+          turn.steps = turn.steps.filter((st, i, a) => !st.startsWith("Изучено") || a.findLastIndex((x) => x.startsWith("Изучено")) === i);
+          redraw();
+        } else if (s.stage === "searching" && !turn.steps.some((st) => st.startsWith("Ищу") || st === "Поиск в интернете")) {
+          turn.steps.push("Поиск в интернете");
+          redraw();
+        }
+      },
+      delta(d) {
+        if (!turn.answer) { turn.steps.push("Формирую ответ"); }
+        turn.answer += d.text;
+        redraw();
+      },
+      done(result) {
+        finished = true;
+        Object.assign(turn, result, { pending: false });
+        saveAiHistory([{ id: result.id, query, mode, created: result.created }, ...aiHistory().filter((h) => h.id !== result.id)]);
+      },
+      error(e) {
+        finished = true;
+        turn.error = e.error;
+      },
+    });
+    if (!finished) turn.error = "Соединение прервалось. Попробуйте ещё раз.";
+  } catch (e) {
+    turn.error = e.message === "Failed to fetch" ? "Нет связи с сервером AI-поиска." : e.message;
+  } finally {
+    cancelAnimationFrame(frame);
+    turn.pending = false;
+    aiBusy = false;
+    $("#ai-submit").disabled = false;
+    drawAi();
+    drawAiHistory();
+  }
+}
+
+async function aiOpen(id) {
+  try {
+    const data = await api(`/api/ai/results/${encodeURIComponent(id)}`);
+    aiTurns = data.turns.map((t) => ({ ...t, steps: [], pending: false }));
+    drawAi();
+    $("#ai").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) {
+    setStatus($("#ai-form"), "error", e.message === "Failed to fetch" ? "Нет связи с сервером AI-поиска." : e.message);
+  }
+}
+
+const aiShareUrl = (id) => `${location.origin}${location.pathname}?ai=${encodeURIComponent(id)}#ai`;
+
+async function copyText(text, button) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const area = Object.assign(document.createElement("textarea"), { value: text });
+    document.body.append(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+  }
+  const label = button.textContent;
+  button.textContent = "Скопировано";
+  setTimeout(() => { button.textContent = label; }, 1800);
+}
+
+function bindAi() {
+  const form = $("#ai-form");
+  const setMode = (mode) => {
+    aiMode = mode;
+    form.querySelectorAll("[data-ai-mode]").forEach((b) => {
+      b.classList.toggle("active", b.dataset.aiMode === mode);
+      b.setAttribute("aria-checked", String(b.dataset.aiMode === mode));
+    });
+    $("#ai-mode-note").textContent = AI_MODES[mode].note;
+  };
+  form.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-ai-mode]");
+    if (b) setMode(b.dataset.aiMode);
+  });
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const query = form.elements.query.value.trim();
+    if (query.length < 3) {
+      setStatus(form, "error", "Напишите вопрос хотя бы из 3 символов.");
+      return;
+    }
+    setStatus(form, "", "");
+    aiTurns = [];
+    aiRun(query, aiMode);
+  });
+
+  const thread = $("#ai-thread");
+  thread.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const query = f.elements.query.value.trim();
+    if (query.length < 3) {
+      setStatus(f, "error", "Напишите вопрос хотя бы из 3 символов.");
+      return;
+    }
+    aiRun(query, aiMode, aiTurns[aiTurns.length - 1].id);
+  });
+  thread.addEventListener("click", (e) => {
+    const copy = e.target.closest("[data-ai-copy]");
+    const share = e.target.closest("[data-ai-share]");
+    if (copy) {
+      const t = aiTurns[Number(copy.dataset.aiCopy)];
+      const sources = t.citations.map((c, i) => `${i + 1}. ${c.title || hostOf(c.url)} — ${c.url}`).join("\n");
+      copyText(`${t.query}\n\n${t.answer}${sources ? `\n\nИсточники:\n${sources}` : ""}`, copy);
+    } else if (share) {
+      const t = aiTurns[Number(share.dataset.aiShare)];
+      const url = aiShareUrl(t.id);
+      if (navigator.share) navigator.share({ title: t.query, url }).catch(() => {});
+      else copyText(url, share);
+    } else if (e.target.closest("[data-ai-repeat]") && !aiBusy) {
+      const t = aiTurns.pop();
+      aiRun(t.query, t.mode, t.parent || undefined);
+    } else if (e.target.closest("[data-ai-new]")) {
+      aiTurns = [];
+      drawAi();
+      form.elements.query.value = "";
+      form.elements.query.focus();
+    }
+  });
+
+  $("#ai-history").addEventListener("click", (e) => {
+    const open = e.target.closest("[data-ai-open]");
+    if (open && !aiBusy) aiOpen(open.dataset.aiOpen);
+    if (e.target.closest("[data-ai-clear]")) {
+      saveAiHistory([]);
+      drawAiHistory();
+    }
+  });
+
+  drawAiHistory();
+  const shared = new URLSearchParams(location.search).get("ai");
+  if (shared) aiOpen(shared);
+
+  api("/api/ai/status").then((s) => {
+    if (s.enabled) return;
+    $("#ai-submit").disabled = true;
+    setStatus(form, "", "AI-поиск временно недоступен.");
+  }).catch(() => {
+    $("#ai-submit").disabled = true;
+    setStatus(form, "", "AI-поиск временно недоступен.");
+  });
+}
+
 function start() {
   shell();
   bindAvatarPickers();
   bindReader();
   drawTopics();
+  bindAi();
   bindQA();
   loadQA();
 }

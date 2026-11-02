@@ -13,5 +13,5 @@
 window.FORUM_CONFIG = {
   access: "link",
   passwordSha256: "",
-  apiBase: "",
+  apiBase: "https://presidentmodel-forum-api.onrender.com",
 };

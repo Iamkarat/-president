@@ -50,6 +50,28 @@
       </div>
     </section>
 
+    <!-- AI-поиск -->
+    <section class="section" id="ai">
+      <div class="section-head"><h2>PRESIDENT <span class="hero-accent">AI SEARCH</span></h2><span class="muted" style="font-size:14px">Ответы с источниками из интернета</span></div>
+      <form class="ai-panel glass light" id="ai-form" novalidate>
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="ai-query" name="query" maxlength="600" autocomplete="off" enterkeyhint="search" placeholder="Задайте любой вопрос" aria-label="Вопрос для AI-поиска" required>
+          <button class="btn btn-light" id="ai-submit">Найти</button>
+        </div>
+        <div class="ai-options">
+          <div class="chips" role="radiogroup" aria-label="Режим поиска">
+            <button class="chip active" type="button" role="radio" aria-checked="true" data-ai-mode="quick">Quick Search</button>
+            <button class="chip" type="button" role="radio" aria-checked="false" data-ai-mode="deep">Deep Research</button>
+          </div>
+          <span class="note" id="ai-mode-note">Быстрый поиск и краткий ответ</span>
+        </div>
+        <div data-status role="status"></div>
+      </form>
+      <div class="ai-history" id="ai-history" hidden></div>
+      <div id="ai-thread" aria-live="polite"></div>
+    </section>
+
     <!-- Задать вопрос -->
     <section class="section" id="ask">
       <div class="ask glass">
