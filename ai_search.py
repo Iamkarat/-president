@@ -22,7 +22,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from datetime import date
+from datetime import datetime, timedelta, timezone
 
 API_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/") + "/responses"
 API_KEY = os.environ.get("OPENAI_API_KEY", "")
@@ -96,8 +96,15 @@ FORMAT_QUICK = """## Краткий ответ
 Нумерованный список: [Название](URL) — издатель, дата публикации (или «дата не указана»)."""
 
 
+TZ = timezone(timedelta(hours=3))  # Москва, без перехода на летнее время
+
+
+def today():
+    return datetime.now(TZ).date().isoformat()
+
+
 def instructions(mode):
-    return f"""Ты — PRESIDENT AI SEARCH, исследовательский поисковый ассистент. Сегодня {date.today().isoformat()}.
+    return f"""Ты — PRESIDENT AI SEARCH, исследовательский поисковый ассистент. Сегодня {today()} (по московскому времени).
 
 Правила:
 - Перед ответом обязательно ищи в интернете актуальную информацию. {"Используй много независимых источников (не меньше 6), проверяй факты перекрёстно." if mode == "deep" else "Используй несколько независимых источников."}
@@ -141,9 +148,9 @@ def add_spend(usd):
     """Прибавляет к дневным расходам; возвращает False, если бюджет уже исчерпан (при usd > 0)."""
     with store_lock:
         db = load_store()
-        today = date.today().isoformat()
-        if db["spend"]["day"] != today:
-            db["spend"] = {"day": today, "usd": 0.0}
+        day = today()
+        if db["spend"]["day"] != day:
+            db["spend"] = {"day": day, "usd": 0.0}
         if usd > 0 and db["spend"]["usd"] + usd > DAILY_BUDGET:
             return False
         db["spend"]["usd"] = round(max(0.0, db["spend"]["usd"] + usd), 6)
