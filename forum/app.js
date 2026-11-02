@@ -568,10 +568,22 @@ function mdInline(text, allowed) {
 function md(src, allowed) {
   const out = [];
   let list = null;
-  const close = () => { if (list) out.push(`</${list}>`); list = null; };
+  let rows = [];
+  const cells = (t) => t.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+  const flush = () => {
+    if (!rows.length) return;
+    const body = rows.filter((r) => !/^\|?[\s:|-]+\|?$/.test(r)).map(cells);
+    const [head, ...rest] = body;
+    out.push(`<div class="ai-table"><table><thead><tr>${head.map((c) => `<th>${mdInline(c, allowed)}</th>`).join("")}</tr></thead><tbody>${
+      rest.map((r) => `<tr>${r.map((c) => `<td>${mdInline(c, allowed)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`);
+    rows = [];
+  };
+  const close = () => { flush(); if (list) out.push(`</${list}>`); list = null; };
   for (const line of src.split("\n")) {
     const t = line.trim();
     let m;
+    if (t.startsWith("|")) { if (list) { out.push(`</${list}>`); list = null; } rows.push(t); continue; }
+    flush();
     if (!t) { close(); continue; }
     if ((m = t.match(/^(#{1,4})\s+(.*)$/))) {
       close();

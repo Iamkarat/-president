@@ -1499,6 +1499,10 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
 .ai-answer p, .ai-answer ul, .ai-answer ol { margin: 0 0 12px; }
 .ai-answer ol { padding-left: 22px; }
 .ai-answer a { color: var(--c-accent); text-decoration: underline; text-underline-offset: 3px; }
+.ai-table { margin: 0 0 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.ai-table table { border-collapse: collapse; min-width: 100%; font-size: 14.5px; line-height: 1.45; }
+.ai-table th, .ai-table td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,.1); text-align: left; vertical-align: top; overflow-wrap: normal; }
+.ai-table th { font-weight: 600; white-space: nowrap; border-bottom-color: rgba(255,255,255,.22); }
 .ai-caret { display: inline-block; width: 8px; height: 1em; margin-left: 2px; vertical-align: -2px; background: var(--c-accent); animation: ai-blink 1s steps(2) infinite; }
 @keyframes ai-blink { 50% { opacity: 0; } }
 .ai-sources { border-top: 1px solid var(--c-glass-border); padding-top: 14px; display: grid; gap: 10px; font-size: 14px; }
