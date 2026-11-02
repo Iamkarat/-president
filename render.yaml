@@ -1,0 +1,33 @@
+# Бэкенд форума presidentmodel.io/forum/: вопросы, мнения и PRESIDENT AI SEARCH.
+# Render → New → Blueprint → этот репозиторий, ветка forum-backend.
+services:
+  - type: web
+    name: presidentmodel-forum-api
+    runtime: python
+    plan: starter
+    region: frankfurt
+    branch: forum-backend
+    buildCommand: python3 -c "import server"
+    startCommand: python3 server.py
+    healthCheckPath: /api/ai/status
+    disk:
+      name: forum-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: HOST
+        value: 0.0.0.0
+      - key: API_ONLY
+        value: "1"
+      - key: DATA_DIR
+        value: /var/data
+      - key: ALLOWED_ORIGINS
+        value: https://presidentmodel.io
+      - key: TRUST_PROXY
+        value: "1"
+      - key: AI_DAILY_BUDGET_USD
+        value: "3"
