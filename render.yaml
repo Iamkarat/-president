@@ -1,5 +1,3 @@
-# Бэкенд форума presidentmodel.io/forum/: вопросы, мнения и PRESIDENT AI SEARCH.
-# Render → New → Blueprint → этот репозиторий, ветка forum-backend.
 services:
   - type: web
     name: presidentmodel-forum-api
