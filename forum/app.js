@@ -562,7 +562,8 @@ function mdInline(text, allowed) {
   return esc(text)
     .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (m, label, url) =>
       allowed.has(normUrl(url.replace(/&amp;/g, "&"))) ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>` : label)
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s.,;:)!?]|$)/g, "$1<em>$2</em>");
 }
 
 function md(src, allowed) {
