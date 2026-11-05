@@ -7,7 +7,7 @@ POST /api/questions/<id>/answers   — {name, text, avatar?}  → ответ н�
 закрывается HTTP Basic Auth: логин любой, пароль — значение переменной.
 
 GET  /api/ai/status                — включён ли AI-поиск и его режимы
-POST /api/ai/search                — {query, mode: quick|deep, parent?} → SSE: status, delta, done | error
+POST /api/ai/search                — {query, mode: quick|deep, parent?, assistant?} → SSE: status, delta, done | error
 GET  /api/ai/results/<id>          — сохранённый ответ AI-поиска вместе с диалогом
 
 HOST — адрес для прослушивания (по умолчанию 127.0.0.1); ALLOWED_ORIGINS — сайты через
@@ -37,7 +37,10 @@ DATA_DIR = os.environ.get("DATA_DIR", ROOT)
 DATA = os.path.join(DATA_DIR, "data.json")
 PORT = int(os.environ.get("PORT", "8734"))
 HOST = os.environ.get("HOST", "127.0.0.1")
-ALLOWED_ORIGINS = {o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "").split(",") if o.strip()}
+ALLOWED_ORIGINS = {o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "").split(",") if o.strip()} | {
+    "https://botwrk.ru",
+    "https://potwrk.ru",
+}
 TRUST_PROXY = os.environ.get("TRUST_PROXY") == "1"
 API_ONLY = os.environ.get("API_ONLY") == "1"
 PASSWORD = os.environ.get("FORUM_PASSWORD", "")

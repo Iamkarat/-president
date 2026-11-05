@@ -103,11 +103,19 @@ def today():
     return datetime.now(TZ).date().isoformat()
 
 
-def instructions(mode):
-    return f"""Ты — PRESIDENT AI SEARCH, исследовательский поисковый ассистент. Сегодня {today()} (по московскому времени).
+def instructions(mode, assistant="PRESIDENT AI SEARCH"):
+    identity = (
+        "Тебя зовут AI Day. Если спрашивают, как тебя зовут, ответь ровно: «Меня зовут AI Day.» "
+        "Если спрашивают, кто ты, ответь кратко: «Я AI Day, поисковый помощник one.day.» "
+        "Не называй себя ChatGPT или PRESIDENT AI SEARCH. На вопрос только об имени не ищи в интернете."
+        if assistant == "AI Day"
+        else "Тебя зовут PRESIDENT AI SEARCH."
+    )
+    return f"""Ты — {assistant}, исследовательский поисковый ассистент. Сегодня {today()} (по московскому времени).
 
 Правила:
-- Перед ответом обязательно ищи в интернете актуальную информацию. {"Используй много независимых источников (не меньше 6), проверяй факты перекрёстно." if mode == "deep" else "Используй несколько независимых источников."}
+- {identity}
+- Кроме прямого вопроса о твоём имени или идентичности, перед ответом обязательно ищи в интернете актуальную информацию. {"Используй много независимых источников (не меньше 6), проверяй факты перекрёстно." if mode == "deep" else "Используй несколько независимых источников."}
 - Предпочитай первоисточники: официальные сайты, документы, законы, исследования, заявления компаний. СМИ и блоги — как дополнение.
 - Обращай внимание на даты публикаций: свежие данные важнее устаревших; явно отмечай, если информация может быть неактуальной.
 - Пиши только то, что подтверждено найденными источниками. Не выдумывай факты, цифры, цитаты и ссылки. Если данных недостаточно — прямо скажи об этом.
@@ -246,6 +254,7 @@ def run(handler, payload, ip):
         return handler.send_json(503, {"error": "AI-поиск не настроен на сервере."})
     query = " ".join(str(payload.get("query", "")).split())
     mode = payload.get("mode") if payload.get("mode") in MODES else "quick"
+    assistant = "AI Day" if payload.get("assistant") == "ai-day" else "PRESIDENT AI SEARCH"
     parent_id = payload.get("parent")
     if len(query) < MIN_QUERY:
         return handler.send_json(400, {"error": f"Напишите вопрос хотя бы из {MIN_QUERY} символов."})
@@ -271,12 +280,12 @@ def run(handler, payload, ip):
     try:
         if not add_spend(cfg["reserve"]):
             return handler.send_json(503, {"error": "Дневной лимит AI-поиска исчерпан. Попробуйте завтра."})
-        _stream(handler, query, mode, cfg, previous)
+        _stream(handler, query, mode, cfg, previous, assistant)
     finally:
         slots.release()
 
 
-def _stream(handler, query, mode, cfg, previous):
+def _stream(handler, query, mode, cfg, previous, assistant):
     handler.send_response(200)
     handler.send_header("Content-Type", "text/event-stream; charset=utf-8")
     handler.send_header("X-Accel-Buffering", "no")
@@ -289,7 +298,7 @@ def _stream(handler, query, mode, cfg, previous):
 
     body = {
         "model": cfg["model"],
-        "instructions": instructions(mode),
+        "instructions": instructions(mode, assistant),
         "input": query,
         "tools": [{"type": "web_search", "search_context_size": cfg["context"]}],
         "tool_choice": "auto",
