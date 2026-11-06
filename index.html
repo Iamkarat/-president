@@ -2573,10 +2573,11 @@ img{content-visibility:auto;}
 </div>
 </div>
 </div>
-<div class="hero-start-actions">
+<div class="hero-start-actions hero-start-contact-actions">
 <a class="hero-start-cta" data-hero-tg href="https://t.me/Video_lifeee" target="_blank" rel="noopener noreferrer">Написать в Telegram</a>
-<p class="hero-start-hint">Сообщение уже подготовлено: в Telegram останется нажать «Отправить».</p>
+<a class="hero-start-cta hero-start-cta--forum" href="https://presidentmodel.io/forum/" target="_blank" rel="noopener noreferrer">Перейти на форум</a>
 </div>
+<p class="hero-start-hint">Сообщение уже подготовлено: в Telegram останется нажать «Отправить».</p>
 </div>
 </div>
 </section>
@@ -6599,6 +6600,12 @@ document.addEventListener('DOMContentLoaded',function(){
   align-items:center;
   gap:10px 22px;
 }
+#hero-start .hero-start-contact-actions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px 14px;
+  width:100%;
+}
 #hero-start .hero-start-cta{
   display:inline-flex;
   align-items:center;
@@ -6616,17 +6623,27 @@ document.addEventListener('DOMContentLoaded',function(){
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 10px 26px rgba(72,230,208,.28);
   transition:transform .45s var(--lg-ease),background .35s ease,box-shadow .45s ease;
 }
+#hero-start .hero-start-cta--forum{
+  background:linear-gradient(135deg,#f8f5ef,#dfeaf5);
+  border-color:rgba(97,131,173,.46);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 10px 26px rgba(127,155,196,.2);
+}
 #hero-start .hero-start-cta::after{content:"→";transition:transform .35s ease}
 #hero-start .hero-start-cta:hover{
   transform:translateY(-2px) scale(1.02);
   background:linear-gradient(135deg,#5ef0da,var(--zone-teal,#48e6d0));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 14px 34px rgba(72,230,208,.4);
 }
+#hero-start .hero-start-cta--forum:hover{
+  background:linear-gradient(135deg,#fffefb,#e8efff);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 14px 34px rgba(127,155,196,.28);
+}
 #hero-start .hero-start-cta:hover::after{transform:translateX(3px)}
 #hero-start .hero-start-cta:active{transform:scale(.975)}
 #hero-start .hero-start-hint{
   flex:1 1 100%;
   margin:0;
+  text-align:center;
   font:500 13px/1.45 Helvetica,Arial,sans-serif;
   color:rgba(255,255,255,.62);
   text-shadow:0 2px 12px rgba(0,0,0,.5);
@@ -6650,6 +6667,10 @@ document.addEventListener('DOMContentLoaded',function(){
 #hero-start #apartment-tour-video{display:block;width:100%;max-height:70svh;border:1px solid rgba(255,255,255,.16);border-radius:16px;background:#000}
 #hero-start #apartment-tour-video[hidden]{display:none}
 #hero-start .hero-start-cta:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(max-width:480px){
+  #hero-start .hero-start-contact-actions{gap:10px}
+  #hero-start .hero-start-cta{font-size:12.5px;min-height:52px;padding:0 12px}
+}
 @media(min-width:851px){
   .hero-content{min-height:0;flex:1 1 auto;justify-content:flex-end;padding-bottom:40px}
   #hero-start .hero-start-panel{
