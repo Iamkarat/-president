@@ -5,7 +5,6 @@ const NAV = [
   { href: "#top", label: "Главная" },
   { href: "#ai", label: "AI-поиск" },
   { href: "#qa", label: "Вопрос — ответ" },
-  { href: "#topics", label: "Темы" },
 ];
 
 // Темы: заголовок + краткий ответ; мнения участников хранятся на сервере.
@@ -100,7 +99,7 @@ function shell() {
       links.forEach((a) => a.toggleAttribute("aria-current", a.getAttribute("href") === `#${en.target.id}`));
     });
   }, { rootMargin: "-45% 0px -50% 0px" });
-  ["top", "ai", "qa", "topics"].forEach((id) => spy.observe(document.getElementById(id)));
+  ["top", "ai", "qa"].forEach((id) => spy.observe(document.getElementById(id)));
 }
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -865,7 +864,6 @@ function start() {
   shell();
   bindAvatarPickers();
   bindReader();
-  drawTopics();
   bindAi();
   bindQA();
   loadQA();
