@@ -1577,7 +1577,7 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
 @media (min-width: 1200px) and (min-height: 560px) {
   .side-banner {
     --gutter: calc((100vw - var(--container)) / 2);
-    --side-w: min(calc(var(--gutter) - 36px), calc((100vh - 32px) / 2));
+    --side-w: min(calc(var(--gutter) - 36px), calc((100vh - 48px) / 2.73));
     display: block;
     position: fixed;
     top: 16px;
