@@ -1527,3 +1527,33 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
   .ai-panel .search .btn, .ai-follow .search .btn { display: inline-flex; height: 40px; padding: 0 16px; }
   .ai-answer { font-size: 15.5px; }
 }
+
+/* Шапка — светлое жидкое стекло (перекрывает тёмные варианты выше) */
+.nav {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.28) 55%, rgba(255, 255, 255, 0.18) 100%),
+    rgba(235, 244, 242, 0.30);
+  border-color: rgba(255, 255, 255, 0.70);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 0 22px rgba(255, 255, 255, 0.35),
+    0 10px 30px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(28px) saturate(180%) brightness(1.08);
+  -webkit-backdrop-filter: blur(28px) saturate(180%) brightness(1.08);
+}
+.nav .logo { color: #00796A; }
+.nav .nav-links a { color: #1E2523; }
+.nav .nav-links a:hover { color: #0B0F0E; background: rgba(255, 255, 255, 0.45); }
+.nav .nav-links a[aria-current="page"],
+.nav .nav-links a[aria-current] { color: #0B0F0E; background: rgba(255, 255, 255, 0.55); }
+.nav .burger {
+  color: #101311;
+  background: rgba(255, 255, 255, 0.45);
+  border-color: rgba(255, 255, 255, 0.75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.nav .burger:hover { background: rgba(255, 255, 255, 0.65); }
+@media (prefers-reduced-transparency: reduce) {
+  .nav { background: rgba(240, 245, 244, 0.96); }
+}
