@@ -219,6 +219,9 @@ footer .logo-mark { border: 0; border-radius: 0; background: transparent; }
 }
 .hero .hero-discussions:hover { background: rgba(0, 169, 148, 0.12); }
 .section { margin-bottom: 52px; }
+.qa-cta { display: flex; justify-content: center; margin-top: 24px; }
+.qa-cta .btn { min-width: 220px; }
+@media (max-width: 560px) { .qa-cta .btn { width: 100%; } }
 .section-head { margin-bottom: 16px; }
 .ask {
   padding: 22px 26px;
