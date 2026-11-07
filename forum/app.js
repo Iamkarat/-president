@@ -40,11 +40,14 @@ const ICON = {
 
 const $ = (s, el = document) => el.querySelector(s);
 const AVATARS = [
-  { src: "assets/avatars/president-long-hair.png", label: "Длинные светло-коричневые волосы" },
-  { src: "assets/avatars/president-dark-hair.png", label: "Тёмные волосы и глянцевый макияж — стандартный аватар" },
-  { src: "assets/avatars/president-veil.png", label: "Кружевная фата" },
+  { src: "assets/avatars/avatar-1.webp", label: "Фиолетовый в очках и с часами" },
+  { src: "assets/avatars/avatar-2.webp", label: "Фиолетовый в золотых очках" },
+  { src: "assets/avatars/avatar-3.webp", label: "Брюнетка в фиолетовой шапке" },
+  { src: "assets/avatars/avatar-4.webp", label: "Блондинка в наушниках" },
+  { src: "assets/avatars/avatar-5.webp", label: "Чёрный с телефоном" },
+  { src: "assets/avatars/avatar-6.webp", label: "Блондинка с чокером" },
 ];
-const DEFAULT_AVATAR = AVATARS[1].src;
+const DEFAULT_AVATAR = AVATARS[0].src;
 
 // Safari и WebView на iOS (в т.ч. браузер Telegram) не показывают прозрачность webm —
 // там и на мобильных логотип — прозрачная PNG, как на основном сайте.
@@ -206,7 +209,8 @@ async function submit(form, path, onDone) {
   const btn = $("button:not([type=button])", form);
   btn.disabled = true;
   try {
-    const item = await api(path, { name: form.elements.name.value, text: text.value, avatar: form.elements.avatar?.value || "", website: $(".hp input", form).value });
+    const avatar = await avatarPayload(form.elements.avatar?.value || "");
+    const item = await api(path, { name: form.elements.name.value, text: text.value, avatar, website: $(".hp input", form).value });
     form.reset();
     setAvatarChoice(form, DEFAULT_AVATAR);
     onDone(item);
@@ -215,6 +219,18 @@ async function submit(form, path, onDone) {
   } finally {
     btn.disabled = false;
   }
+}
+
+// Готовые аватарки отправляются на сервер как data:image — сервер принимает их без списка путей.
+async function avatarPayload(value) {
+  if (!AVATARS.some((avatar) => avatar.src === value)) return value;
+  const blob = await (await fetch(value)).blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Не удалось загрузить аватар."));
+    reader.readAsDataURL(blob);
+  });
 }
 
 function setAvatarChoice(form, value) {
