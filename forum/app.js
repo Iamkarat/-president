@@ -148,7 +148,7 @@ const qaItem = (q) => `
           <div class="post-head">${avatarMarkup(a.name, a.avatar, "avatar-small")}<b>${esc(a.name)}</b><span class="meta">${fmt(a.created)}</span></div>
           <p>${esc(a.text)}</p>
         </div>`).join("")}
-      ${q.demo ? "" : `<div class="post-actions">
+      <div class="post-actions">
         <button class="link-btn" data-reply="${q.id}">Ответить${q.answers.length ? ` · ${q.answers.length}` : ""}</button>
       </div>
       <form class="reply-form" data-qid="${q.id}" hidden novalidate>
@@ -158,7 +158,7 @@ const qaItem = (q) => `
         <div class="hp" aria-hidden="true"><input tabindex="-1" autocomplete="off" name="website"></div>
         <button class="btn btn-light btn-sm" style="justify-self:start">Отправить ответ</button>
         <div data-status role="status"></div>
-      </form>`}
+      </form>
     </div>
   </article>`;
 
@@ -241,8 +241,9 @@ const DEMO_POSTS = (() => {
       ["Марина", "Можно самой попросить созвон с менеджером, мне не отказывали.", 7],
       ["Олеся", "Спасибо, попробую.", 9],
     ]),
-  ].map((q, i) => ({ ...q, id: `demo-${i}` }));
+  ].map((q, i) => ({ ...q, id: `d${i + 1}` })); // id связывает пример с ответами на сервере — новые примеры добавлять только в конец
 })();
+let demoAnswers = {};
 
 let questions = [];
 
@@ -267,7 +268,8 @@ const qaKind = (q) => Object.keys(QA_KINDS).find((k) => QA_KINDS[k].prefix && q.
 let qaTab = "question";
 
 function demoMarkup() {
-  const demos = DEMO_POSTS.filter((q) => q.kind === qaTab).sort((a, b) => b.created - a.created);
+  const demos = DEMO_POSTS.filter((q) => q.kind === qaTab).sort((a, b) => b.created - a.created)
+    .map((q) => ({ ...q, answers: [...q.answers, ...(demoAnswers[q.id] || [])] }));
   return demos.length ? `<p class="demo-note">Примеры — так выглядят обсуждения на форуме. Оставьте свой вопрос или отзыв.</p>${demos.map(qaItem).join("")}` : "";
 }
 
@@ -293,7 +295,7 @@ async function loadQA() {
   const list = $("#qa-list");
   list.innerHTML = `<div class="glass post" aria-hidden="true"><div class="skeleton avatar"></div><div style="display:grid;gap:10px"><div class="skeleton" style="height:14px;width:30%"></div><div class="skeleton" style="height:16px;width:90%"></div></div></div>`;
   try {
-    questions = await api("/api/questions");
+    [questions, demoAnswers] = await Promise.all([api("/api/questions"), api("/api/demo-answers").catch(() => ({}))]);
     drawQA();
   } catch (e) {
     console.error("loadQA:", e);
@@ -539,6 +541,14 @@ function bindQA() {
   $("#qa-list").addEventListener("submit", (e) => {
     e.preventDefault();
     const f = e.target;
+    if (f.dataset.qid.startsWith("d")) {
+      const key = f.dataset.qid;
+      submit(f, `/api/demo/${key}/answers`, (a) => {
+        (demoAnswers[key] ||= []).push(a);
+        drawQA();
+      });
+      return;
+    }
     const id = Number(f.dataset.qid);
     submit(f, `/api/questions/${id}/answers`, (a) => {
       questions.find((q) => q.id === id).answers.push(a);
