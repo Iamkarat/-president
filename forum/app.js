@@ -173,11 +173,30 @@ async function api(path, body) {
   return data;
 }
 
+// Записи делятся на три раздела по префиксу текста, который ставит форма публикации
+const QA_KINDS = {
+  "model-review": { prefix: "Отзыв о модели: ", empty: ["Отзывов о моделях пока нет", "Оставьте первый отзыв — он появится здесь сразу после отправки."] },
+  "agency-review": { prefix: "Отзыв об агентстве: ", empty: ["Отзывов об агентствах пока нет", "Оставьте первый отзыв — он появится здесь сразу после отправки."] },
+  question: { prefix: "", empty: ["Вопросов пока нет", "Задайте первый вопрос — он появится здесь сразу после отправки."] },
+};
+const qaKind = (q) => Object.keys(QA_KINDS).find((k) => QA_KINDS[k].prefix && q.text.startsWith(QA_KINDS[k].prefix)) || "question";
+let qaTab = "question";
+
 function drawQA() {
   const list = $("#qa-list");
-  list.innerHTML = questions.length
-    ? questions.map(qaItem).join("")
-    : emptyState("Вопросов пока нет", "Задайте первый вопрос — он появится здесь сразу после отправки.");
+  document.querySelectorAll("[data-qa-count]").forEach((el) => {
+    const n = questions.filter((q) => qaKind(q) === el.dataset.qaCount).length;
+    el.textContent = n ? n : "";
+  });
+  document.querySelectorAll("[data-qa-tab]").forEach((b) => {
+    const on = b.dataset.qaTab === qaTab;
+    b.classList.toggle("active", on);
+    b.setAttribute("aria-selected", on);
+  });
+  const kind = QA_KINDS[qaTab];
+  const items = questions.filter((q) => qaKind(q) === qaTab)
+    .map((q) => (kind.prefix ? { ...q, text: q.text.slice(kind.prefix.length) } : q));
+  list.innerHTML = items.length ? items.map(qaItem).join("") : emptyState(...kind.empty);
 }
 
 async function loadQA() {
@@ -342,12 +361,15 @@ function bindQA() {
     const type = postTypes[askForm.elements.postType.value];
     submit(askForm, "/api/questions", (q) => {
       questions.unshift(q);
+      qaTab = qaKind(q);
       drawQA();
       setStatus(askForm, "ok", type.prefix ? "Отзыв опубликован." : "Вопрос опубликован.");
       document.getElementById(`q-${q.id}`).scrollIntoView({ behavior: "smooth", block: "center" });
       updatePostType();
     }, type.prefix);
   });
+
+  document.querySelectorAll("[data-qa-tab]").forEach((b) => b.addEventListener("click", () => { qaTab = b.dataset.qaTab; drawQA(); }));
 
   $("#qa-list").addEventListener("click", (e) => {
     if (e.target.closest("[data-retry]")) {
