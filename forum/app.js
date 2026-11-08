@@ -141,6 +141,7 @@ const qaItem = (q) => `
     <div>
       <div class="post-head"><b>${esc(q.name)}</b><span class="meta">${fmt(q.created)}</span></div>
       <p class="q-text">${esc(q.text)}</p>
+      ${q.image ? `<a class="post-image" href="${esc(apiUrl(`/api/uploads/${q.image}`))}" target="_blank" rel="noopener"><img src="${esc(apiUrl(`/api/uploads/${q.image}`))}" alt="Изображение к записи" loading="lazy"></a>` : ""}
       ${q.answers.map((a) => `
         <div class="answer">
           <div class="post-head">${avatarMarkup(a.name, a.avatar, "avatar-small")}<b>${esc(a.name)}</b><span class="meta">${fmt(a.created)}</span></div>
@@ -229,9 +230,10 @@ async function submit(form, path, onDone, textPrefix = "") {
   btn.disabled = true;
   try {
     const avatar = await avatarPayload(form.elements.avatar?.value || "");
-    const item = await api(path, { name: form.elements.name.value, text: textPrefix ? `${textPrefix}: ${text.value.trim()}` : text.value, avatar, website: $(".hp input", form).value });
+    const item = await api(path, { name: form.elements.name.value, text: textPrefix ? `${textPrefix}: ${text.value.trim()}` : text.value, avatar, image: form._image || undefined, website: $(".hp input", form).value });
     form.reset();
     setAvatarChoice(form, DEFAULT_AVATAR);
+    setAttachment(form, "");
     onDone(item);
   } catch (e) {
     setStatus(form, "error", e.message);
@@ -265,6 +267,69 @@ function setAvatarChoice(form, value) {
   preview.innerHTML = value
     ? `<img src="${esc(value)}" alt=""><span>${value === DEFAULT_AVATAR ? "Стандартный аватар" : "Предпросмотр аватара"}</span>`
     : `<img src="${DEFAULT_AVATAR}" alt=""><span>Стандартный аватар</span>`;
+}
+
+// Фото или GIF к записи: фото сжимаем до 1600 px в JPEG, GIF отправляем как есть (до 4 МБ), чтобы не потерять анимацию
+const IMAGE_MAX = 4 * 1024 * 1024;
+const readDataUrl = (blob) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = () => reject(new Error("Не удалось прочитать файл."));
+  reader.readAsDataURL(blob);
+});
+
+async function prepareImage(file) {
+  if (!["image/png", "image/jpeg", "image/webp", "image/gif"].includes(file.type)) throw new Error("Выберите фото (PNG, JPEG, WebP) или GIF.");
+  if (file.type === "image/gif") {
+    if (file.size > IMAGE_MAX) throw new Error("GIF должен быть не больше 4 МБ.");
+    return readDataUrl(file);
+  }
+  if (file.size > 25 * 1024 * 1024) throw new Error("Фото должно быть не больше 25 МБ.");
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise((resolve, reject) => canvas.toBlob(
+    (b) => (b ? resolve(b) : reject(new Error("Не удалось обработать фото."))), "image/jpeg", 0.85));
+  if (blob.size > IMAGE_MAX) throw new Error("Фото слишком большое.");
+  return readDataUrl(blob);
+}
+
+function setAttachment(form, dataUrl) {
+  const preview = $(".attach-preview", form);
+  if (!preview) return;
+  form._image = dataUrl;
+  preview.hidden = !dataUrl;
+  $("img", preview).src = dataUrl || "";
+  const input = $("[data-attach]", form);
+  if (!dataUrl && input) input.value = "";
+}
+
+function bindAttachments() {
+  document.addEventListener("change", async (e) => {
+    const input = e.target.closest("[data-attach]");
+    if (!input || !input.files?.[0]) return;
+    const form = input.closest("form");
+    const status = $("[data-attach-status]", form);
+    status.textContent = "Обработка…";
+    try {
+      setAttachment(form, await prepareImage(input.files[0]));
+      status.textContent = "";
+    } catch (err) {
+      setAttachment(form, "");
+      status.textContent = err.message;
+    }
+  });
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-attach-remove]");
+    if (btn) setAttachment(btn.closest("form"), "");
+  });
 }
 
 function bindAvatarPickers() {
@@ -937,6 +1002,7 @@ function bindAi() {
 function start() {
   shell();
   bindAvatarPickers();
+  bindAttachments();
   bindReader();
   bindAi();
   bindQA();
