@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Бегущая строка — PRESIDENT</title>
+  <link rel="icon" href="../favicon-32x32.png">
+  <link rel="stylesheet" href="marquee.css">
+  <script>if (/[?&]render\b/.test(location.search)) document.documentElement.classList.add("render");</script>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:#000;
+      color:#d8efe9;
+      font-family:"Montserrat",Arial,sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    .page{max-width:1400px; margin:0 auto; padding:40px 24px 60px}
+    h1{
+      margin:0 0 6px;
+      font:400 22px/1.2 "Marcellus",Georgia,serif;
+      letter-spacing:.18em;
+      color:#7ff3d8;
+    }
+    .lead{margin:0 0 28px; font-size:13px; color:#7d948e; letter-spacing:.04em}
+
+    .frame{
+      position:relative;
+      width:100%;
+      aspect-ratio:1920/400;
+      border:1px solid rgba(0,168,138,.18);
+      border-radius:6px;
+      overflow:hidden;
+      background:#020504;
+    }
+    .frame .stage{position:absolute; left:0; top:0}
+
+    .panel{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:24px 40px;
+      margin-top:26px;
+      padding:22px 24px;
+      border:1px solid rgba(0,168,138,.16);
+      border-radius:6px;
+      background:#050b0a;
+    }
+    .group{display:flex; flex-wrap:wrap; align-items:center; gap:12px 16px}
+    .label{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#5f7d76; min-width:96px}
+    input[type=range]{width:min(360px,60vw); accent-color:#00a88a}
+    output{font-variant-numeric:tabular-nums; font-size:13px; color:#bfeee3; min-width:150px}
+    button,.btn{
+      appearance:none;
+      border:1px solid rgba(0,168,138,.45);
+      background:transparent;
+      color:#bfeee3;
+      font:inherit;
+      font-size:12px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      padding:9px 14px;
+      border-radius:4px;
+      cursor:pointer;
+      text-decoration:none;
+      transition:background .2s, color .2s;
+    }
+    button:hover,.btn:hover{background:rgba(0,168,138,.14)}
+    button[aria-pressed=true]{background:#00a88a; color:#021411; border-color:#00a88a}
+    .stack{display:grid; gap:16px}
+    .note{font-size:12px; line-height:1.6; color:#6f8a84; margin:0}
+    code{color:#9fe9d8; font-size:12px}
+
+    @media (max-width:760px){
+      .page{padding:24px 16px 40px}
+      .panel{grid-template-columns:1fr}
+    }
+
+    /* режим экспорта: только сцена, без масштаба */
+    .render body{background:#020504}
+    .render .page > :not(.frame){display:none}
+    .render .page{padding:0; max-width:none}
+    .render .frame{width:1920px; height:400px; border:0; border-radius:0}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h1>PRESIDENT · MARQUEE</h1>
+    <p class="lead">Бесконечная бегущая строка для Telegram-канала · 1920×400 · бесшовный цикл</p>
+
+    <div class="frame" id="frame">
+      <div class="stage" role="img" aria-label="PRESIDENT PRIVATE AGENCY">
+        <div class="rails">
+          <span class="rail t1"></span><span class="rail thin t2"></span>
+          <span class="rail thin b2"></span><span class="rail b1"></span>
+        </div>
+        <div class="track"></div>
+        <div class="sheen"><i></i><i class="s2"></i></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="stack">
+        <div class="group">
+          <span class="label">Скорость</span>
+          <input type="range" id="speed" min="30" max="400" step="1">
+          <output id="speedOut"></output>
+          <button type="button" id="speedReset">Сброс</button>
+        </div>
+        <div class="group">
+          <span class="label">Цикл</span>
+          <button type="button" data-cycle="8">8 с</button>
+          <button type="button" data-cycle="10">10 с</button>
+          <button type="button" data-cycle="12">12 с</button>
+          <button type="button" id="toggle">Пауза</button>
+        </div>
+        <p class="note">
+          Скорость меняется на лету без рывков (<code>playbackRate</code> CSS-анимации).
+          Экспорт всегда рендерится на базовой скорости: за один цикл строка сдвигается ровно на один повтор,
+          поэтому видео зацикливается без стыка. Ссылка на нужную длину цикла: <code>?cycle=12</code>.
+        </p>
+      </div>
+      <div class="stack">
+        <span class="label">Экспорт</span>
+        <a class="btn" href="dist/president-marquee.mp4" download>MP4 · 1920×400</a>
+        <a class="btn" href="dist/president-marquee.gif" download>GIF · 1920×400</a>
+        <a class="btn" href="dist/president-marquee-960.gif" download>GIF · 960×200</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="marquee.js"></script>
+  <script>
+    (function(){
+      var params = new URLSearchParams(location.search);
+      var stage = document.querySelector(".stage");
+      var frame = document.getElementById("frame");
+
+      if (params.has("render")) return;
+
+      function fit(){
+        stage.style.transform = "scale(" + (frame.clientWidth / 1920) + ")";
+      }
+      fit();
+      addEventListener("resize", fit);
+
+      var speed = document.getElementById("speed");
+      var out = document.getElementById("speedOut");
+      var toggle = document.getElementById("toggle");
+      var cycleBtns = document.querySelectorAll("[data-cycle]");
+      var paused = false;
+
+      function show(){
+        var v = +speed.value;
+        out.textContent = v + " px/с · проход " + (Marquee.unitW / v).toFixed(1) + " с";
+      }
+      function markCycle(){
+        cycleBtns.forEach(function(b){
+          b.setAttribute("aria-pressed", String(+b.dataset.cycle === Marquee.cycle));
+        });
+      }
+      function resetSpeed(){
+        speed.value = Math.round(Marquee.baseSpeed());
+        Marquee.setSpeed(Marquee.baseSpeed());
+        show();
+      }
+
+      Marquee.ready.then(function(){
+        resetSpeed();
+        markCycle();
+
+        speed.addEventListener("input", function(){
+          Marquee.setSpeed(+speed.value);
+          show();
+        });
+        document.getElementById("speedReset").addEventListener("click", resetSpeed);
+
+        cycleBtns.forEach(function(b){
+          b.addEventListener("click", function(){
+            Marquee.setCycle(+b.dataset.cycle);
+            requestAnimationFrame(resetSpeed);
+            markCycle();
+          });
+        });
+
+        toggle.addEventListener("click", function(){
+          paused = !paused;
+          paused ? Marquee.pause() : Marquee.play();
+          toggle.textContent = paused ? "Пуск" : "Пауза";
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

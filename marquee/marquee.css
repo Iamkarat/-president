@@ -1,0 +1,285 @@
+/* PRESIDENT PRIVATE AGENCY — бегущая строка для Telegram (1920×400) */
+
+@font-face{
+  font-family:"Marcellus";
+  src:url("fonts/marcellus-latin.woff2") format("woff2");
+  font-weight:400;
+  font-display:block;
+}
+@font-face{
+  font-family:"Montserrat";
+  src:url("fonts/montserrat-latin.woff2") format("woff2");
+  font-weight:100 900;
+  font-display:block;
+}
+
+:root{
+  --bg:#020504;
+  --brand:#00a88a;
+  --brand-hi:#7ff3d8;
+  --brand-deep:#00473a;
+  --cycle:10s;        /* длительность одного цикла */
+  --unit-w:1200px;    /* ширина одного повтора, выставляется из JS */
+}
+
+/* ---------- сцена 1920×400 ---------- */
+
+.stage{
+  position:relative;
+  width:1920px;
+  height:400px;
+  overflow:hidden;
+  background:var(--bg);
+  isolation:isolate;
+  transform-origin:0 0;
+}
+
+/* мягкая изумрудная дымка за полосой */
+.stage::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(60% 38% at 50% 50%, rgba(0,168,138,.10), transparent 70%),
+    linear-gradient(180deg, transparent 22%, rgba(0,168,138,.045) 50%, transparent 78%);
+  z-index:0;
+}
+
+/* затемнение краёв */
+.stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, var(--bg) 0, transparent 7%, transparent 93%, var(--bg) 100%);
+  z-index:5;
+  pointer-events:none;
+}
+
+/* ---------- декоративные линии ---------- */
+
+.rails{position:absolute; inset:0; z-index:1; pointer-events:none}
+
+.rail{
+  position:absolute;
+  left:0; right:0;
+  height:2px;
+  background:linear-gradient(90deg,
+    transparent 0%, rgba(0,168,138,.35) 10%, rgba(127,243,216,.85) 50%,
+    rgba(0,168,138,.35) 90%, transparent 100%);
+  box-shadow:0 0 10px rgba(0,168,138,.55), 0 0 26px rgba(0,168,138,.25);
+}
+.rail.thin{
+  height:1px;
+  opacity:.45;
+  box-shadow:0 0 6px rgba(0,168,138,.35);
+}
+.rail.t1{top:66px}
+.rail.t2{top:82px}
+.rail.b1{bottom:66px}
+.rail.b2{bottom:82px}
+
+/* ---------- трек ---------- */
+
+.track{
+  position:absolute;
+  top:0; left:0;
+  height:100%;
+  display:flex;
+  z-index:2;
+  will-change:transform;
+  animation:marquee var(--cycle) linear infinite;
+}
+
+@keyframes marquee{
+  from{transform:translate3d(0,0,0)}
+  to  {transform:translate3d(calc(-1 * var(--unit-w)),0,0)}
+}
+
+.unit{
+  position:relative;
+  flex:0 0 auto;
+  height:100%;
+  display:flex;
+  align-items:center;
+  padding:0 60px;
+  gap:64px;
+}
+
+/* блики на линиях — едут вместе со щитом */
+.flare{
+  position:absolute;
+  width:180px;
+  height:22px;
+  border-radius:50%;
+  background:radial-gradient(closest-side, rgba(210,255,245,.95), rgba(0,200,165,.45) 35%, transparent 100%);
+  filter:blur(1px);
+  mix-blend-mode:screen;
+}
+.flare::after{
+  content:"";
+  position:absolute;
+  left:50%; top:50%;
+  width:6px; height:6px;
+  margin:-3px 0 0 -3px;
+  border-radius:50%;
+  background:#eafffa;
+  box-shadow:0 0 12px 4px rgba(160,255,232,.8);
+}
+.flare.f1{left:150px; top:56px}
+.flare.f2{left:-20px; bottom:56px; width:240px; opacity:.8}
+
+/* ---------- щит ---------- */
+
+.shield{
+  display:block;
+  height:244px;
+  width:auto;
+  filter:
+    drop-shadow(0 2px 0 rgba(0,40,32,.9))
+    drop-shadow(0 0 14px rgba(0,168,138,.45))
+    saturate(1.15) brightness(1.05);
+}
+
+/* ---------- металлический текст ---------- */
+
+.lockup{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  filter:drop-shadow(0 0 16px rgba(0,168,138,.38));
+}
+
+.metal{
+  display:grid;
+  white-space:nowrap;
+  line-height:1;
+}
+/* все слои position:relative — порядок отрисовки строго по DOM */
+.metal > span{grid-area:1/1; position:relative}
+
+/* грань-экструзия (объём) */
+.metal .x{
+  color:#012e26;
+  top:3px;
+  text-shadow:
+    0 1px 0 #013a30,
+    0 2px 0 #01302a,
+    0 3px 2px rgba(0,0,0,.9);
+}
+/* лицевая поверхность: полированный металл с линией горизонта */
+.metal .f{
+  color:transparent;
+  background:linear-gradient(180deg,
+    #eafffa 0%,
+    #9ff7e2 20%,
+    #3ad8b6 42%,
+    #00977b 51%,
+    #12b796 62%,
+    #6ff0d2 84%,
+    #cffff3 100%);
+  -webkit-background-clip:text;
+          background-clip:text;
+}
+/* тонкая светлая кромка + внутренняя тень */
+.metal .r{
+  color:transparent;
+  -webkit-text-stroke:.7px rgba(205,255,243,.55);
+  text-shadow:0 -1px 0 rgba(230,255,250,.25);
+}
+
+.word{
+  font-family:"Marcellus", "Cinzel", Georgia, serif;
+  font-size:118px;
+  letter-spacing:.11em;
+  margin-right:-.11em;   /* компенсируем хвост letter-spacing */
+}
+
+.sub{
+  display:flex;
+  align-items:center;
+  gap:26px;
+  margin-top:22px;
+}
+.sub .metal{
+  font-family:"Montserrat", Arial, sans-serif;
+  font-weight:400;
+  font-size:31px;
+  letter-spacing:.38em;
+  margin-right:-.38em;
+}
+.sub .metal .x{top:1.5px}
+.sub .metal .r{-webkit-text-stroke:.4px rgba(205,255,243,.45)}
+
+.dash{
+  width:130px;
+  height:2px;
+  background:linear-gradient(90deg, transparent, var(--brand) 30%, var(--brand-hi));
+  box-shadow:0 0 8px rgba(0,168,138,.6);
+}
+.dash.rev{transform:scaleX(-1)}
+
+/* нижний орнамент-шеврон */
+.chevron{
+  position:relative;
+  width:150px;
+  height:2px;
+  margin-top:24px;
+  background:linear-gradient(90deg, transparent, var(--brand-hi) 50%, transparent);
+  box-shadow:0 0 8px rgba(0,168,138,.7);
+}
+.chevron::after{
+  content:"";
+  position:absolute;
+  left:50%; top:1px;
+  margin-left:-8px;
+  border:8px solid transparent;
+  border-top:11px solid var(--brand);
+  border-bottom:0;
+  filter:drop-shadow(0 0 6px rgba(0,168,138,.8));
+}
+
+/* ---------- проходящий блик ----------
+   color-dodge делит яркость под бликом на (1 − серый): металл и линии
+   вспыхивают, а почти чёрный фон остаётся чёрным. Градиент непрозрачный
+   (чёрный = без изменений), иначе полупрозрачный белый засвечивает фон. */
+.sheen{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  mix-blend-mode:color-dodge;
+  overflow:hidden;
+}
+.sheen i{
+  position:absolute;
+  top:-20%;
+  height:140%;
+  width:360px;
+  left:0;
+  transform:translateX(-600px) skewX(-18deg);
+  background:linear-gradient(90deg,
+    #000 0%,
+    #3a3a3a 32%,
+    #ababab 50%,
+    #3a3a3a 68%,
+    #000 100%);
+  animation:sweep var(--cycle) cubic-bezier(.45,.05,.55,.95) infinite;
+}
+.sheen i.s2{
+  width:140px;
+  filter:brightness(.7);
+  animation-name:sweep2;
+}
+
+@keyframes sweep{
+  0%,  8% {transform:translateX(-600px) skewX(-18deg)}
+  46%,100%{transform:translateX(2400px) skewX(-18deg)}
+}
+@keyframes sweep2{
+  0%, 56% {transform:translateX(-400px) skewX(-18deg)}
+  90%,100%{transform:translateX(2300px) skewX(-18deg)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .sheen i{animation:none; opacity:0}
+}

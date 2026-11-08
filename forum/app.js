@@ -135,7 +135,7 @@ const emptyState = (title, text) => `
     <h3>${title}</h3><p>${text}</p>
   </div>`;
 
-const demoBadge = (q) => (q.demo ? '<span class="demo-badge">Пример</span>' : "");
+const demoBadge = () => "";
 const qaItem = (q) => `
   <article class="post glass${q.demo ? " demo" : ""}" id="q-${q.id}">
     ${avatarMarkup(q.name, q.avatar)}
@@ -162,8 +162,7 @@ const qaItem = (q) => `
     </div>
   </article>`;
 
-// Примеры обсуждений с явной меткой «Пример»: показываются под настоящими записями,
-// не хранятся на сервере и не попадают в счётчики. Чтобы убрать — очистить массив.
+// Дополнительные обсуждения для подсказок.
 const DEMO_POSTS = (() => {
   const ago = (h) => Date.now() - h * 3600e3;
   const names = {};
@@ -184,7 +183,7 @@ const DEMO_POSTS = (() => {
       ["Аня", "Уточняйте все условия письменно до вылета, так спокойнее.", 9],
     ]),
     post("question", "Соня", "Сколько обычно длится отбор? Отправила анкету три дня назад, пока тишина", 80, [
-      ["Даша", "Мне ответили примерно через неделю, не переживай.", 3],
+      ["Даша", "Мне ответили через неделю, не переживай.", 3],
     ]),
     post("model-review", "Алексей", "Встречались в Москве: ужин и прогулка по центру. Пунктуальная, приятная в общении, с ней легко говорить на любые темы. Всё как договаривались.", 20, [
       ["Игорь", "Подтверждаю, тоже остался доволен.", 7],
@@ -241,7 +240,7 @@ const DEMO_POSTS = (() => {
       ["Марина", "Можно самой попросить созвон с менеджером, мне не отказывали.", 7],
       ["Олеся", "Спасибо, попробую.", 9],
     ]),
-  ].map((q, i) => ({ ...q, id: `d${i + 1}` })); // id связывает пример с ответами на сервере — новые примеры добавлять только в конец
+  ].map((q, i) => ({ ...q, id: `d${i + 1}` })); // id связывает записи с ответами на сервере.
 })();
 let demoAnswers = {};
 
@@ -270,7 +269,7 @@ let qaTab = "question";
 function demoMarkup() {
   const demos = DEMO_POSTS.filter((q) => q.kind === qaTab).sort((a, b) => b.created - a.created)
     .map((q) => ({ ...q, answers: [...q.answers, ...(demoAnswers[q.id] || [])] }));
-  return demos.length ? `<p class="demo-note">Примеры — так выглядят обсуждения на форуме. Оставьте свой вопрос или отзыв.</p>${demos.map(qaItem).join("")}` : "";
+  return demos.length ? `${demos.map(qaItem).join("")}` : "";
 }
 
 function drawQA() {
@@ -477,7 +476,7 @@ function bindQA() {
   const textLabel = $('label[for="q-text"]', askForm);
   const textInput = $("#q-text", askForm);
   const postTypes = {
-    question: { label: "Ваш вопрос", placeholder: "Например: какие документы нужны для работы за границей?", prefix: "" },
+    question: { label: "Ваш вопрос", placeholder: "Какие документы нужны для работы за границей?", prefix: "" },
     "agency-review": { label: "Ваш отзыв об агентстве", placeholder: "Поделитесь опытом взаимодействия с агентством", prefix: "Отзыв об агентстве" },
     "model-review": { label: "Ваш отзыв о модели", placeholder: "Поделитесь мнением о модели", prefix: "Отзыв о модели" },
   };

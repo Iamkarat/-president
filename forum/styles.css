@@ -1682,12 +1682,7 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
 @keyframes m-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
 @media (prefers-reduced-motion: reduce) { .m-hang, .m-bubble { animation: none; } .m-below { transform: translateX(-50%); } }
 
-/* ---------- Примеры обсуждений ---------- */
-.demo-note { margin: 4px 0 12px; font-size: 13px; color: var(--c-text-3); }
-.demo-badge {
-  margin-left: auto; padding: 2px 8px; border-radius: 999px; font-size: 11px; line-height: 1.4;
-  color: var(--c-text-3); border: 1px solid var(--c-glass-border);
-}
+/* ---------- Обсуждения ---------- */
 
 /* ---------- Мобильная оптимизация: без горизонтального сдвига, читаемые размеры ---------- */
 html, body { overflow-x: hidden; overflow-x: clip; }
@@ -1708,8 +1703,6 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .eyebrow { font-size: 12.5px; letter-spacing: 0.08em; }
   .edu-card p { font-size: 14.5px; line-height: 1.5; }
   .edu-tag { font-size: 12px; }
-  .demo-badge { font-size: 12px; }
-  .demo-note { font-size: 14px; }
   .m-bubble { font-size: 12.5px; }
   .welcome-income-cta p, .welcome-income-cta p a { font-size: 13px; line-height: 1.5; }
   .footer, .footer p, .footer a { font-size: 14px; }

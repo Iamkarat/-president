@@ -1,0 +1,11 @@
+{
+  "name": "president-marquee-export",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export": "node render.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.48.2"
+  }
+}

@@ -6,9 +6,9 @@
 //                (GitHub Pages) это только «занавеска»: файлы форума всё равно
 //                доступны по прямым адресам. Настоящая защита — FORUM_PASSWORD
 //                в server.py (HTTP Basic Auth) или авторизация на уровне CDN.
-// passwordSha256: SHA-256 пароля в hex, например:
+// passwordSha256: SHA-256 пароля в hex, для справки:
 //   printf '%s' 'пароль' | shasum -a 256
-// apiBase: адрес сервера server.py, например "https://api.example.com".
+// apiBase: адрес сервера server.py, для справки "https://api.example.com".
 //   Пустая строка — API на том же домене, что и страница.
 window.FORUM_CONFIG = {
   access: "link",
