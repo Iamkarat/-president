@@ -1725,3 +1725,13 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .footer .logo span { font-size: 13px !important; }
   .ask .btn, .welcome .btn { font-size: 14.5px !important; }
 }
+
+/* ---------- Вкладки в один ряд на телефоне ---------- */
+.qa-tab .qa-short { display: none; }
+.qa-tab .qa-full, .qa-tab .qa-short { margin: 0; opacity: 1; font-size: inherit; }
+@media (max-width: 720px) {
+  .qa-tabs { flex-wrap: nowrap; gap: 6px; }
+  .qa-tab { flex: 1 1 0; min-width: 0; padding: 0 6px; font-size: 13.5px; white-space: nowrap; }
+  .qa-tab .qa-full { display: none; }
+  .qa-tab .qa-short { display: inline; }
+}
