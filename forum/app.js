@@ -315,8 +315,26 @@ function bindQA() {
   const openAsk = () => { askForm.hidden = false; toggle.setAttribute("aria-expanded", "true"); askForm.elements.text.focus(); };
   toggle.addEventListener("click", () => (askForm.hidden ? openAsk() : (askForm.hidden = true, toggle.setAttribute("aria-expanded", "false"))));
   document.querySelectorAll('a[href="#ask"]').forEach((a) => a.addEventListener("click", () => setTimeout(openAsk, 300)));
+  document.body.insertAdjacentHTML("beforeend", `
+    <div class="modal" id="rules-modal" role="alertdialog" aria-modal="true" aria-labelledby="rules-title" aria-describedby="rules-text">
+      <div class="rules-dialog">
+        <h3 id="rules-title">Пишите уважительно</h3>
+        <p class="muted" id="rules-text">Высказывайте мнение корректно и по делу. Спам, оскорбления и мат запрещены — за нарушение аккаунт блокируется навсегда.</p>
+        <button type="button" class="btn btn-light" data-rules-ok>Ок</button>
+      </div>
+    </div>`);
+  const rulesModal = $("#rules-modal");
+  const closeRules = () => { rulesModal.classList.remove("open"); textInput.focus(); };
+  $("[data-rules-ok]", rulesModal).addEventListener("click", closeRules);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && rulesModal.classList.contains("open")) closeRules(); });
+
   askForm.addEventListener("change", (e) => {
-    if (e.target.name === "postType") updatePostType();
+    if (e.target.name !== "postType") return;
+    updatePostType();
+    if (postTypes[e.target.value].prefix) {
+      rulesModal.classList.add("open");
+      $("[data-rules-ok]", rulesModal).focus();
+    }
   });
 
   askForm.addEventListener("submit", (e) => {
