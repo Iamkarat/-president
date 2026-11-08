@@ -1293,16 +1293,6 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
   font-weight: 600;
   letter-spacing: -0.02em;
 }
-.welcome-text {
-  margin: 0;
-  min-height: 3.1em;
-  max-width: 660px;
-  margin-inline: auto;
-  text-align: center;
-  font-size: 0.94rem;
-  line-height: 1.55;
-  color: var(--c-text-2);
-}
 .edu-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
