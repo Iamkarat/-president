@@ -1688,3 +1688,40 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
   margin-left: auto; padding: 2px 8px; border-radius: 999px; font-size: 11px; line-height: 1.4;
   color: var(--c-text-3); border: 1px solid var(--c-glass-border);
 }
+
+/* ---------- Мобильная оптимизация: без горизонтального сдвига, читаемые размеры ---------- */
+html, body { overflow-x: hidden; overflow-x: clip; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (max-width: 720px) {
+  /* персонаж сбоку больше не выходит за экран */
+  .m-peek { width: 64px; right: -16px; top: 112px; }
+
+  /* поля ввода не меньше 16px — иначе iPhone увеличивает страницу при нажатии */
+  input, textarea, select, #ai-query { font-size: 16px !important; }
+
+  /* текст */
+  body { line-height: 1.55; }
+  .post p, .answer p, .q-text { font-size: 15px !important; line-height: 1.55; }
+  .post-head b { font-size: 14.5px; }
+  .meta { font-size: 13px; }
+  .note, .muted { font-size: 14px; }
+  .eyebrow { font-size: 12.5px; letter-spacing: 0.08em; }
+  .edu-card p { font-size: 14.5px; line-height: 1.5; }
+  .edu-tag { font-size: 12px; }
+  .demo-badge { font-size: 12px; }
+  .demo-note { font-size: 14px; }
+  .m-bubble { font-size: 12.5px; }
+  .welcome-income-cta p, .welcome-income-cta p a { font-size: 13px; line-height: 1.5; }
+  .footer, .footer p, .footer a { font-size: 14px; }
+  .footer h5 { font-size: 14px; }
+
+  /* кнопки и ссылки — удобно попадать пальцем */
+  .btn, .hero .chips .btn { font-size: 14.5px; min-height: 44px; }
+  .chip, .qa-tab { font-size: 14px; min-height: 40px; }
+  .link-btn { min-height: 40px; font-size: 14px; }
+  .edu-link { display: inline-flex; align-items: center; min-height: 40px; font-size: 14px; }
+  .footer a { padding: 8px 0; }
+  .logo span { font-size: 11.5px !important; }
+  .footer .logo span { font-size: 13px !important; }
+  .ask .btn, .welcome .btn { font-size: 14.5px !important; }
+}
