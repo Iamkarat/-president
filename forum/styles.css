@@ -934,10 +934,11 @@ main.container { padding-top: clamp(108px, 9vw, 124px); padding-bottom: clamp(40
 .modal { position: fixed; inset: 0; z-index: 100; display: none; place-items: center; padding: 16px; background: rgba(22, 25, 25, 0.55); }
 .modal.open { display: grid; }
 .modal .form { width: 100%; max-width: 420px; background: rgba(40, 44, 44, 0.78); }
-#rules-modal { background: rgba(0, 0, 0, 0.6); }
+#rules-modal { background: rgba(0, 0, 0, 0.35); }
 .rules-dialog {
   width: 100%; max-width: 360px; padding: 24px; display: grid; gap: 12px; justify-items: center; text-align: center;
-  background: #0d1212; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--r-md);
+  background: rgba(10, 16, 16, 0.45); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: var(--r-md);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
 .rules-dialog h3 { margin: 0; font-size: 17px; font-weight: 600; }
 .rules-dialog p { margin: 0; font-size: 14px; line-height: 1.55; }
