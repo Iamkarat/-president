@@ -1,8 +1,10 @@
 """Локальный сервер форума: раздаёт статику и хранит вопросы/ответы в data.json.
 
 GET  /api/questions                — список вопросов (новые сверху)
-POST /api/questions                — {name, text, avatar?}  → опубликовать вопрос сразу
+POST /api/questions                — {name, text, avatar?, image?}  → опубликовать вопрос сразу
+                                     (image — data:image/png|jpeg|webp|gif;base64, до 4 МБ)
 POST /api/questions/<id>/answers   — {name, text, avatar?}  → ответ на вопрос
+GET  /api/uploads/<file>           — картинка, прикреплённая к записи
 POST /api/admin/delete            — {ids: [..]} или {all: true}, заголовок X-Admin-Token = ADMIN_TOKEN
                                      → удалить записи (вопросы, ответы, мнения в темах)
 Если задана переменная окружения FORUM_PASSWORD, весь форум (страница и API)
@@ -27,6 +29,7 @@ import hmac
 import json
 import os
 import re
+import secrets
 import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -55,6 +58,11 @@ AVATAR_ASSETS = {
     "assets/avatars/president-dark-hair.png",
     "assets/avatars/president-veil.png",
 }
+UPLOADS = os.path.join(DATA_DIR, "uploads")
+IMAGE_MAX = 4 * 1024 * 1024
+IMAGE_DATA_RE = re.compile(r"data:image/(webp|png|jpeg|gif);base64,([A-Za-z0-9+/]+={0,2})\Z")
+IMAGE_NAME_RE = re.compile(r"[0-9a-f]{32}\.(webp|png|jpg|gif)")
+IMAGE_TYPES = {"webp": "image/webp", "png": "image/png", "jpg": "image/jpeg", "gif": "image/gif"}
 AVATAR_DATA_RE = re.compile(r"data:image/(webp|png|jpeg);base64,([A-Za-z0-9+/]+={0,2})\Z")
 
 lock = threading.Lock()
@@ -86,6 +94,55 @@ def valid_avatar(value):
     )
 
 
+def decode_image(value):
+    """data:image/...;base64 → (байты, расширение) или ValueError."""
+    match = IMAGE_DATA_RE.fullmatch(value) if isinstance(value, str) and len(value) < IMAGE_MAX * 4 // 3 + 100 else None
+    if not match:
+        raise ValueError("Прикрепите PNG, JPEG, WebP или GIF до 4 МБ.")
+    try:
+        data = base64.b64decode(match.group(2), validate=True)
+    except (binascii.Error, ValueError):
+        raise ValueError("Некорректное изображение.")
+    kind = match.group(1)
+    ok = (
+        (kind == "webp" and data.startswith(b"RIFF") and data[8:12] == b"WEBP")
+        or (kind == "png" and data.startswith(b"\x89PNG\r\n\x1a\n"))
+        or (kind == "jpeg" and data.startswith(b"\xff\xd8\xff"))
+        or (kind == "gif" and data[:6] in (b"GIF87a", b"GIF89a"))
+    )
+    if not ok or len(data) > IMAGE_MAX:
+        raise ValueError("Прикрепите PNG, JPEG, WebP или GIF до 4 МБ.")
+    return data, "jpg" if kind == "jpeg" else kind
+
+
+def store_image(data, ext):
+    os.makedirs(UPLOADS, exist_ok=True)
+    name = f"{secrets.token_hex(16)}.{ext}"
+    tmp = os.path.join(UPLOADS, name + ".tmp")
+    with open(tmp, "wb") as f:
+        f.write(data)
+    os.replace(tmp, os.path.join(UPLOADS, name))
+    return name
+
+
+def remove_images(names):
+    for name in names:
+        if IMAGE_NAME_RE.fullmatch(name):
+            try:
+                os.remove(os.path.join(UPLOADS, name))
+            except OSError:
+                pass
+
+
+def all_images(db):
+    found = set()
+    for q in db["questions"]:
+        for item in [q, *q["answers"]]:
+            if item.get("image"):
+                found.add(item["image"])
+    return found
+
+
 def load():
     try:
         with open(DATA, encoding="utf-8") as f:
@@ -113,6 +170,7 @@ def load():
             and isinstance(item.get("text"), str)
             and type(item.get("created")) is int
             and ("avatar" not in item or valid_avatar(item["avatar"]))
+            and ("image" not in item or (isinstance(item["image"], str) and IMAGE_NAME_RE.fullmatch(item["image"])))
         )
 
     entries = []
@@ -264,6 +322,7 @@ class Handler(SimpleHTTPRequestHandler):
             except (OSError, ValueError) as e:
                 return self.send_json(500, {"error": str(e)})
             before = json.dumps(db)
+            images_before = all_images(db)
             if payload.get("all") is True:
                 db["questions"] = []
             else:
@@ -279,6 +338,7 @@ class Handler(SimpleHTTPRequestHandler):
                     save(db)
                 except OSError as e:
                     return self.send_json(500, {"error": f"Не удалось сохранить данные: {e}"})
+                remove_images(images_before - all_images(db))
         return self.send_json(200, {"ok": True, "changed": changed, "left": [q["id"] for q in db["questions"]]})
 
     def do_GET(self):
@@ -299,6 +359,21 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.send_json(200, load().get("topics", {}))
             except (OSError, ValueError) as e:
                 return self.send_json(500, {"error": str(e)})
+        up = re.fullmatch(r"/api/uploads/([^/]+)", path)
+        if up:
+            name = up.group(1)
+            file = os.path.join(UPLOADS, name)
+            if not IMAGE_NAME_RE.fullmatch(name) or not os.path.isfile(file):
+                return self.send_error(404)
+            with open(file, "rb") as f:
+                data = f.read()
+            self.send_response(200)
+            self.send_header("Content-Type", IMAGE_TYPES[name.rsplit(".", 1)[1]])
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Content-Security-Policy", "default-src 'none'")
+            self.end_headers()
+            return self.wfile.write(data)
         if path == "/api/ai/status":
             return self.send_json(200, {
                 "enabled": bool(ai_search.API_KEY),
@@ -329,13 +404,14 @@ class Handler(SimpleHTTPRequestHandler):
         t = re.fullmatch(r"/api/topics/([a-z0-9-]{1,40})/comments", self.path)
         if not m and not (t and t.group(1) in TOPIC_IDS):
             return self.send_error(404)
-        payload = self.read_json(120_000)
+        payload = self.read_json(6_000_000 if m and not m.group(1) else 120_000)
         if payload is None:
             return
 
         ip = self.client_ip()
         try:
             name, text, avatar = clean(payload, 10 if m and not m.group(1) else 2, 1000)
+            image = decode_image(payload["image"]) if m and not m.group(1) and payload.get("image") else None
         except ValueError as e:
             return self.send_json(400, {"error": str(e)})
 
@@ -350,6 +426,11 @@ class Handler(SimpleHTTPRequestHandler):
             item = {"id": db["next_id"], "name": name, "text": text, "created": int(now * 1000)}
             if avatar:
                 item["avatar"] = avatar
+            if image:
+                try:
+                    item["image"] = store_image(*image)
+                except OSError as e:
+                    return self.send_json(500, {"error": f"Не удалось сохранить изображение: {e}"})
             db["next_id"] += 1
             if t:
                 db.setdefault("topics", {}).setdefault(t.group(1), []).append(item)
