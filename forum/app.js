@@ -135,11 +135,12 @@ const emptyState = (title, text) => `
     <h3>${title}</h3><p>${text}</p>
   </div>`;
 
+const demoBadge = (q) => (q.demo ? '<span class="demo-badge">Пример</span>' : "");
 const qaItem = (q) => `
-  <article class="post glass" id="q-${q.id}">
+  <article class="post glass${q.demo ? " demo" : ""}" id="q-${q.id}">
     ${avatarMarkup(q.name, q.avatar)}
     <div>
-      <div class="post-head"><b>${esc(q.name)}</b><span class="meta">${fmt(q.created)}</span></div>
+      <div class="post-head"><b>${esc(q.name)}</b><span class="meta">${fmt(q.created)}</span>${demoBadge(q)}</div>
       <p class="q-text">${esc(q.text)}</p>
       ${q.image ? `<a class="post-image" href="${esc(apiUrl(`/api/uploads/${q.image}`))}" target="_blank" rel="noopener"><img src="${esc(apiUrl(`/api/uploads/${q.image}`))}" alt="Изображение к записи" loading="lazy"></a>` : ""}
       ${q.answers.map((a) => `
@@ -147,7 +148,7 @@ const qaItem = (q) => `
           <div class="post-head">${avatarMarkup(a.name, a.avatar, "avatar-small")}<b>${esc(a.name)}</b><span class="meta">${fmt(a.created)}</span></div>
           <p>${esc(a.text)}</p>
         </div>`).join("")}
-      <div class="post-actions">
+      ${q.demo ? "" : `<div class="post-actions">
         <button class="link-btn" data-reply="${q.id}">Ответить${q.answers.length ? ` · ${q.answers.length}` : ""}</button>
       </div>
       <form class="reply-form" data-qid="${q.id}" hidden novalidate>
@@ -157,9 +158,58 @@ const qaItem = (q) => `
         <div class="hp" aria-hidden="true"><input tabindex="-1" autocomplete="off" name="website"></div>
         <button class="btn btn-light btn-sm" style="justify-self:start">Отправить ответ</button>
         <div data-status role="status"></div>
-      </form>
+      </form>`}
     </div>
   </article>`;
+
+// Примеры обсуждений с явной меткой «Пример»: показываются под настоящими записями,
+// не хранятся на сервере и не попадают в счётчики. Чтобы убрать — очистить массив.
+const DEMO_POSTS = (() => {
+  const ago = (h) => Date.now() - h * 3600e3;
+  const names = {};
+  const avatar = (name) => (names[name] ??= AVATARS[Object.keys(names).length % AVATARS.length].src);
+  const post = (kind, name, text, h, answers = []) => ({
+    demo: true, kind, name, text, created: ago(h), avatar: avatar(name),
+    answers: answers.map(([n, t, dh], i) => ({ id: i, name: n, text: t, created: ago(h - dh), avatar: avatar(n) })),
+  });
+  return [
+    post("question", "Вероника", "Как понять, что агентство нормальное, а не развод? На что смотреть в первую очередь?", 30, [
+      ["Лера", "Живой менеджер на связи и все договорённости в переписке. Если просят деньги вперёд — сразу мимо.", 2],
+      ["Ника", "И спросите, можно ли поговорить с девушкой, которая уже работала с ними.", 3],
+      ["Вероника", "Спасибо, очень помогли)", 5],
+      ["Лера", "Удачи! Потом расскажи, как всё прошло", 6],
+    ]),
+    post("question", "Мила", "Кто летал в Дубай через агентство — билеты кто оплачивает и сколько обычно занимает виза?", 54, [
+      ["Карина", "Мне всё оформляли сами, билет туда за их счёт. Виза около недели.", 4],
+      ["Аня", "Уточняйте все условия письменно до вылета, так спокойнее.", 9],
+    ]),
+    post("question", "Соня", "Сколько обычно длится отбор? Отправила анкету три дня назад, пока тишина", 80, [
+      ["Даша", "Мне ответили примерно через неделю, не переживай.", 3],
+    ]),
+    post("model-review", "Алексей", "Встречались в Москве: ужин и прогулка по центру. Пунктуальная, приятная в общении, с ней легко говорить на любые темы. Всё как договаривались.", 20, [
+      ["Игорь", "Подтверждаю, тоже остался доволен.", 7],
+    ]),
+    post("model-review", "Максим", "Ухоженная, стильная, фото соответствуют полностью. Рекомендую.", 46, [
+      ["Олег", "Реальные фото — это главное, спасибо за отзыв.", 2],
+      ["Максим", "Да, приятно удивило.", 4],
+    ]),
+    post("model-review", "Денис", "Хорошая девушка, но опоздала минут на 30 и не предупредила. В остальном без претензий.", 98, [
+      ["Кирилл", "Пробки в пятницу вечером — классика) Но предупредить, конечно, стоило.", 5],
+      ["Денис", "Согласен, в целом впечатление хорошее.", 6],
+    ]),
+    post("agency-review", "Ирина", "Работаю с агентством полгода. Менеджеры на связи круглосуточно, выплаты без задержек, всё прозрачно.", 26, [
+      ["Юля", "Согласна, у меня тоже ни разу не задерживали.", 3],
+      ["Ирина", "Главное — всё обсуждать заранее и по договорённости.", 5],
+    ]),
+    post("agency-review", "Катя", "Первую поездку организовали хорошо: встретили, заселили, всё объяснили. Только по второй поездке долго ждала ответ.", 60, [
+      ["Марина", "В загруженные дни бывает, но отвечают всегда.", 6],
+    ]),
+    post("agency-review", "Сергей", "Обращался как клиент. Вежливо, быстро, конфиденциальность соблюдена.", 120, [
+      ["Антон", "Тоже обращался, всё чётко.", 10],
+      ["Сергей", "Да, впечатление только положительное.", 12],
+    ]),
+  ].map((q, i) => ({ ...q, id: `demo-${i}` }));
+})();
 
 let questions = [];
 
@@ -183,6 +233,11 @@ const QA_KINDS = {
 const qaKind = (q) => Object.keys(QA_KINDS).find((k) => QA_KINDS[k].prefix && q.text.startsWith(QA_KINDS[k].prefix)) || "question";
 let qaTab = "question";
 
+function demoMarkup() {
+  const demos = DEMO_POSTS.filter((q) => q.kind === qaTab);
+  return demos.length ? `<p class="demo-note">Примеры — так выглядят обсуждения на форуме. Оставьте свой вопрос или отзыв.</p>${demos.map(qaItem).join("")}` : "";
+}
+
 function drawQA() {
   const list = $("#qa-list");
   document.querySelectorAll("[data-qa-count]").forEach((el) => {
@@ -197,7 +252,8 @@ function drawQA() {
   const kind = QA_KINDS[qaTab];
   const items = questions.filter((q) => qaKind(q) === qaTab)
     .map((q) => (kind.prefix ? { ...q, text: q.text.slice(kind.prefix.length) } : q));
-  list.innerHTML = items.length ? items.map(qaItem).join("") : emptyState(...kind.empty);
+  const demos = demoMarkup();
+  list.innerHTML = (items.length ? items.map(qaItem).join("") : demos ? "" : emptyState(...kind.empty)) + demos;
 }
 
 async function loadQA() {
@@ -208,7 +264,7 @@ async function loadQA() {
     drawQA();
   } catch (e) {
     console.error("loadQA:", e);
-    list.innerHTML = emptyState("Вопросы временно недоступны", `Попробуйте обновить чуть позже. <button class="link-btn" data-retry>Повторить</button>`);
+    list.innerHTML = emptyState("Вопросы временно недоступны", `Попробуйте обновить чуть позже. <button class="link-btn" data-retry>Повторить</button>`) + demoMarkup();
   }
 }
 
