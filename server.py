@@ -4,6 +4,8 @@ GET  /api/questions                — список вопросов (новые
 POST /api/questions                — {name, text, avatar?, image?}  → опубликовать вопрос сразу
                                      (image — data:image/png|jpeg|webp|gif;base64, до 4 МБ)
 POST /api/questions/<id>/answers   — {name, text, avatar?}  → ответ на вопрос
+GET  /api/demo-answers             — ответы посетителей на примеры: {d1: [..]}
+POST /api/demo/<d1..>/answers      — {name, text, avatar?} → ответ на пример
 GET  /api/uploads/<file>           — картинка, прикреплённая к записи
 POST /api/admin/delete            — {ids: [..]} или {all: true}, заголовок X-Admin-Token = ADMIN_TOKEN
                                      → удалить записи (вопросы, ответы, мнения в темах)
@@ -158,6 +160,7 @@ def load():
         or db["next_id"] < 1
         or not isinstance(db.get("questions"), list)
         or not isinstance(db.get("topics", {}), dict)
+        or not isinstance(db.get("demo_answers", {}), dict)
     ):
         raise ValueError("Файл данных форума имеет неверную структуру.")
 
@@ -179,7 +182,7 @@ def load():
             raise ValueError("В файле данных форума есть некорректный вопрос.")
         entries.append(question)
         entries.extend(question["answers"])
-    for comments in db.get("topics", {}).values():
+    for comments in [*db.get("topics", {}).values(), *db.get("demo_answers", {}).values()]:
         if not isinstance(comments, list):
             raise ValueError("В файле данных форума есть некорректный список мнений.")
         entries.extend(comments)
@@ -330,8 +333,9 @@ class Handler(SimpleHTTPRequestHandler):
                 db["questions"] = [q for q in db["questions"] if q["id"] not in drop]
                 for q in db["questions"]:
                     q["answers"] = [a for a in q["answers"] if a["id"] not in drop]
-                for key, items in db.get("topics", {}).items():
-                    db["topics"][key] = [c for c in items if c["id"] not in drop]
+                for group in ("topics", "demo_answers"):
+                    for key, items in db.get(group, {}).items():
+                        db[group][key] = [c for c in items if c["id"] not in drop]
             changed = json.dumps(db) != before
             if changed:
                 try:
@@ -351,6 +355,12 @@ class Handler(SimpleHTTPRequestHandler):
             try:
                 with lock:
                     return self.send_json(200, load()["questions"])
+            except (OSError, ValueError) as e:
+                return self.send_json(500, {"error": str(e)})
+        if path == "/api/demo-answers":
+            try:
+                with lock:
+                    return self.send_json(200, load().get("demo_answers", {}))
             except (OSError, ValueError) as e:
                 return self.send_json(500, {"error": str(e)})
         if path == "/api/topics":
@@ -402,7 +412,8 @@ class Handler(SimpleHTTPRequestHandler):
             return
         m = re.fullmatch(r"/api/questions(?:/(\d+)/answers)?", self.path)
         t = re.fullmatch(r"/api/topics/([a-z0-9-]{1,40})/comments", self.path)
-        if not m and not (t and t.group(1) in TOPIC_IDS):
+        dm = re.fullmatch(r"/api/demo/(d[1-9][0-9]{0,2})/answers", self.path)
+        if not m and not dm and not (t and t.group(1) in TOPIC_IDS):
             return self.send_error(404)
         payload = self.read_json(6_000_000 if m and not m.group(1) else 120_000)
         if payload is None:
@@ -432,7 +443,9 @@ class Handler(SimpleHTTPRequestHandler):
                 except OSError as e:
                     return self.send_json(500, {"error": f"Не удалось сохранить изображение: {e}"})
             db["next_id"] += 1
-            if t:
+            if dm:
+                db.setdefault("demo_answers", {}).setdefault(dm.group(1), []).append(item)
+            elif t:
                 db.setdefault("topics", {}).setdefault(t.group(1), []).append(item)
             elif m.group(1):
                 q = next((q for q in db["questions"] if q["id"] == int(m.group(1))), None)
