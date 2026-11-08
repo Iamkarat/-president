@@ -3,6 +3,8 @@
 GET  /api/questions                — список вопросов (новые сверху)
 POST /api/questions                — {name, text, avatar?}  → опубликовать вопрос сразу
 POST /api/questions/<id>/answers   — {name, text, avatar?}  → ответ на вопрос
+POST /api/admin/delete            — {ids: [..]} или {all: true}, заголовок X-Admin-Token = ADMIN_TOKEN
+                                     → удалить записи (вопросы, ответы, мнения в темах)
 Если задана переменная окружения FORUM_PASSWORD, весь форум (страница и API)
 закрывается HTTP Basic Auth: логин любой, пароль — значение переменной.
 
@@ -44,6 +46,7 @@ ALLOWED_ORIGINS = {o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "").spli
 TRUST_PROXY = os.environ.get("TRUST_PROXY") == "1"
 API_ONLY = os.environ.get("API_ONLY") == "1"
 PASSWORD = os.environ.get("FORUM_PASSWORD", "")
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "")
 LINK_RE = re.compile(r"(https?://|www\.|t\.me/|\b[\w-]+\.(ru|com|io|net|org)\b)", re.I)
 RATE_SECONDS = 15
 TOPIC_IDS = {"greece", "tickets", "packing", "budget", "stay", "party", "safety", "meet", "season"}
@@ -245,6 +248,39 @@ class Handler(SimpleHTTPRequestHandler):
             or os.path.commonpath((old_dir, target)) == old_dir
         )
 
+    def admin_delete(self):
+        token = self.headers.get("X-Admin-Token", "")
+        if not ADMIN_TOKEN or not hmac.compare_digest(token.encode(), ADMIN_TOKEN.encode()):
+            return self.send_json(403, {"error": "Нет доступа"})
+        payload = self.read_json(10_000)
+        if payload is None:
+            return
+        ids = payload.get("ids", [])
+        if payload.get("all") is not True and (not isinstance(ids, list) or not all(type(i) is int for i in ids)):
+            return self.send_json(400, {"error": "Ожидается {ids: [числа]} или {all: true}"})
+        with lock:
+            try:
+                db = load()
+            except (OSError, ValueError) as e:
+                return self.send_json(500, {"error": str(e)})
+            before = json.dumps(db)
+            if payload.get("all") is True:
+                db["questions"] = []
+            else:
+                drop = set(ids)
+                db["questions"] = [q for q in db["questions"] if q["id"] not in drop]
+                for q in db["questions"]:
+                    q["answers"] = [a for a in q["answers"] if a["id"] not in drop]
+                for key, items in db.get("topics", {}).items():
+                    db["topics"][key] = [c for c in items if c["id"] not in drop]
+            changed = json.dumps(db) != before
+            if changed:
+                try:
+                    save(db)
+                except OSError as e:
+                    return self.send_json(500, {"error": f"Не удалось сохранить данные: {e}"})
+        return self.send_json(200, {"ok": True, "changed": changed, "left": [q["id"] for q in db["questions"]]})
+
     def do_GET(self):
         if not self.authorized():
             return
@@ -282,6 +318,8 @@ class Handler(SimpleHTTPRequestHandler):
     def do_POST(self):
         if not self.authorized():
             return
+        if self.path == "/api/admin/delete":
+            return self.admin_delete()
         if self.path == "/api/ai/search":
             payload = self.read_json(4_000)
             if payload is not None:
