@@ -1342,14 +1342,14 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
   color: var(--c-accent);
 }
 .edu-link:hover { color: #20BBA8; text-decoration: underline; }
-.welcome-income-cta { display: grid; justify-items: center; gap: 7px; margin-top: 20px; text-align: center; }
-.welcome-income-cta > a { display: inline-flex; align-items: center; gap: 6px; padding-bottom: 2px; border-bottom: 1px solid rgba(0, 169, 148, 0.48); color: rgba(235, 244, 242, 0.72); font-size: 0.92rem; font-weight: 500; text-decoration: none; transition: color .2s, border-color .2s; }
-.welcome-income-cta > a::after { content: "↗"; color: var(--c-accent); font-size: 0.82em; }
-.welcome-income-cta > a:hover, .welcome-income-cta > a:focus-visible { border-color: var(--c-accent); color: var(--c-text); }
-.welcome-income-cta > a:focus-visible, .welcome-income-cta p a:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 4px; }
+.welcome-income-cta { display: grid; justify-items: center; gap: 9px; margin-top: 20px; text-align: center; }
+.welcome-income-cta .welcome-income-button { height: auto; min-height: 44px; max-width: 100%; padding: 10px 22px; white-space: normal; text-align: center; text-decoration: none; line-height: 1.35; }
+.welcome-income-cta .welcome-income-button::after { content: "↗"; font-size: 0.82em; }
+.welcome-income-cta .welcome-income-button:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 4px; }
 .welcome-income-cta p { max-width: 620px; margin: 0; color: rgba(235, 244, 242, 0.42); font-size: 0.75rem; line-height: 1.5; }
 .welcome-income-cta p a { color: inherit; text-decoration-color: rgba(0, 169, 148, 0.48); text-underline-offset: 3px; }
-.welcome-income-cta p a:hover { color: var(--c-text); }
+.welcome-income-cta p a:hover, .welcome-income-cta p a:focus-visible { color: var(--c-text); }
+.welcome-income-cta p a:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
 @media (max-width: 640px) {
   .welcome { padding: 22px 18px; }
   .welcome h2 { font-size: clamp(1.45rem, 6.2vw, 1.8rem); }
