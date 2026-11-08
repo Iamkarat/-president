@@ -198,7 +198,7 @@ function setStatus(form, cls, text) {
   s.textContent = text;
 }
 
-async function submit(form, path, onDone) {
+async function submit(form, path, onDone, textPrefix = "") {
   if ($(".hp input", form).value) return;
   const text = form.elements.text;
   if (text.value.trim().length < Number(text.minLength || 1)) {
@@ -210,7 +210,7 @@ async function submit(form, path, onDone) {
   btn.disabled = true;
   try {
     const avatar = await avatarPayload(form.elements.avatar?.value || "");
-    const item = await api(path, { name: form.elements.name.value, text: text.value, avatar, website: $(".hp input", form).value });
+    const item = await api(path, { name: form.elements.name.value, text: textPrefix ? `${textPrefix}: ${text.value.trim()}` : text.value, avatar, website: $(".hp input", form).value });
     form.reset();
     setAvatarChoice(form, DEFAULT_AVATAR);
     onDone(item);
@@ -299,18 +299,36 @@ function bindAvatarPickers() {
 function bindQA() {
   const toggle = $("#ask-toggle");
   const askForm = $("#ask-form");
+  const textLabel = $('label[for="q-text"]', askForm);
+  const textInput = $("#q-text", askForm);
+  const postTypes = {
+    question: { label: "Ваш вопрос", placeholder: "Например: какие документы нужны для работы за границей?", prefix: "" },
+    "agency-review": { label: "Ваш отзыв об агентстве", placeholder: "Поделитесь опытом взаимодействия с агентством", prefix: "Отзыв об агентстве" },
+    "model-review": { label: "Ваш отзыв о модели", placeholder: "Поделитесь мнением о модели", prefix: "Отзыв о модели" },
+  };
+  const updatePostType = () => {
+    const type = postTypes[askForm.elements.postType.value];
+    textLabel.textContent = type.label;
+    textInput.placeholder = type.placeholder;
+    textInput.maxLength = type.prefix ? 1000 - type.prefix.length - 2 : 1000;
+  };
   const openAsk = () => { askForm.hidden = false; toggle.setAttribute("aria-expanded", "true"); askForm.elements.text.focus(); };
   toggle.addEventListener("click", () => (askForm.hidden ? openAsk() : (askForm.hidden = true, toggle.setAttribute("aria-expanded", "false"))));
   document.querySelectorAll('a[href="#ask"]').forEach((a) => a.addEventListener("click", () => setTimeout(openAsk, 300)));
+  askForm.addEventListener("change", (e) => {
+    if (e.target.name === "postType") updatePostType();
+  });
 
   askForm.addEventListener("submit", (e) => {
     e.preventDefault();
+    const type = postTypes[askForm.elements.postType.value];
     submit(askForm, "/api/questions", (q) => {
       questions.unshift(q);
       drawQA();
-      setStatus(askForm, "ok", "Вопрос опубликован.");
+      setStatus(askForm, "ok", type.prefix ? "Отзыв опубликован." : "Вопрос опубликован.");
       document.getElementById(`q-${q.id}`).scrollIntoView({ behavior: "smooth", block: "center" });
-    });
+      updatePostType();
+    }, type.prefix);
   });
 
   $("#qa-list").addEventListener("click", (e) => {

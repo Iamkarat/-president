@@ -49,6 +49,7 @@
           <a class="btn btn-light" href="#ask">Задать вопрос</a>
           <a class="btn btn-ghost hero-discussions" href="#qa">Читать обсуждения</a>
           <a class="btn btn-ghost hero-discussions" href="https://presidentmodel.io/" target="_blank" rel="noopener noreferrer">Наш сайт</a>
+          <a class="btn btn-ghost hero-discussions" href="#welcome">Заработать больше</a>
         </div>
       </div>
     </section>
@@ -79,12 +80,18 @@
     <section class="section" id="ask">
       <div class="ask glass">
         <div>
-          <h2>Есть вопрос?</h2>
-          <p class="muted">Напишите его, и он сразу появится в блоке «Вопрос — ответ». Регистрация не нужна.</p>
+          <h2>Есть вопрос или хотите поделиться мнением?</h2>
+          <p class="muted">Задайте вопрос или оставьте отзыв об агентстве или модели. Регистрация не нужна.</p>
         </div>
-        <button class="btn btn-light" id="ask-toggle" aria-expanded="false" aria-controls="ask-form">Задать вопрос</button>
+        <button class="btn btn-light" id="ask-toggle" aria-expanded="false" aria-controls="ask-form">Написать</button>
       </div>
       <form class="form glass light" id="ask-form" hidden novalidate style="margin-top:14px">
+        <fieldset class="publication-type">
+          <legend>Что хотите опубликовать?</legend>
+          <label><input type="radio" name="postType" value="question" checked> Задать вопрос</label>
+          <label><input type="radio" name="postType" value="agency-review"> Оставить отзыв на агентство</label>
+          <label><input type="radio" name="postType" value="model-review"> Оставить отзыв на модель</label>
+        </fieldset>
         <div class="field">
           <label for="q-name">Имя <span class="note">(необязательно)</span></label>
           <input class="input" id="q-name" name="name" maxlength="40" autocomplete="nickname" placeholder="Аноним">
