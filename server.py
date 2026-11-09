@@ -47,6 +47,7 @@ HOST = os.environ.get("HOST", "127.0.0.1")
 ALLOWED_ORIGINS = {o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "").split(",") if o.strip()} | {
     "https://botwrk.ru",
     "https://potwrk.ru",
+    "https://oneydaye.xyz",
 }
 TRUST_PROXY = os.environ.get("TRUST_PROXY") == "1"
 API_ONLY = os.environ.get("API_ONLY") == "1"

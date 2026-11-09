@@ -24,7 +24,7 @@ services:
       - key: DATA_DIR
         value: /var/data
       - key: ALLOWED_ORIGINS
-        value: https://presidentmodel.io
+        value: https://presidentmodel.io,https://oneydaye.xyz
       - key: TRUST_PROXY
         value: "1"
       - key: AI_DAILY_BUDGET_USD
