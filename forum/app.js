@@ -39,6 +39,21 @@ const ICON = {
 };
 
 const $ = (s, el = document) => el.querySelector(s);
+
+// Аналитика: цели форума уходят в общий счётчик Метрики основного сайта и в Google-тег
+const YM_ID = 113581478;
+function track(goal, params = {}) {
+  try {
+    if (typeof window.ym === "function") window.ym(YM_ID, "reachGoal", goal, { section: "forum", ...params });
+    if (typeof window.gtag === "function") window.gtag("event", goal, { event_category: "forum", ...params });
+  } catch (_) { /* аналитика не должна ломать форум */ }
+}
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a[href*='presidentmodel.io']");
+  if (!a) return;
+  const place = a.classList.contains("side-banner") ? (a.classList.contains("side-banner-left") ? "banner_left" : "banner_right") : "income_cta";
+  track("forum_to_site", { place, href: a.href });
+}, true);
 const AVATARS = [
   { src: "assets/avatars/avatar-1.webp", label: "Фиолетовый в очках и с часами" },
   { src: "assets/avatars/avatar-2.webp", label: "Фиолетовый в золотых очках" },
@@ -400,7 +415,7 @@ function bindQA() {
     textInput.placeholder = type.placeholder;
     textInput.maxLength = type.prefix ? 1000 - type.prefix.length - 2 : 1000;
   };
-  const openAsk = () => { askForm.hidden = false; toggle.setAttribute("aria-expanded", "true"); askForm.elements.text.focus(); };
+  const openAsk = () => { track("forum_ask_open"); askForm.hidden = false; toggle.setAttribute("aria-expanded", "true"); askForm.elements.text.focus(); };
   toggle.addEventListener("click", () => (askForm.hidden ? openAsk() : (askForm.hidden = true, toggle.setAttribute("aria-expanded", "false"))));
   document.querySelectorAll('a[href="#ask"]').forEach((a) => a.addEventListener("click", () => setTimeout(openAsk, 300)));
   document.body.insertAdjacentHTML("beforeend", `
@@ -428,7 +443,9 @@ function bindQA() {
   askForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const type = postTypes[askForm.elements.postType.value];
+    const postType = askForm.elements.postType.value;
     submit(askForm, "/api/questions", (q) => {
+      track(postType === "question" ? "forum_post_question" : postType === "agency-review" ? "forum_post_agency_review" : "forum_post_model_review", { post_type: postType });
       questions.unshift(q);
       qaTab = qaKind(q);
       drawQA();
@@ -438,7 +455,7 @@ function bindQA() {
     }, type.prefix);
   });
 
-  document.querySelectorAll("[data-qa-tab]").forEach((b) => b.addEventListener("click", () => { qaTab = b.dataset.qaTab; drawQA(); }));
+  document.querySelectorAll("[data-qa-tab]").forEach((b) => b.addEventListener("click", () => { qaTab = b.dataset.qaTab; track("forum_tab", { tab: qaTab }); drawQA(); }));
 
   $("#qa-list").addEventListener("click", (e) => {
     if (e.target.closest("[data-retry]")) {
@@ -449,13 +466,14 @@ function bindQA() {
     if (!b) return;
     const f = $(`.reply-form[data-qid="${b.dataset.reply}"]`);
     f.hidden = !f.hidden;
-    if (!f.hidden) f.elements.text.focus();
+    if (!f.hidden) { track("forum_reply_open"); f.elements.text.focus(); }
   });
   $("#qa-list").addEventListener("submit", (e) => {
     e.preventDefault();
     const f = e.target;
     const id = Number(f.dataset.qid);
     submit(f, `/api/questions/${id}/answers`, (a) => {
+      track("forum_reply", { question_id: id });
       questions.find((q) => q.id === id).answers.push(a);
       drawQA();
     });
@@ -532,6 +550,7 @@ function drawTopics() {
     const tile = e.target.closest("[data-topic]");
     if (!tile) return;
     current = TOPICS[tile.dataset.topic];
+    track("forum_topic_open", { topic: current.id });
     $("#tm-icon").innerHTML = topicIcon(current.icon);
     $("#tm-title").textContent = current.title;
     $("#tm-answer").textContent = current.answer;
@@ -545,6 +564,7 @@ function drawTopics() {
     e.preventDefault();
     const t = current;
     submit(form, `/api/topics/${t.id}/comments`, (c) => {
+      track("forum_topic_comment", { topic: t.id });
       (topicComments[t.id] ||= []).push(c);
       drawComments(t);
       drawTiles();
@@ -640,6 +660,7 @@ function bindReader() {
     opener = link;
     const card = link.closest(".edu-card");
     $("#rd-title").textContent = card ? $("h3", card).textContent : "";
+    track("forum_article_open", { article: card ? $("h3", card).textContent : link.href });
     body.replaceChildren(Object.assign(document.createElement("p"), { className: "reader-note", textContent: "Загрузка статьи…" }));
     modal.classList.add("open");
     document.body.style.overflow = "hidden";
@@ -833,6 +854,7 @@ async function aiStream(body, on) {
 async function aiRun(query, mode, parent) {
   if (aiBusy) return;
   aiBusy = true;
+  track(parent ? "forum_ai_followup" : "forum_ai_search", { mode });
   $("#ai-submit").disabled = true;
   const turn = { query, mode, parent, answer: "", citations: [], sources: [], steps: ["Анализирую вопрос"], pending: true };
   aiTurns.push(turn);
