@@ -206,7 +206,7 @@ const isTestPost = (q) => q.name === "Тест" && [
   "Отзыв об агентстве: Тест, проверка раздела отзывов об агентствах",
   "Отзыв о модели: Тест, проверка раздела отзывов о моделях",
 ].includes(q.text);
-let qaTab = "question";
+let qaTab = "model-review";
 
 function drawQA() {
   const list = $("#qa-list");
