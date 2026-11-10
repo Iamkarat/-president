@@ -40,10 +40,16 @@ const ICON = {
 
 const $ = (s, el = document) => el.querySelector(s);
 
-// Аналитика: цели форума уходят в общий счётчик Метрики основного сайта и в Google-тег
+// Аналитика: цели форума уходят в собственную аналитику сайта (president-analytics),
+// в общий счётчик Метрики основного сайта и в Google-тег
 const YM_ID = 113581478;
+const TRACK_DETAIL = ["place", "mode", "tab", "topic", "article", "post_type"];
 function track(goal, params = {}) {
   try {
+    if (typeof window.paTrack === "function") {
+      const key = TRACK_DETAIL.find((k) => params[k] !== undefined);
+      window.paTrack("forum_action", { action: goal.replace(/^forum_/, ""), detail: key ? String(params[key]) : "" });
+    }
     if (typeof window.ym === "function") window.ym(YM_ID, "reachGoal", goal, { section: "forum", ...params });
     if (typeof window.gtag === "function") window.gtag("event", goal, { event_category: "forum", ...params });
   } catch (_) { /* аналитика не должна ломать форум */ }
