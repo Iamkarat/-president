@@ -1086,3 +1086,26 @@ function gate() {
 }
 
 gate();
+
+// ---------- Лента уроков: стрелки прокрутки ----------
+(() => {
+  const rail = document.querySelector(".lesson-rail");
+  if (!rail) return;
+  const track = rail.querySelector(".lesson-grid");
+  const prev = rail.querySelector(".lesson-prev");
+  const next = rail.querySelector(".lesson-next");
+  const step = () => {
+    const card = track.querySelector(".lesson-card");
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    return card ? (card.offsetWidth + gap) * Math.max(1, Math.floor(track.clientWidth / (card.offsetWidth + gap))) : track.clientWidth;
+  };
+  const sync = () => {
+    prev.disabled = track.scrollLeft <= 4;
+    next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+  };
+  prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
+  next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+  track.addEventListener("scroll", sync, { passive: true });
+  window.addEventListener("resize", sync);
+  sync();
+})();
