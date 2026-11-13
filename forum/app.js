@@ -697,6 +697,8 @@ function bindReader() {
   }
 
   section.addEventListener("click", (e) => {
+    const lesson = e.target.closest(".lesson-card");
+    if (lesson) { track("forum_article_open", { article: $("h3", lesson).textContent }); return; }
     const link = e.target.closest(".edu-link");
     if (!link || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
