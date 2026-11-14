@@ -1805,3 +1805,12 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .lesson-body p { font-size: 13px; line-height: 1.45; }
   .lesson-more { font-size: 13px; padding-top: 4px; }
 }
+.reader-body .lesson-modal-img { width: 100%; max-width: 420px; aspect-ratio: 1 / 1; object-fit: contain; margin: 0 auto 1.2em; border-radius: 16px; background: #0d1413; }
+.reader-body .lesson-modal-cta {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; min-height: 50px; margin-top: 1.4em; padding: 12px 20px;
+  border-radius: 999px; background: var(--c-accent); color: #04110f;
+  font-size: 1rem; font-weight: 700; text-decoration: none; text-align: center;
+}
+.reader-body .lesson-modal-cta:hover { background: #20BBA8; color: #04110f; text-decoration: none; }
+.reader-body .lesson-modal-cta:focus-visible { outline: 2px solid var(--c-text); outline-offset: 3px; }

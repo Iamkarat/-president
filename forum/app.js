@@ -696,9 +696,39 @@ function bindReader() {
     }
   }
 
+  function openLesson(card) {
+    ++token;
+    opener = card;
+    const title = $("h3", card).textContent;
+    track("forum_article_open", { article: title });
+    $("#rd-title").textContent = title;
+    const img = $(".lesson-media img", card).cloneNode();
+    img.className = "lesson-modal-img";
+    img.loading = "eager";
+    const tpl = $("template.lesson-full", card);
+    const cta = Object.assign(document.createElement("a"), {
+      className: "btn lesson-modal-cta",
+      href: card.href,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      textContent: "Читать до конца в канале →",
+    });
+    cta.addEventListener("click", () => track("forum_lesson_channel", { article: title }));
+    body.replaceChildren(img, ...(tpl ? tpl.content.cloneNode(true).childNodes : []), cta);
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+    $(".reader", modal).scrollTop = 0;
+    $("[data-reader-close]", modal).focus();
+  }
+
   section.addEventListener("click", (e) => {
     const lesson = e.target.closest(".lesson-card");
-    if (lesson) { track("forum_article_open", { article: $("h3", lesson).textContent }); return; }
+    if (lesson) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      openLesson(lesson);
+      return;
+    }
     const link = e.target.closest(".edu-link");
     if (!link || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
