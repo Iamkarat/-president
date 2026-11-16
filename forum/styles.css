@@ -1683,13 +1683,19 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
 @media (prefers-reduced-motion: reduce) { .m-hang, .m-bubble { animation: none; } .m-below { transform: translateX(-50%); } }
 
 /* ---------- Обсуждения ---------- */
-.external-model-review-status { padding: 18px; margin-bottom: 12px; }
-.external-model-review { align-items: start; }
-.external-model-review .eyebrow { display: block; margin: 1px 0 7px; }
-.external-model-review-body { margin: 10px 0 12px; }
-.external-model-review-body summary { color: var(--c-accent); cursor: pointer; font-size: 0.9rem; }
-.external-model-review-text { margin-top: 12px; overflow-wrap: anywhere; }
+.external-model-reviews { display: grid; gap: 12px; margin-bottom: 16px; }
+.external-model-reviews > h3 { margin: 0; font-size: 1.08rem; }
+.external-model-reviews > .eyebrow { margin-top: -7px; }
+.external-model-review-status { padding: 18px; }
+.external-model-review { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 14px; padding: 14px; align-items: start; }
+.external-model-review-photo { width: 82px; height: 82px; object-fit: cover; border-radius: var(--r-sm); border: 1px solid var(--c-glass-border); background: rgba(255,255,255,.05); }
+.external-model-review > .avatar { width: 58px; height: 58px; }
+.external-model-review-main { min-width: 0; }
+.external-model-review-excerpt { margin: 0 0 9px; color: var(--c-text-2); overflow-wrap: anywhere; }
+.external-model-review-detail { margin-top: 12px; }
+.external-model-review-text { overflow-wrap: anywhere; }
 .external-model-review-text p { white-space: pre-wrap; }
+@media (max-width: 480px) { .external-model-review { grid-template-columns: 66px minmax(0, 1fr); gap: 11px; } .external-model-review-photo { width: 66px; height: 66px; } }
 
 /* ---------- Мобильная оптимизация: без горизонтального сдвига, читаемые размеры ---------- */
 html, body { overflow-x: hidden; overflow-x: clip; }

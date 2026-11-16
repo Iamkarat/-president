@@ -183,10 +183,12 @@ const qaItem = (q) => `
   </article>`;
 
 let questions = [];
-// Это не отзывы, оставленные на PRESIDENT. Внешняя страница скачивается и
-// очищается сервером заранее; браузер получает только последнюю версию из API.
+// Это не отзывы, оставленные на PRESIDENT. Внешние карточки сервер сохраняет
+// заранее; браузер получает список, а подробность — только по клику.
 let externalModelReviews;
 let externalModelReviewsRequest = null;
+const externalModelReviewBodies = new Map();
+const externalModelReviewRequests = new Map();
 
 const CONFIG = { access: "link", passwordSha256: "", apiBase: "", ...window.FORUM_CONFIG };
 
@@ -214,41 +216,66 @@ let qaTab = "model-review";
 
 function externalModelReviewsMarkup() {
   if (externalModelReviews === undefined) {
-    return `<div class="glass external-model-review-status"><p class="muted">Загрузка сохранённых внешних отзывов…</p></div>`;
+    return `<section class="external-model-reviews"><h3>Лжесотрудники</h3><span class="eyebrow">Внешний материал · без AI-пересказа</span><div class="glass external-model-review-status"><p class="muted">Загрузка сохранённых карточек…</p></div></section>`;
   }
   if (!externalModelReviews) return "";
-  const item = externalModelReviews;
-  const blocks = Array.isArray(item.blocks) ? item.blocks : [];
-  const status = item.stale
-    ? "Источник временно недоступен — показана последняя сохранённая версия."
-    : `Обновлено: ${discussionDate(item.updated_at)}.`;
-  const text = blocks.length
-    ? `<details class="external-model-review-body"><summary>Читать сохранённый текст</summary><div class="external-model-review-text">${blocks.map((block) => `<p>${esc(block)}</p>`).join("")}</div></details>`
-    : `<p class="muted">Текст ещё готовится фоновым импортом.</p>`;
-  return `<article class="post glass external-model-review" id="external-model-review">
-    <span class="avatar avatar-default" aria-hidden="true">↗</span>
-    <div>
-      <span class="eyebrow">Внешний материал · без AI-пересказа</span>
-      <div class="post-head"><b>${esc(item.title || "Внешние отзывы о моделях")}</b><span class="meta">${item.ready ? discussionDate(item.updated_at) : "готовится к импорту"}</span></div>
-      ${text}
-      <div class="discussion-source"><span>${status}</span><a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Оригинал страницы ↗</a></div>
-    </div>
-  </article>`;
+  const cards = externalModelReviews.length ? externalModelReviews.map((item) => {
+    const photo = item.image
+      ? `<img class="external-model-review-photo" src="${esc(apiUrl(`/api/model-review-images/${item.image}`))}" alt="" loading="lazy">`
+      : `<span class="avatar avatar-default" aria-hidden="true">↗</span>`;
+    const status = item.stale ? "Источник временно недоступен — показана сохранённая версия." : `Обновлено: ${discussionDate(item.updated_at)}.`;
+    return `<article class="glass external-model-review" data-external-model-review="${esc(item.id)}">
+      ${photo}
+      <div class="external-model-review-main">
+        <div class="post-head"><b>${esc(item.title)}</b><span class="meta">${item.ready ? discussionDate(item.updated_at) : "готовится"}</span></div>
+        ${item.excerpt ? `<p class="external-model-review-excerpt">${esc(item.excerpt)}</p>` : ""}
+        <button class="link-btn" type="button" data-external-model-review-open="${esc(item.id)}">Открыть подробный ответ</button>
+        <div class="external-model-review-detail" data-external-model-review-detail="${esc(item.id)}" hidden></div>
+        <div class="discussion-source"><span>${status}</span><a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Оригинал ↗</a></div>
+      </div>
+    </article>`;
+  }).join("") : `<div class="glass external-model-review-status"><p class="muted">Карточки пока готовятся к импорту.</p></div>`;
+  return `<section class="external-model-reviews"><h3>Лжесотрудники</h3><span class="eyebrow">Внешний материал · без AI-пересказа</span>${cards}</section>`;
 }
 
 async function loadExternalModelReviews() {
   if (externalModelReviewsRequest || externalModelReviews !== undefined) return;
   externalModelReviewsRequest = api("/api/model-reviews/external");
   try {
-    const item = await externalModelReviewsRequest;
-    if (!item || !item.id || !item.url || !Array.isArray(item.blocks)) throw new Error("Некорректный ответ с отзывами.");
-    externalModelReviews = item;
+    const items = await externalModelReviewsRequest;
+    if (!Array.isArray(items) || items.some((item) => !item || !item.id || !item.url)) throw new Error("Некорректный ответ с карточками.");
+    externalModelReviews = items;
   } catch (error) {
     console.error("loadExternalModelReviews:", error);
     externalModelReviews = null;
   } finally {
     externalModelReviewsRequest = null;
     if (qaTab === "model-review") drawQA();
+  }
+}
+
+async function loadExternalModelReviewBody(id, target) {
+  const cached = externalModelReviewBodies.get(id);
+  if (cached) {
+    target.innerHTML = `<div class="external-model-review-text">${cached.blocks.map((block) => `<p>${esc(block)}</p>`).join("")}</div>`;
+    return;
+  }
+  let request = externalModelReviewRequests.get(id);
+  if (!request) {
+    request = api(`/api/model-reviews/external/${encodeURIComponent(id)}`);
+    externalModelReviewRequests.set(id, request);
+  }
+  target.hidden = false;
+  target.innerHTML = `<p class="muted">Загрузка сохранённого ответа…</p>`;
+  try {
+    const item = await request;
+    if (!item || !Array.isArray(item.blocks)) throw new Error("Некорректный ответ.");
+    externalModelReviewBodies.set(id, item);
+    target.innerHTML = `<div class="external-model-review-text">${item.blocks.map((block) => `<p>${esc(block)}</p>`).join("")}</div>`;
+  } catch (error) {
+    target.innerHTML = `<p class="alert">Не удалось загрузить сохранённый ответ. <button class="link-btn" type="button" data-external-model-review-open="${esc(id)}">Повторить</button></p>`;
+  } finally {
+    externalModelReviewRequests.delete(id);
   }
 }
 
@@ -525,6 +552,14 @@ function bindQA() {
   $("#qa-list").addEventListener("click", (e) => {
     if (e.target.closest("[data-retry]")) {
       loadQA();
+      return;
+    }
+    const externalReview = e.target.closest("[data-external-model-review-open]");
+    if (externalReview) {
+      const id = externalReview.dataset.externalModelReviewOpen;
+      const card = externalReview.closest("[data-external-model-review]");
+      const target = card && $("[data-external-model-review-detail]", card);
+      if (target) loadExternalModelReviewBody(id, target);
       return;
     }
     const b = e.target.closest("[data-reply]");
