@@ -1816,3 +1816,29 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .reader-body .lesson-modal-cta:focus-visible { outline: 2px solid var(--c-text); outline-offset: 3px; }
 
 .age-mark { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--c-accent); border: 1px solid currentColor; vertical-align: 1px; }
+
+/* ---------- Внешние обсуждения: только сохранённые ответы API ---------- */
+.discussion-tools { display: flex; align-items: end; justify-content: space-between; gap: 14px; padding: 14px 16px; margin-bottom: 8px; border-radius: var(--r-md); }
+.discussion-search { display: grid; gap: 5px; width: min(100%, 440px); font-size: 13px; color: var(--c-text-2); }
+.discussion-search .input { min-height: 42px; }
+.discussion-disclaimer { margin: 0 0 12px; }
+.discussion { margin-bottom: 10px; overflow: hidden; }
+.discussion summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; cursor: pointer; list-style: none; }
+.discussion summary::-webkit-details-marker { display: none; }
+.discussion summary:hover { background: rgba(255, 255, 255, 0.035); }
+.discussion-title { display: block; font-weight: 650; overflow-wrap: anywhere; }
+.discussion summary small { display: block; margin-top: 3px; color: var(--c-text-3); font-size: 12px; }
+.discussion-answer, .discussion-loading { padding: 16px 20px 20px; border-top: 1px solid var(--divider); }
+.discussion-answer > .eyebrow { display: block; margin-bottom: 10px; }
+.discussion-summary { margin: 0; white-space: pre-line; line-height: 1.65; color: var(--c-text-2); overflow-wrap: anywhere; }
+.discussion-messages { display: grid; gap: 10px; }
+.discussion-messages p { margin: 0; padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.045); color: var(--c-text-2); white-space: pre-line; overflow-wrap: anywhere; }
+.discussion-source { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin-top: 16px; font-size: 12px; color: var(--c-text-3); }
+.discussion-source a { color: var(--c-accent); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 520px) {
+  .discussion-tools { align-items: stretch; flex-direction: column; padding: 12px; }
+  .discussion-tools .btn { width: 100%; }
+  .discussion summary { padding: 15px 14px; gap: 10px; }
+  .discussion-answer, .discussion-loading { padding: 14px; }
+  .discussion-messages p { padding: 11px 12px; }
+}

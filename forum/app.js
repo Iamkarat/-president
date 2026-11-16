@@ -210,6 +210,9 @@ let qaTab = "model-review";
 
 function drawQA() {
   const list = $("#qa-list");
+  const external = qaTab === "external-discussions";
+  list.hidden = external;
+  $("#external-discussions").hidden = !external;
   document.querySelectorAll("[data-qa-count]").forEach((el) => {
     const n = questions.filter((q) => qaKind(q) === el.dataset.qaCount).length;
     el.textContent = n ? n : "";
@@ -219,6 +222,10 @@ function drawQA() {
     b.classList.toggle("active", on);
     b.setAttribute("aria-selected", on);
   });
+  if (external) {
+    renderDiscussionList();
+    return;
+  }
   const kind = QA_KINDS[qaTab];
   const items = questions.filter((q) => qaKind(q) === qaTab)
     .map((q) => (kind.prefix ? { ...q, text: q.text.slice(kind.prefix.length) } : q));
@@ -227,13 +234,13 @@ function drawQA() {
 
 async function loadQA() {
   const list = $("#qa-list");
-  list.innerHTML = `<div class="glass post" aria-hidden="true"><div class="skeleton avatar"></div><div style="display:grid;gap:10px"><div class="skeleton" style="height:14px;width:30%"></div><div class="skeleton" style="height:16px;width:90%"></div></div></div>`;
+  if (qaTab !== "external-discussions") list.innerHTML = `<div class="glass post" aria-hidden="true"><div class="skeleton avatar"></div><div style="display:grid;gap:10px"><div class="skeleton" style="height:14px;width:30%"></div><div class="skeleton" style="height:16px;width:90%"></div></div></div>`;
   try {
     questions = (await api("/api/questions")).filter((q) => !isTestPost(q));
     drawQA();
   } catch (e) {
     console.error("loadQA:", e);
-    list.innerHTML = emptyState("Вопросы временно недоступны", `Попробуйте обновить чуть позже. <button class="link-btn" data-retry>Повторить</button>`);
+    if (qaTab !== "external-discussions") list.innerHTML = emptyState("Вопросы временно недоступны", `Попробуйте обновить чуть позже. <button class="link-btn" data-retry>Повторить</button>`);
   }
 }
 
@@ -461,7 +468,12 @@ function bindQA() {
     }, type.prefix);
   });
 
-  document.querySelectorAll("[data-qa-tab]").forEach((b) => b.addEventListener("click", () => { qaTab = b.dataset.qaTab; track("forum_tab", { tab: qaTab }); drawQA(); }));
+  document.querySelectorAll("[data-qa-tab]").forEach((b) => b.addEventListener("click", () => {
+    qaTab = b.dataset.qaTab;
+    track("forum_tab", { tab: qaTab });
+    drawQA();
+    if (qaTab === "external-discussions") loadDiscussionIndex();
+  }));
 
   $("#qa-list").addEventListener("click", (e) => {
     if (e.target.closest("[data-retry]")) {
@@ -483,6 +495,113 @@ function bindQA() {
       questions.find((q) => q.id === id).answers.push(a);
       drawQA();
     });
+  });
+}
+
+// Внешние обсуждения: API отдаёт сначала только названия. Сохранённый текст
+// загружается при первом раскрытии и остаётся в браузерном кеше этой вкладки.
+let discussionIndex = [];
+const discussionBodies = new Map();
+const discussionRequests = new Map();
+let discussionIndexRequest = null;
+
+const discussionDate = (value) => value ? fmt(value) : "ещё не обновлялось";
+
+function discussionBodyMarkup(item) {
+  const source = `<a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Оригинал обсуждения ↗</a>`;
+  const status = item.stale
+    ? "Источник временно недоступен — показана последняя сохранённая версия."
+    : `Обновлено: ${discussionDate(item.updated_at)}.`;
+  let content = "";
+  if (item.mode === "full") {
+    const messages = Array.isArray(item.messages) ? item.messages : [];
+    content = messages.length
+      ? `<div class="discussion-messages">${messages.map((text) => `<p>${esc(text)}</p>`).join("")}</div>`
+      : "<p class=\"muted\">Текст ещё готовится фоновым импортом.</p>";
+  } else {
+    content = item.summary
+      ? `<p class="discussion-summary">${esc(item.summary)}</p>`
+      : "<p class=\"muted\">Пересказ ещё готовится фоновым импортом.</p>";
+  }
+  return `<div class="discussion-answer"><span class="eyebrow">Внешний материал · ${item.mode === "full" ? "сохранённый текст" : "сохранённый пересказ"}</span>${content}<div class="discussion-source"><span>${status}</span>${source}</div></div>`;
+}
+
+function renderDiscussionList() {
+  const list = $("#discussion-list");
+  if (!list) return;
+  if (!discussionIndex.length) {
+    list.innerHTML = `<div class="glass empty"><div class="empty-icon">${ICON.chat}</div><h3>Загружаем обсуждения</h3><p>Получаем сохранённый список тем…</p></div>`;
+    return;
+  }
+  const query = $("#discussion-search").value.trim().toLocaleLowerCase("ru-RU");
+  const filtered = discussionIndex.filter((item) => item.title.toLocaleLowerCase("ru-RU").includes(query));
+  list.innerHTML = filtered.length ? filtered.map((item) => `
+    <details class="discussion glass" data-discussion-id="${esc(item.id)}">
+      <summary>
+        <span><span class="discussion-title">${esc(item.title)}</span><small>Внешнее обсуждение · ${item.ready ? `обновлено ${discussionDate(item.updated_at)}` : "готовится к импорту"}</small></span>
+        <i class="chev" aria-hidden="true"></i>
+      </summary>
+      <div class="discussion-loading"><p class="muted">Загрузка сохранённого текста…</p></div>
+    </details>`).join("")
+    : emptyState("Ничего не найдено", "Попробуйте изменить запрос.");
+}
+
+async function loadDiscussionBody(id, target) {
+  const cached = discussionBodies.get(id);
+  if (cached) {
+    target.innerHTML = discussionBodyMarkup(cached);
+    return;
+  }
+  let request = discussionRequests.get(id);
+  if (!request) {
+    request = api(`/api/discussions/${encodeURIComponent(id)}`);
+    discussionRequests.set(id, request);
+  }
+  try {
+    const item = await request;
+    discussionBodies.set(id, item);
+    target.innerHTML = discussionBodyMarkup(item);
+  } catch (error) {
+    target.innerHTML = `<p class="alert">Не удалось загрузить сохранённый текст. <button class="link-btn" type="button" data-discussion-retry="${esc(id)}">Повторить</button></p>`;
+  } finally {
+    discussionRequests.delete(id);
+  }
+}
+
+async function loadDiscussionIndex() {
+  if (discussionIndexRequest || discussionIndex.length) return;
+  discussionIndexRequest = api("/api/discussions");
+  try {
+    const data = await discussionIndexRequest;
+    if (!Array.isArray(data) || data.some((item) => !item || !item.id || !item.title)) throw new Error("Некорректный список обсуждений.");
+    const ids = new Set();
+    discussionIndex = data.filter((item) => !ids.has(item.id) && ids.add(item.id));
+    renderDiscussionList();
+  } catch (error) {
+    const list = $("#discussion-list");
+    list.innerHTML = emptyState("Обсуждения временно недоступны", "Попробуйте открыть этот раздел чуть позже.");
+  } finally {
+    discussionIndexRequest = null;
+  }
+}
+
+function bindExternalDiscussions() {
+  const list = $("#discussion-list");
+  $("#discussion-search").addEventListener("input", renderDiscussionList);
+  $("#discussion-collapse").addEventListener("click", () => {
+    list.querySelectorAll("details[open]").forEach((item) => item.removeAttribute("open"));
+  });
+  list.addEventListener("toggle", (event) => {
+    const details = event.target;
+    if (!(details instanceof HTMLDetailsElement) || !details.open) return;
+    const target = $(".discussion-loading", details);
+    if (target) loadDiscussionBody(details.dataset.discussionId, target);
+  }, true);
+  list.addEventListener("click", (event) => {
+    const retry = event.target.closest("[data-discussion-retry]");
+    if (!retry) return;
+    const target = retry.closest(".discussion-loading");
+    if (target) loadDiscussionBody(retry.dataset.discussionRetry, target);
   });
 }
 
@@ -1069,6 +1188,7 @@ function start() {
   bindAttachments();
   bindReader();
   bindAi();
+  bindExternalDiscussions();
   bindQA();
   loadQA();
 }
