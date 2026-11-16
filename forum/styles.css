@@ -1683,6 +1683,13 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
 @media (prefers-reduced-motion: reduce) { .m-hang, .m-bubble { animation: none; } .m-below { transform: translateX(-50%); } }
 
 /* ---------- Обсуждения ---------- */
+.external-model-review-status { padding: 18px; margin-bottom: 12px; }
+.external-model-review { align-items: start; }
+.external-model-review .eyebrow { display: block; margin: 1px 0 7px; }
+.external-model-review-body { margin: 10px 0 12px; }
+.external-model-review-body summary { color: var(--c-accent); cursor: pointer; font-size: 0.9rem; }
+.external-model-review-text { margin-top: 12px; overflow-wrap: anywhere; }
+.external-model-review-text p { white-space: pre-wrap; }
 
 /* ---------- Мобильная оптимизация: без горизонтального сдвига, читаемые размеры ---------- */
 html, body { overflow-x: hidden; overflow-x: clip; }

@@ -183,6 +183,10 @@ const qaItem = (q) => `
   </article>`;
 
 let questions = [];
+// Это не отзывы, оставленные на PRESIDENT. Внешняя страница скачивается и
+// очищается сервером заранее; браузер получает только последнюю версию из API.
+let externalModelReviews;
+let externalModelReviewsRequest = null;
 
 const CONFIG = { access: "link", passwordSha256: "", apiBase: "", ...window.FORUM_CONFIG };
 
@@ -208,6 +212,46 @@ const isTestPost = (q) => q.name === "Тест" && [
 ].includes(q.text);
 let qaTab = "model-review";
 
+function externalModelReviewsMarkup() {
+  if (externalModelReviews === undefined) {
+    return `<div class="glass external-model-review-status"><p class="muted">Загрузка сохранённых внешних отзывов…</p></div>`;
+  }
+  if (!externalModelReviews) return "";
+  const item = externalModelReviews;
+  const blocks = Array.isArray(item.blocks) ? item.blocks : [];
+  const status = item.stale
+    ? "Источник временно недоступен — показана последняя сохранённая версия."
+    : `Обновлено: ${discussionDate(item.updated_at)}.`;
+  const text = blocks.length
+    ? `<details class="external-model-review-body"><summary>Читать сохранённый текст</summary><div class="external-model-review-text">${blocks.map((block) => `<p>${esc(block)}</p>`).join("")}</div></details>`
+    : `<p class="muted">Текст ещё готовится фоновым импортом.</p>`;
+  return `<article class="post glass external-model-review" id="external-model-review">
+    <span class="avatar avatar-default" aria-hidden="true">↗</span>
+    <div>
+      <span class="eyebrow">Внешний материал · без AI-пересказа</span>
+      <div class="post-head"><b>${esc(item.title || "Внешние отзывы о моделях")}</b><span class="meta">${item.ready ? discussionDate(item.updated_at) : "готовится к импорту"}</span></div>
+      ${text}
+      <div class="discussion-source"><span>${status}</span><a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Оригинал страницы ↗</a></div>
+    </div>
+  </article>`;
+}
+
+async function loadExternalModelReviews() {
+  if (externalModelReviewsRequest || externalModelReviews !== undefined) return;
+  externalModelReviewsRequest = api("/api/model-reviews/external");
+  try {
+    const item = await externalModelReviewsRequest;
+    if (!item || !item.id || !item.url || !Array.isArray(item.blocks)) throw new Error("Некорректный ответ с отзывами.");
+    externalModelReviews = item;
+  } catch (error) {
+    console.error("loadExternalModelReviews:", error);
+    externalModelReviews = null;
+  } finally {
+    externalModelReviewsRequest = null;
+    if (qaTab === "model-review") drawQA();
+  }
+}
+
 function drawQA() {
   const list = $("#qa-list");
   const external = qaTab === "external-discussions";
@@ -229,7 +273,8 @@ function drawQA() {
   const kind = QA_KINDS[qaTab];
   const items = questions.filter((q) => qaKind(q) === qaTab)
     .map((q) => (kind.prefix ? { ...q, text: q.text.slice(kind.prefix.length) } : q));
-  list.innerHTML = items.length ? items.map(qaItem).join("") : emptyState(...kind.empty);
+  const externalReviewCard = qaTab === "model-review" ? externalModelReviewsMarkup() : "";
+  list.innerHTML = items.length ? `${externalReviewCard}${items.map(qaItem).join("")}` : (externalReviewCard || emptyState(...kind.empty));
 }
 
 async function loadQA() {
@@ -238,6 +283,7 @@ async function loadQA() {
   try {
     questions = (await api("/api/questions")).filter((q) => !isTestPost(q));
     drawQA();
+    if (qaTab === "model-review") loadExternalModelReviews();
   } catch (e) {
     console.error("loadQA:", e);
     if (qaTab !== "external-discussions") list.innerHTML = emptyState("Вопросы временно недоступны", `Попробуйте обновить чуть позже. <button class="link-btn" data-retry>Повторить</button>`);
@@ -473,6 +519,7 @@ function bindQA() {
     track("forum_tab", { tab: qaTab });
     drawQA();
     if (qaTab === "external-discussions") loadDiscussionIndex();
+    if (qaTab === "model-review") loadExternalModelReviews();
   }));
 
   $("#qa-list").addEventListener("click", (e) => {
