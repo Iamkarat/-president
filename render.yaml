@@ -37,3 +37,5 @@ services:
         value: "3"
       - key: DISCUSSION_SOURCE_COOKIE
         sync: false
+      - key: MODEL_REVIEW_SOURCE_URL
+        value: https://rlc.intimcity.beer/admin_pseudo.php

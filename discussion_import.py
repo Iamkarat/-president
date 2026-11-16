@@ -16,6 +16,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from html.parser import HTMLParser
 
+import model_review_import
 from discussion_sources import SOURCES, source_url
 
 
@@ -397,12 +398,16 @@ def _background_loop():
     while True:
         started = time.monotonic()
         refresh_all()
+        # Отзывы импортируем в том же цикле: во время 70 запросов не возникает
+        # четвёртого параллельного подключения к внешнему источнику.
+        model_review_import.refresh()
         time.sleep(max(1, REFRESH_SECONDS - (time.monotonic() - started)))
 
 
 def start_background_refresh():
     global _background_started
     initialise()
+    model_review_import.initialise()
     if not BACKGROUND_ENABLED:
         return
     with _lock:

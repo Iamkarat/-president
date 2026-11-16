@@ -26,6 +26,7 @@ GET  /api/topics                   — мнения по темам: {topic_id: 
 POST /api/topics/<topic_id>/comments — {name, text, avatar?} → мнение в теме
 GET  /api/discussions              — заголовки импортированных внешних обсуждений
 GET  /api/discussions/<id>         — сохранённый текст или пересказ одного обсуждения
+GET  /api/model-reviews/external   — сохранённый исходный текст внешней страницы отзывов
 """
 import base64
 import binascii
@@ -41,6 +42,7 @@ from urllib.parse import urlsplit
 
 import ai_search
 import discussion_import
+import model_review_import
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("DATA_DIR", ROOT)
@@ -309,6 +311,7 @@ class Handler(SimpleHTTPRequestHandler):
             or relative.startswith("data.json.")
             or relative.startswith("ai.json")
             or relative.startswith("discussions.json")
+            or relative.startswith("model_reviews.json")
             or relative.endswith(".py")
             or relative.startswith("__pycache__")
             or os.path.commonpath((old_dir, target)) == old_dir
@@ -388,6 +391,11 @@ class Handler(SimpleHTTPRequestHandler):
             if not item:
                 return self.send_json(404, {"error": "Обсуждение не найдено"})
             return self.send_json(200, item)
+        if path == "/api/model-reviews/external":
+            try:
+                return self.send_json(200, model_review_import.get_model_reviews())
+            except (OSError, ValueError) as e:
+                return self.send_json(500, {"error": str(e)})
         up = re.fullmatch(r"/api/uploads/([^/]+)", path)
         if up:
             name = up.group(1)
