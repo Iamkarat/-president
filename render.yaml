@@ -29,3 +29,9 @@ services:
         value: "1"
       - key: AI_DAILY_BUDGET_USD
         value: "3"
+      - key: DISCUSSION_IMPORT_MODE
+        value: summary
+      - key: DISCUSSION_REFRESH_SECONDS
+        value: "300"
+      - key: DISCUSSION_IMPORT_CONCURRENCY
+        value: "3"

@@ -24,6 +24,8 @@ API_ONLY=1 — отдавать только /api/*, без статически
 
 GET  /api/topics                   — мнения по темам: {topic_id: [..]}
 POST /api/topics/<topic_id>/comments — {name, text, avatar?} → мнение в теме
+GET  /api/discussions              — заголовки импортированных внешних обсуждений
+GET  /api/discussions/<id>         — сохранённый текст или пересказ одного обсуждения
 """
 import base64
 import binascii
@@ -38,6 +40,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
 
 import ai_search
+import discussion_import
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.environ.get("DATA_DIR", ROOT)
@@ -305,6 +308,7 @@ class Handler(SimpleHTTPRequestHandler):
             or relative == "data.json"
             or relative.startswith("data.json.")
             or relative.startswith("ai.json")
+            or relative.startswith("discussions.json")
             or relative.endswith(".py")
             or relative.startswith("__pycache__")
             or os.path.commonpath((old_dir, target)) == old_dir
@@ -370,6 +374,20 @@ class Handler(SimpleHTTPRequestHandler):
                     return self.send_json(200, load().get("topics", {}))
             except (OSError, ValueError) as e:
                 return self.send_json(500, {"error": str(e)})
+        if path == "/api/discussions":
+            try:
+                return self.send_json(200, discussion_import.list_discussions())
+            except (OSError, ValueError) as e:
+                return self.send_json(500, {"error": str(e)})
+        discussion = re.fullmatch(r"/api/discussions/(\d{1,12})", path)
+        if discussion:
+            try:
+                item = discussion_import.get_discussion(discussion.group(1))
+            except (OSError, ValueError) as e:
+                return self.send_json(500, {"error": str(e)})
+            if not item:
+                return self.send_json(404, {"error": "Обсуждение не найдено"})
+            return self.send_json(200, item)
         up = re.fullmatch(r"/api/uploads/([^/]+)", path)
         if up:
             name = up.group(1)
@@ -466,4 +484,5 @@ class Handler(SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     print(f"http://{HOST}:{PORT}")
+    discussion_import.start_background_refresh()
     ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()
