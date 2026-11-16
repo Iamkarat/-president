@@ -35,3 +35,5 @@ services:
         value: "300"
       - key: DISCUSSION_IMPORT_CONCURRENCY
         value: "3"
+      - key: DISCUSSION_SOURCE_COOKIE
+        sync: false

@@ -38,6 +38,9 @@ Python 3.9+, без зависимостей. Хостинг — Render, кон�
 - `DISCUSSION_REFRESH_SECONDS` — интервал фонового обновления, по умолчанию `300`;
 - `DISCUSSION_IMPORT_CONCURRENCY` — параллельных запросов к источникам, по умолчанию `3`;
 - `DISCUSSION_SOURCE_TIMEOUT` — тайм-аут одного источника в секундах, по умолчанию `20`.
+- `DISCUSSION_SOURCE_COOKIE` — полное значение HTTP-заголовка `Cookie` для `rlc.intimcity.beer`.
+  Добавляется только в Secrets/Environment Render, не в `.env`, код или чат. Нужен, если
+  источник перенаправляет сервер на страницу авторизации.
 
 ## Локально
     OPENAI_API_KEY=... python3 server.py   # http://127.0.0.1:8734

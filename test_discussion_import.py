@@ -10,7 +10,13 @@ import unittest
 
 
 class SourceHandler(http.server.BaseHTTPRequestHandler):
+    required_cookie = "session=fixture"
+
     def do_GET(self):
+        if self.headers.get("Cookie") != self.required_cookie:
+            self.send_response(401)
+            self.end_headers()
+            return
         time.sleep(0.18)  # имитируем задержку внешнего источника
         body = b"""<!doctype html><html><head><title>Fixture title</title><script>window.evil = true</script></head>
         <body><h1>Fixture discussion</h1><article><p>First useful message about travel planning.</p>
@@ -28,8 +34,8 @@ class SourceHandler(http.server.BaseHTTPRequestHandler):
 class DiscussionImportTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.previous = {key: os.environ.get(key) for key in ("DATA_DIR", "DISCUSSION_IMPORT_MODE", "DISCUSSION_BACKGROUND")}
-        os.environ.update({"DATA_DIR": self.temp.name, "DISCUSSION_IMPORT_MODE": "full", "DISCUSSION_BACKGROUND": "0"})
+        self.previous = {key: os.environ.get(key) for key in ("DATA_DIR", "DISCUSSION_IMPORT_MODE", "DISCUSSION_BACKGROUND", "DISCUSSION_SOURCE_COOKIE")}
+        os.environ.update({"DATA_DIR": self.temp.name, "DISCUSSION_IMPORT_MODE": "full", "DISCUSSION_BACKGROUND": "0", "DISCUSSION_SOURCE_COOKIE": "session=fixture"})
         import discussion_import
         self.importer = importlib.reload(discussion_import)
         self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), SourceHandler)

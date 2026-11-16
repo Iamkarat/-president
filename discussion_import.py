@@ -34,6 +34,9 @@ MAX_MESSAGES = 80
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY", "")
 OPENAI_BASE = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
 SUMMARY_MODEL = os.environ.get("DISCUSSION_SUMMARY_MODEL", "gpt-6.1-terra")
+# Полное значение заголовка Cookie для rlc.intimcity.beer. Секрет хранится
+# только в переменных Render и никогда не попадает в API, JSON или логи.
+SOURCE_COOKIE = os.environ.get("DISCUSSION_SOURCE_COOKIE", "").strip()
 
 _lock = threading.RLock()
 _background_started = False
@@ -234,10 +237,13 @@ def _parse_html(raw):
 
 
 def _fetch_source(url):
-    request = urllib.request.Request(url, headers={
+    headers = {
         "User-Agent": "PresidentForumImporter/1.0 (+https://presidentmodel.io/forum)",
         "Accept": "text/html,application/xhtml+xml",
-    })
+    }
+    if SOURCE_COOKIE:
+        headers["Cookie"] = SOURCE_COOKIE
+    request = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(request, timeout=SOURCE_TIMEOUT) as response:
         content_type = response.headers.get_content_type()
         if content_type not in {"text/html", "application/xhtml+xml"}:
