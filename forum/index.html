@@ -56,8 +56,59 @@
     gtag('js', new Date());
     gtag('config', 'AW-18375366794');
   </script>
+  <!-- Подтверждение возраста 18+: ответ «Да» запоминается в браузере -->
+  <script>try { if (localStorage.getItem("age18") === "yes") document.documentElement.classList.add("age-ok"); } catch (e) {}</script>
+  <style>
+    .age-gate { display: none; }
+    html:not(.age-ok) body { overflow: hidden; }
+    html:not(.age-ok) .age-gate {
+      position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 16px;
+      background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    }
+    .age-box {
+      width: 100%; max-width: 340px; padding: 26px 22px; display: grid; gap: 14px; text-align: center;
+      color: #F8FBFA; font-family: inherit; border-radius: 20px;
+      background: rgba(10, 16, 16, 0.5); border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .age-box h2 { margin: 0; font-size: 20px; font-weight: 600; }
+    .age-box p { margin: 0; font-size: 14px; line-height: 1.5; color: #C1CCCA; }
+    .age-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+    .age-actions button {
+      height: 46px; border-radius: 999px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.14); color: #F8FBFA; background: rgba(255, 255, 255, 0.06);
+    }
+    .age-actions .age-yes { background: #65DED3; color: #051111; border-color: transparent; }
+    .age-gate.denied .age-actions { display: none; }
+  </style>
 </head>
 <body data-page="home">
+  <div class="age-gate" role="dialog" aria-modal="true" aria-labelledby="age-title">
+    <div class="age-box">
+      <h2 id="age-title">Вам есть 18 лет?</h2>
+      <p id="age-text">Сайт предназначен только для совершеннолетних.</p>
+      <div class="age-actions">
+        <button type="button" class="age-yes">Да</button>
+        <button type="button" class="age-no">Нет</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var gate = document.querySelector(".age-gate");
+      if (document.documentElement.classList.contains("age-ok")) return;
+      var yes = gate.querySelector(".age-yes");
+      yes.focus();
+      yes.addEventListener("click", function () {
+        try { localStorage.setItem("age18", "yes"); } catch (e) {}
+        document.documentElement.classList.add("age-ok");
+      });
+      gate.querySelector(".age-no").addEventListener("click", function () {
+        gate.classList.add("denied");
+        document.getElementById("age-title").textContent = "Доступ закрыт";
+        document.getElementById("age-text").textContent = "Этот сайт доступен только лицам старше 18 лет.";
+      });
+    })();
+  </script>
   <a class="side-banner side-banner-left" href="https://presidentmodel.io/#apply" target="_blank" rel="noopener noreferrer" aria-label="Работа в эскорт-индустрии — стань частью премиального сообщества"><img src="assets/banners/banner-left.webp?v=2" width="600" height="1639" alt=""></a>
   <a class="side-banner side-banner-right" href="https://presidentmodel.io/#apply" target="_blank" rel="noopener noreferrer" aria-label="Стань частью комьюнити — премиальное закрытое сообщество"><img src="assets/banners/banner-right.webp?v=2" width="600" height="1638" alt=""></a>
   <main class="container" id="top">
