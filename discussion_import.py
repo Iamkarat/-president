@@ -236,14 +236,21 @@ def _parse_html(raw):
     return title, blocks
 
 
-def _fetch_source(url):
+def _source_request(url):
     headers = {
         "User-Agent": "PresidentForumImporter/1.0 (+https://presidentmodel.io/forum)",
         "Accept": "text/html,application/xhtml+xml",
     }
-    if SOURCE_COOKIE:
-        headers["Cookie"] = SOURCE_COOKIE
     request = urllib.request.Request(url, headers=headers)
+    if SOURCE_COOKIE:
+        # unredirected_hdrs urllib не переносит на другой origin после 30x.
+        # Так cookie rlc.intimcity.beer не попадёт на auth.intim-city.lol.
+        request.add_unredirected_header("Cookie", SOURCE_COOKIE)
+    return request
+
+
+def _fetch_source(url):
+    request = _source_request(url)
     with urllib.request.urlopen(request, timeout=SOURCE_TIMEOUT) as response:
         content_type = response.headers.get_content_type()
         if content_type not in {"text/html", "application/xhtml+xml"}:

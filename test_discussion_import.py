@@ -83,6 +83,11 @@ class DiscussionImportTest(unittest.TestCase):
         self.assertTrue(cached["stale"])
         self.assertEqual(cached["messages"], item["messages"])
 
+    def test_source_cookie_is_not_forwarded_across_redirects(self):
+        request = self.importer._source_request("https://rlc.intimcity.beer/forum/101")
+        self.assertEqual(request.unredirected_hdrs.get("Cookie"), "session=fixture")
+        self.assertNotIn("Cookie", request.headers)
+
     def test_api_returns_titles_then_one_cached_body(self):
         self.importer.initialise()
         started = time.perf_counter()
