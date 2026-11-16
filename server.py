@@ -26,7 +26,8 @@ GET  /api/topics                   — мнения по темам: {topic_id: 
 POST /api/topics/<topic_id>/comments — {name, text, avatar?} → мнение в теме
 GET  /api/discussions              — заголовки импортированных внешних обсуждений
 GET  /api/discussions/<id>         — сохранённый текст или пересказ одного обсуждения
-GET  /api/model-reviews/external   — сохранённый исходный текст внешней страницы отзывов
+GET  /api/model-reviews/external   — карточки внешнего раздела «Лжесотрудники»
+GET  /api/model-reviews/external/<id> — сохранённый подробный текст одной карточки
 """
 import base64
 import binascii
@@ -312,6 +313,7 @@ class Handler(SimpleHTTPRequestHandler):
             or relative.startswith("ai.json")
             or relative.startswith("discussions.json")
             or relative.startswith("model_reviews.json")
+            or relative.startswith("external-review-images")
             or relative.endswith(".py")
             or relative.startswith("__pycache__")
             or os.path.commonpath((old_dir, target)) == old_dir
@@ -393,9 +395,33 @@ class Handler(SimpleHTTPRequestHandler):
             return self.send_json(200, item)
         if path == "/api/model-reviews/external":
             try:
-                return self.send_json(200, model_review_import.get_model_reviews())
+                return self.send_json(200, model_review_import.list_model_reviews())
             except (OSError, ValueError) as e:
                 return self.send_json(500, {"error": str(e)})
+        model_review = re.fullmatch(r"/api/model-reviews/external/([0-9a-f]{20})", path)
+        if model_review:
+            try:
+                item = model_review_import.get_model_review(model_review.group(1))
+            except (OSError, ValueError) as e:
+                return self.send_json(500, {"error": str(e)})
+            if not item:
+                return self.send_json(404, {"error": "Отзыв не найден"})
+            return self.send_json(200, item)
+        external_image = re.fullmatch(r"/api/model-review-images/([0-9a-f]{64}\.(?:png|jpg|gif|webp))", path)
+        if external_image:
+            file = model_review_import.image_path(external_image.group(1))
+            if not file:
+                return self.send_error(404)
+            with open(file, "rb") as f:
+                data = f.read()
+            ext = external_image.group(1).rsplit(".", 1)[1]
+            self.send_response(200)
+            self.send_header("Content-Type", IMAGE_TYPES[ext])
+            self.send_header("Content-Length", str(len(data)))
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Cache-Control", "public, max-age=31536000, immutable")
+            self.end_headers()
+            return self.wfile.write(data)
         up = re.fullmatch(r"/api/uploads/([^/]+)", path)
         if up:
             name = up.group(1)
