@@ -101,7 +101,7 @@ function shell() {
   document.body.insertAdjacentHTML("beforeend", `
     <footer><div class="container"><div class="footer glass">
       <div><a class="logo">${LOGO_MARK}<span>PRESIDENT PRIVATE AGENCY FORUM</span></a>
-      <p>Официальный форум агентства.</p></div>
+      <p>Официальный форум агентства. <span class="age-mark">18+</span></p></div>
       <div><h5>Разделы</h5>${NAV.map((n) => `<a href="${n.href}">${n.label}</a>`).join("")}</div>
       <div><h5>Правила публикации</h5><p>Не публикуйте ссылки, рекламу и личные данные. Будьте уважительны к участникам.</p><a href="#ask">Как задать вопрос</a></div>
     </div></div></footer>`);

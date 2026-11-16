@@ -1814,3 +1814,5 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 }
 .reader-body .lesson-modal-cta:hover { background: #20BBA8; color: #04110f; text-decoration: none; }
 .reader-body .lesson-modal-cta:focus-visible { outline: 2px solid var(--c-text); outline-offset: 3px; }
+
+.age-mark { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--c-accent); border: 1px solid currentColor; vertical-align: 1px; }
