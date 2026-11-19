@@ -397,19 +397,19 @@
       transition: transform 0.7s ease-in, opacity 0.5s ease 0.05s;
     }
     .pack.is-open .foil-top {
-      transform: translate(8%, -55%) rotate(-12deg);
+      transform: translate(-8%, -55%) rotate(12deg);
       transition-timing-function: ease-out, ease;
     }
-    .pack.is-open .foil-bottom { transform: translateY(60%) rotate(5deg); }
+    .pack.is-open .foil-bottom { transform: translateY(60%) rotate(-5deg); }
     .pack.is-done .pack-foil,
     .pack.is-open .pack-pull,
     .pack.is-open .pack-hint { display: none; }
 
-    /* Зона захвата вокруг левого надреза. Вертикальный скролл пальцем остаётся. */
+    /* Зона захвата вокруг правого надреза. Вертикальный скролл пальцем остаётся. */
     .pack-pull {
       position: absolute;
       z-index: 3;
-      left: 0;
+      right: 0;
       top: 6%;
       width: 46%;
       height: 22%;
@@ -422,11 +422,11 @@
       -webkit-user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    /* Подсказка — отдельный элемент у левого надреза, без плашки и рамки. */
+    /* Подсказка — отдельный элемент у правого надреза, без плашки и рамки. */
     .pack-hint {
       position: absolute;
       z-index: 4;
-      left: 8.5%;
+      right: 8.5%;
       top: 17%;
       margin-top: -0.7em;
       line-height: 1.4;
@@ -453,7 +453,7 @@
     .pack.is-swiping .pack-hint { opacity: 0; animation: none; }
     @keyframes nudge {
       0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(8px); }
+      50% { transform: translateX(-8px); }
     }
     /* Смена дизайна: строка фиксированной высоты, после вскрытия место сохраняется. */
     .pack-nav {
@@ -897,8 +897,8 @@
                   <i class="foil foil-top"></i>
                   <div class="crumple"><i class="dent"></i><i class="glint"></i></div>
                 </div>
-                <button class="pack-pull" type="button" aria-label="Открыть упаковку: потяните от надреза вправо или нажмите Enter"></button>
-                <span class="pack-hint" aria-hidden="true">Потяни вправо →</span>
+                <button class="pack-pull" type="button" aria-label="Открыть упаковку: потяните от надреза влево или нажмите Enter"></button>
+                <span class="pack-hint" aria-hidden="true">← Потяни влево</span>
               </div>
               <div class="pack-nav">
                 <button class="pack-arrow" type="button" data-dir="-1" aria-label="Предыдущий дизайн упаковки">
@@ -968,7 +968,7 @@
       tiktok: "https://www.tiktok.com/@president_age/"
     };
 
-    /* Упаковка: разрыв фольги слева направо за пальцем или мышью. */
+    /* Упаковка: разрыв фольги справа налево за пальцем или мышью. */
     (function () {
       var pack = document.querySelector(".pack");
       if (!pack) return;
@@ -999,14 +999,14 @@
         var n = Math.min(STEPS - 1, Math.floor(f));
         return line[n][1] + (line[n + 1][1] - line[n][1]) * (f - n);
       }
-      // Насколько край отошёл от линии: слева от точки разрыва — больше.
+      // Насколько край отошёл от линии: чем дальше вправо от точки разрыва, тем больше.
       function gap(x, p, max) {
-        return x >= p ? 0 : max * Math.pow((p - x) / 100, 0.9);
+        return x <= p ? 0 : max * Math.pow((x - p) / 100, 0.9);
       }
       var lineXs = line.map(function (pt) { return pt[0]; });
       function render(progress) {
-        // Точка разрыва в координатах картинки: от левого надреза к правому.
-        var p = X0 + (X1 - X0) * progress / 100;
+        // Точка разрыва в координатах картинки: от правого надреза к левому.
+        var p = X1 - (X1 - X0) * progress / 100;
         var xs = lineXs.concat(p);
         xs.sort(function (a, b) { return b - a; });
         var up = ["0% 0%", "100% 0%"];
@@ -1014,8 +1014,8 @@
         xs.forEach(function (x) {
           var y = yAt(x);
           up.push(x.toFixed(2) + "% " + (y - gap(x, p, 11)).toFixed(2) + "%");
-          // Справа от разрыва нижний слой чуть заходит под верхний, чтобы не было шва.
-          down.push(x.toFixed(2) + "% " + (x < p ? y + gap(x, p, 7) : y - 0.6).toFixed(2) + "%");
+          // Слева от разрыва нижний слой чуть заходит под верхний, чтобы не было шва.
+          down.push(x.toFixed(2) + "% " + (x > p ? y + gap(x, p, 7) : y - 0.6).toFixed(2) + "%");
         });
         top.style.clipPath = "polygon(" + up.join(",") + ")";
         bottom.style.clipPath = "polygon(" + down.join(",") + ")";
@@ -1198,8 +1198,8 @@
       });
 
       /* Один жест — одно действие. Касание только мнёт фольгу; когда движение стало
-         явно горизонтальным, действие выбирается по месту старта: от левого надреза
-         вправо — разрыв, из центра — смена дизайна. Вертикальный жест уходит в скролл. */
+         явно горизонтальным, действие выбирается по месту старта: от правого надреза
+         влево — разрыв, из центра — смена дизайна. Вертикальный жест уходит в скролл. */
       var SLOP = 9;
       var mode = "";  // "", "press", "tear", "swipe"
       var zone = "", pid = -1, startY = 0, downAt = 0;
@@ -1212,7 +1212,7 @@
         dragging = true;
         startX = e.clientX; // разрыв идёт от точки, где жест распознан
         startP = p;
-        span = Math.max(1, faceLeft + faceW * X1 / 100 - e.clientX);
+        span = Math.max(1, e.clientX - (faceLeft + faceW * X0 / 100));
         pack.classList.add("is-dragging");
       }
       function beginSwipe(e) {
@@ -1268,11 +1268,11 @@
         if (mode === "press") {
           var dx = e.clientX - startX, dy = e.clientY - startY;
           var across = Math.abs(dx) > SLOP && Math.abs(dx) > Math.abs(dy) * 1.2;
-          if (across && zone === "notch" && dx > 0) beginTear(e);
+          if (across && zone === "notch" && dx < 0) beginTear(e);
           else if (across && zone === "center" && p === 0) beginSwipe(e);
           else poke(e);
         } else if (mode === "tear") {
-          queue(startP + ((e.clientX - startX) / span) * (100 - startP));
+          queue(startP + ((startX - e.clientX) / span) * (100 - startP));
         } else {
           queueSwipe((e.clientX - startX) / (faceW * 0.62));
         }
