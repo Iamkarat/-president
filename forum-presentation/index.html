@@ -982,6 +982,8 @@
       var X0 = 4.1;       // левый край упаковки, % ширины картинки
       var X1 = 95.8;      // правый край упаковки, % ширины картинки
       var FINISH_AT = 88; // с этой точки фольга дорывается сама, % пути
+      var FINISH_TOUCH = 40;  // на телефоне рвать легче: хватает короткого свайпа,
+      var RELEASE_TOUCH = 12; // а отпущенный надрыв дорывается сам
       var STEPS = 40;
 
       // Линия разрыва: лёгкий изгиб плюс неровный край, концы — в надрезах.
@@ -1041,7 +1043,7 @@
           dragRaf = 0;
           if (!dragging) return;
           set(dragTo);
-          if (p >= FINISH_AT) open(false);
+          if (p >= (byFinger ? FINISH_TOUCH : FINISH_AT)) open(false);
         });
       }
       function stop() {
@@ -1075,7 +1077,8 @@
         relax();
         arrows.forEach(function (arrow) { arrow.disabled = true; });
         pack.classList.remove("is-dragging");
-        animate(100, fromKeyboard ? 450 : 140, function () {
+        // Чем больше осталось дорвать, тем дольше идёт разрыв.
+        animate(100, Math.max(140, (100 - p) * 4.5), function () {
           pack.classList.add("is-open");
           if (fromKeyboard) {
             var tab = pack.querySelector(".tab.on");
@@ -1093,6 +1096,8 @@
           set(dragTo);
           if (p >= FINISH_AT) { open(false); return; }
         }
+        // Пальцем достаточно надорвать совсем немного — дальше упаковка рвётся сама.
+        if (byFinger && p >= RELEASE_TOUCH) { open(false); return; }
         dragging = false;
         pack.classList.remove("is-dragging");
         animate(0, 320);
@@ -1198,6 +1203,7 @@
       var SLOP = 9;
       var mode = "";  // "", "press", "tear", "swipe"
       var zone = "", pid = -1, startY = 0, downAt = 0;
+      var byFinger = false; // жест начат пальцем, а не мышью
 
       function beginTear(e) {
         mode = "tear";
@@ -1231,6 +1237,9 @@
           slide(commit ? (t < 0 ? -1 : 1) : 0, 240);
           return;
         }
+        // На телефоне упаковку вскрывает и обычное нажатие на надрез.
+        var still = Math.abs(e.clientX - startX) < 14 && Math.abs(e.clientY - startY) < 14;
+        if (byFinger && zone === "notch" && e.type === "pointerup" && still) { open(false); return; }
         // Палец убрали — фольга расправляется. Мышь остаётся над упаковкой и мнёт дальше.
         if (e.pointerType !== "mouse" || e.type !== "pointerup") relax();
       }
@@ -1239,6 +1248,7 @@
         if (opened || busy || mode || !e.isPrimary) return;
         if (e.pointerType === "mouse" && e.button !== 0) return;
         mode = "press";
+        byFinger = e.pointerType === "touch";
         zone = pull.contains(e.target) ? "notch" : "center";
         pid = e.pointerId;
         startX = e.clientX;
