@@ -223,7 +223,6 @@ function externalModelReviewsMarkup() {
     const photo = item.image
       ? `<img class="external-model-review-photo" src="${esc(apiUrl(`/api/model-review-images/${item.image}`))}" alt="" loading="lazy">`
       : `<span class="avatar avatar-default" aria-hidden="true">↗</span>`;
-    const status = item.stale ? "Источник временно недоступен — показана сохранённая версия." : `Обновлено: ${discussionDate(item.updated_at)}.`;
     return `<article class="glass external-model-review" data-external-model-review="${esc(item.id)}">
       ${photo}
       <div class="external-model-review-main">
@@ -231,7 +230,6 @@ function externalModelReviewsMarkup() {
         ${item.excerpt ? `<p class="external-model-review-excerpt">${esc(item.excerpt)}</p>` : ""}
         <button class="link-btn" type="button" data-external-model-review-open="${esc(item.id)}">Открыть подробный ответ</button>
         <div class="external-model-review-detail" data-external-model-review-detail="${esc(item.id)}" hidden></div>
-        <div class="discussion-source"><span>${status}</span><a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Оригинал ↗</a></div>
       </div>
     </article>`;
   }).join("") : `<div class="glass external-model-review-status"><p class="muted">Карточки пока готовятся к импорту.</p></div>`;
@@ -590,10 +588,6 @@ let discussionIndexRequest = null;
 const discussionDate = (value) => value ? fmt(value) : "ещё не обновлялось";
 
 function discussionBodyMarkup(item) {
-  const source = `<a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Оригинал обсуждения ↗</a>`;
-  const status = item.stale
-    ? "Источник временно недоступен — показана последняя сохранённая версия."
-    : `Обновлено: ${discussionDate(item.updated_at)}.`;
   let content = "";
   if (item.mode === "full") {
     const messages = Array.isArray(item.messages) ? item.messages : [];
@@ -605,7 +599,7 @@ function discussionBodyMarkup(item) {
       ? `<p class="discussion-summary">${esc(item.summary)}</p>`
       : "<p class=\"muted\">Пересказ ещё готовится фоновым импортом.</p>";
   }
-  return `<div class="discussion-answer"><span class="eyebrow">Внешний материал · ${item.mode === "full" ? "сохранённый текст" : "сохранённый пересказ"}</span>${content}<div class="discussion-source"><span>${status}</span>${source}</div></div>`;
+  return `<div class="discussion-answer"><span class="eyebrow">Внешний материал · ${item.mode === "full" ? "сохранённый текст" : "сохранённый пересказ"}</span>${content}</div>`;
 }
 
 function renderDiscussionList() {
