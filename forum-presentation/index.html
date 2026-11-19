@@ -9,6 +9,7 @@
   <meta name="description" content="PRESIDENT — комьюнити моделей, где открыто обсуждают заработок, условия работы и опыт сотрудничества с агентствами.">
   <link rel="icon" href="../favicon.ico" sizes="any">
   <link rel="icon" href="../favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="preload" as="image" type="image/webp" href="pack-teal.webp">
   <style>
     :root {
       --teal: #6af6e8;
@@ -114,7 +115,11 @@
       50% { transform: translate3d(0, -10px, 0); }
     }
     @media (prefers-reduced-motion: reduce) {
-      .gem, .star { animation: none; }
+      .gem, .star, .pack-hint { animation: none; }
+      .crumple { display: none; }
+      .pack.is-open .foil,
+      .pack.is-open .foil-top,
+      .pack.is-open .foil-bottom { transform: none; transition: opacity 0.3s ease; }
     }
 
     .poster-body { position: relative; z-index: 2; }
@@ -173,44 +178,64 @@
       width: min(100%, 420px);
       margin: 0 auto;
     }
+    /* Квадрат зарезервирован заранее: при загрузке и открытии ничего не прыгает. */
     .pack-face {
       position: relative;
       aspect-ratio: 1;
-      filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.45));
+      contain: layout;
+      cursor: grab;
+      touch-action: pan-y; /* вертикальный жест остаётся прокруткой страницы */
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
+    .pack.is-swiping .pack-face { cursor: grabbing; }
+    .pack.is-open .pack-face {
+      cursor: auto;
+      touch-action: auto;
+      user-select: auto;
+      -webkit-user-select: auto;
+    }
+    /* Дизайны упаковки: геометрия одна, меняются картинка и цвет подсказки. */
+    [data-skin="teal"] { --pack-img: url("pack-teal.webp"); --hint: #fff; --hint-edge: #02201c; }
+    [data-skin="pink"] { --pack-img: url("pack-pink.webp"); --hint: #fff; --hint-edge: #3d0420; }
+    [data-skin="white"] { --pack-img: url("pack-white.webp"); --hint: #111; --hint-edge: #fff; }
+    [data-skin="leopard"] { --pack-img: url("pack-leopard.webp"); --hint: #fff; --hint-edge: #2a1400; }
+    [data-skin="dalmatian"] { --pack-img: url("pack-dalmatian.webp"); --hint: #fff; --hint-edge: #000; }
+    /* Соседние дизайны лежат в том же квадрате и ждут своей очереди. */
+    .pack-ghost {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: var(--pack-img) center / 100% 100% no-repeat;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .pack.is-swiping .pack-foil,
+    .pack.is-swiping .pack-ghost { will-change: transform, opacity; }
+    .pack.is-done .pack-ghost { display: none; }
+    /* Контент лежит под фольгой на том же месте и виден только в разрыве. */
     .screen {
       position: absolute;
       inset: 0;
-      overflow: hidden;
-      border-radius: 18px;
-      background:
-        radial-gradient(120% 80% at 80% 0%, rgba(60, 210, 195, 0.16), transparent 42%),
-        linear-gradient(180deg, #102220, #07110f);
+      padding: 0 7%;
       color: #e8eeec;
-      box-shadow: inset 0 0 0 1px rgba(150, 245, 235, 0.2);
+      visibility: hidden;
     }
-    .screen::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(115deg, rgba(255, 255, 255, 0.2), transparent 26%, transparent 58%, rgba(110, 245, 230, 0.08));
-      pointer-events: none;
-    }
+    .pack.is-tearing .screen,
+    .pack.is-open .screen { visibility: visible; }
     .screen-ui {
-      position: relative;
-      z-index: 1;
       height: 100%;
-      padding: 22% 16px 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      justify-content: flex-start;
+      gap: 14px;
+      justify-content: center;
     }
     .screen-head {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 9px;
+      font-size: 11px;
       letter-spacing: 0.08em;
       color: rgba(232, 238, 236, 0.82);
     }
@@ -223,15 +248,15 @@
     .mark img { width: 18px; height: auto; margin-top: -1px; }
     .tabs {
       display: flex;
-      gap: 6px;
+      gap: 8px;
       flex-wrap: wrap;
     }
     .tab {
       appearance: none;
       cursor: pointer;
       border-radius: 999px;
-      padding: 4px 9px;
-      font-size: 9px;
+      padding: 7px 13px;
+      font-size: 13px;
       color: rgba(232, 238, 236, 0.82);
       border: 1px solid rgba(190, 230, 225, 0.28);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
@@ -250,44 +275,195 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.8),
         0 0 12px rgba(80, 245, 230, 0.65);
     }
-    .topics { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+    .topics { display: flex; flex-direction: column; gap: 14px; margin-top: 2px; }
     .topic {
       display: grid;
-      grid-template-columns: 16px minmax(0, 1fr) auto;
-      gap: 6px;
+      grid-template-columns: 20px minmax(0, 1fr) auto;
+      gap: 10px;
       align-items: center;
-      font-size: 11px;
-      line-height: 1.2;
+      font-size: 16px;
+      line-height: 1.25;
     }
     .topics[hidden] { display: none; }
-    .topic svg { width: 14px; height: 14px; color: #8ef6ea; filter: drop-shadow(0 0 4px rgba(80, 240, 225, 0.65)); }
-    .topic b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topic svg { width: 18px; height: 18px; color: #8ef6ea; filter: drop-shadow(0 0 4px rgba(80, 240, 225, 0.65)); }
+    .topic b { font-weight: 600; }
     .meta {
       display: inline-flex;
-      gap: 7px;
+      gap: 10px;
       color: rgba(200, 214, 210, 0.55);
-      font-size: 9px;
+      font-size: 12px;
       font-weight: 500;
       white-space: nowrap;
     }
+    /* Фольга: два слоя одного изображения, обрезанные по линии разрыва. */
     .pack-foil {
       position: absolute;
       inset: 0;
       z-index: 2;
-      border: 0;
-      padding: 0;
-      cursor: pointer;
-      background: url("sticker.webp") center / cover no-repeat;
-      transition: clip-path 0.55s ease, transform 0.55s ease;
-      transform-origin: 100% 0;
+      pointer-events: none;
+      isolation: isolate;
     }
-    .pack:hover .pack-foil,
-    .pack.is-open .pack-foil {
-      clip-path: polygon(0 0, 100% 0, 100% 8%, 78% 18%, 46% 9%, 18% 20%, 0 11%);
-      transform: none;
+    .foil {
+      position: absolute;
+      inset: 0;
+      background: var(--pack-img) center / 100% 100% no-repeat;
+    }
+
+    /* Вмятина под курсором: лежит только на «подушке» фольги, края упаковки не трогает.
+       Двигается через transform и opacity, без фильтров и перерасчёта раскладки. */
+    .crumple {
+      position: absolute;
+      inset: 13% 15%;
+      border-radius: 13%;
+      overflow: hidden;
+      opacity: 0;
+      contain: strict;
+      mix-blend-mode: overlay;
+    }
+    .pack.is-crumpling .dent,
+    .pack.is-crumpling .glint { will-change: transform; }
+    .dent {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 56%;
+      aspect-ratio: 1;
+      margin: -28% 0 0 -28%;
+      background:
+        radial-gradient(circle at 60% 62%, transparent 30%, rgba(255, 255, 255, 0.5) 40%, transparent 52%),
+        radial-gradient(circle, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.26) 26%, transparent 44%);
+    }
+    /* Пара складок, расходящихся от вмятины. */
+    .dent::before,
+    .dent::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 46%;
+      height: 6px;
+      margin-top: -3px;
+      transform-origin: 0 50%;
+      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.8) 38%, rgba(0, 0, 0, 0.7) 62%, transparent);
+      -webkit-mask: linear-gradient(90deg, transparent, #000 30%, #000 62%, transparent);
+      mask: linear-gradient(90deg, transparent, #000 30%, #000 62%, transparent);
+    }
+    .dent::before { transform: rotate(-34deg) translateX(22%); }
+    .dent::after { width: 38%; height: 5px; transform: rotate(158deg) translateX(26%); }
+    .glint {
+      position: absolute;
+      left: -25%;
+      top: 36%;
+      width: 150%;
+      height: 26%;
+      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.58), transparent);
+      transform: rotate(-32deg);
+    }
+    .pack.is-open .foil {
+      opacity: 0;
+      transition: transform 0.7s ease-in, opacity 0.5s ease 0.05s;
+    }
+    .pack.is-open .foil-top {
+      transform: translate(8%, -55%) rotate(-12deg);
+      transition-timing-function: ease-out, ease;
+    }
+    .pack.is-open .foil-bottom { transform: translateY(60%) rotate(5deg); }
+    .pack.is-done .pack-foil,
+    .pack.is-open .pack-pull,
+    .pack.is-open .pack-hint { display: none; }
+
+    /* Зона захвата вокруг левого надреза. Вертикальный скролл пальцем остаётся. */
+    .pack-pull {
+      position: absolute;
+      z-index: 3;
+      left: 0;
+      top: 6%;
+      width: 46%;
+      height: 22%;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: grab;
+      touch-action: pan-y;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Подсказка — отдельный элемент у левого надреза, без плашки и рамки. */
+    .pack-hint {
+      position: absolute;
+      z-index: 4;
+      left: 8.5%;
+      top: 17%;
+      margin-top: -0.7em;
+      line-height: 1.4;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--hint);
+      /* Чёткий контур без размытия: текст читается и на кромке, и на бликах. */
+      text-shadow: 0 1px 0 var(--hint-edge), 0 -1px 0 var(--hint-edge), 1px 0 0 var(--hint-edge), -1px 0 0 var(--hint-edge),
+        1px 1px 0 var(--hint-edge), -1px 1px 0 var(--hint-edge), 1px -1px 0 var(--hint-edge), -1px -1px 0 var(--hint-edge);
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      animation: nudge 1.6s ease-in-out infinite;
+    }
+    .pack-pull:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 2px;
+      border-radius: 12px;
+    }
+    .pack.is-dragging .pack-pull { cursor: grabbing; }
+    .pack.is-dragging .pack-hint,
+    .pack.is-tearing .pack-hint,
+    .pack.is-swiping .pack-hint { opacity: 0; animation: none; }
+    @keyframes nudge {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(8px); }
+    }
+    /* Смена дизайна: строка фиксированной высоты, после вскрытия место сохраняется. */
+    .pack-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      height: 38px;
+      margin-top: 4px;
+      transition: opacity 0.3s ease, visibility 0.3s;
+    }
+    .pack.is-open .pack-nav { opacity: 0; visibility: hidden; }
+    .pack-arrow {
+      flex: none;
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      color: #eafffb;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+    .pack-arrow svg { width: 16px; height: 16px; }
+    .pack-arrow:hover { background: rgba(94, 234, 212, 0.16); border-color: var(--teal); }
+    .pack-arrow:active { transform: scale(0.94); }
+    .pack-arrow:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .pack-mood {
+      min-width: 0;
+      text-align: center;
+      white-space: nowrap;
+      color: rgba(244, 247, 246, 0.9);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
     .pack-note {
-      margin: 14px 0 0;
+      margin: 12px 0 0;
       text-align: center;
       color: rgba(244, 247, 246, 0.78);
       font-size: 14px;
@@ -467,8 +643,9 @@
     @media (max-width: 420px) {
       h1 { font-size: 30px; }
       .lead { font-size: 15px; }
-      .topic { font-size: 12px; }
-      .screen-head { font-size: 8px; }
+      .topic { font-size: 15px; }
+      .screen-head { font-size: 10px; }
+      .tab { font-size: 12px; padding: 6px 11px; }
       .social { flex-basis: 100%; }
     }
   </style>
@@ -571,12 +748,12 @@
           <img src="../assets/president-logo-original-transparent.png" width="320" height="320" alt="PRESIDENT PRIVATE AGENCY">
         </div>
 
-        <h1>Наш новый форум —<em>для вас.</em></h1>
+        <h1>Наш новый форум <em>для вас.</em></h1>
 
         <p class="lead">PRESIDENT — комьюнити моделей, где открыто обсуждают заработок, условия работы и опыт сотрудничества с агентствами</p>
 
         <div class="stage">
-          <div class="pack">
+          <div class="pack" data-skin="teal">
             <div class="pack-face">
               <div class="screen">
                   <div class="screen-ui">
@@ -680,7 +857,24 @@
                     </div>
                   </div>
                 </div>
-                <button class="pack-foil" type="button" aria-expanded="false" aria-label="Надорвать и посмотреть, что внутри"></button>
+                <i class="pack-ghost ghost-prev" data-skin="dalmatian" aria-hidden="true"></i>
+                <i class="pack-ghost ghost-next" data-skin="pink" aria-hidden="true"></i>
+                <div class="pack-foil" aria-hidden="true">
+                  <i class="foil foil-bottom"></i>
+                  <i class="foil foil-top"></i>
+                  <div class="crumple"><i class="dent"></i><i class="glint"></i></div>
+                </div>
+                <button class="pack-pull" type="button" aria-label="Открыть упаковку: потяните от надреза вправо или нажмите Enter"></button>
+                <span class="pack-hint" aria-hidden="true">Потяни вправо →</span>
+              </div>
+              <div class="pack-nav">
+                <button class="pack-arrow" type="button" data-dir="-1" aria-label="Предыдущий дизайн упаковки">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>
+                </button>
+                <span class="pack-mood">Меняй настроение</span>
+                <button class="pack-arrow" type="button" data-dir="1" aria-label="Следующий дизайн упаковки">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg>
+                </button>
               </div>
               <p class="pack-note">Это для вашей безопасности</p>
             </div>
@@ -741,14 +935,387 @@
       tiktok: "https://www.tiktok.com/@president_age/"
     };
 
-    var foil = document.querySelector(".pack-foil");
-    if (foil) {
-      foil.addEventListener("click", function () {
-        var pack = foil.closest(".pack");
-        var open = pack.classList.toggle("is-open");
-        foil.setAttribute("aria-expanded", open ? "true" : "false");
+    /* Упаковка: разрыв фольги слева направо за пальцем или мышью. */
+    (function () {
+      var pack = document.querySelector(".pack");
+      if (!pack) return;
+      var face = pack.querySelector(".pack-face");
+      var top = pack.querySelector(".foil-top");
+      var bottom = pack.querySelector(".foil-bottom");
+      var pull = pack.querySelector(".pack-pull");
+
+      // Геометрия у всех упаковок общая: надрезы слева и справа на одной высоте.
+      var TEAR_Y = 17;    // центр надреза, % высоты картинки
+      var X0 = 4.1;       // левый край упаковки, % ширины картинки
+      var X1 = 95.8;      // правый край упаковки, % ширины картинки
+      var FINISH_AT = 88; // с этой точки фольга дорывается сама, % пути
+      var STEPS = 40;
+
+      // Линия разрыва: лёгкий изгиб плюс неровный край, концы — в надрезах.
+      var line = [];
+      for (var i = 0; i <= STEPS; i++) {
+        var x = (i / STEPS) * 100;
+        var bend = Math.sin((x / 100) * Math.PI) * 1.6;
+        var jag = i === 0 || i === STEPS ? 0 : Math.sin(i * 2.9) * 0.7 + Math.sin(i * 7.1 + 1.3) * 0.45;
+        line.push([x, TEAR_Y + bend + jag]);
+      }
+      function yAt(x) {
+        var f = (x / 100) * STEPS;
+        var n = Math.min(STEPS - 1, Math.floor(f));
+        return line[n][1] + (line[n + 1][1] - line[n][1]) * (f - n);
+      }
+      // Насколько край отошёл от линии: слева от точки разрыва — больше.
+      function gap(x, p, max) {
+        return x >= p ? 0 : max * Math.pow((p - x) / 100, 0.9);
+      }
+      var lineXs = line.map(function (pt) { return pt[0]; });
+      function render(progress) {
+        // Точка разрыва в координатах картинки: от левого надреза к правому.
+        var p = X0 + (X1 - X0) * progress / 100;
+        var xs = lineXs.concat(p);
+        xs.sort(function (a, b) { return b - a; });
+        var up = ["0% 0%", "100% 0%"];
+        var down = ["0% 100%", "100% 100%"];
+        xs.forEach(function (x) {
+          var y = yAt(x);
+          up.push(x.toFixed(2) + "% " + (y - gap(x, p, 11)).toFixed(2) + "%");
+          // Справа от разрыва нижний слой чуть заходит под верхний, чтобы не было шва.
+          down.push(x.toFixed(2) + "% " + (x < p ? y + gap(x, p, 7) : y - 0.6).toFixed(2) + "%");
+        });
+        top.style.clipPath = "polygon(" + up.join(",") + ")";
+        bottom.style.clipPath = "polygon(" + down.join(",") + ")";
+      }
+
+      var p = 0, raf = 0, guard = 0;
+      var dragging = false, opened = false, wasTearing = false;
+      var startX = 0, startP = 0, span = 1;
+      var dragRaf = 0, dragTo = 0;
+
+      function set(value) {
+        p = Math.max(0, Math.min(100, value));
+        render(p);
+        var tearing = p > 0;
+        if (tearing !== wasTearing) {
+          wasTearing = tearing;
+          pack.classList.toggle("is-tearing", tearing);
+        }
+      }
+      // Жест: не больше одной перерисовки разрыва за кадр.
+      function queue(value) {
+        dragTo = value;
+        if (dragRaf) return;
+        dragRaf = requestAnimationFrame(function () {
+          dragRaf = 0;
+          if (!dragging) return;
+          set(dragTo);
+          if (p >= FINISH_AT) open(false);
+        });
+      }
+      function stop() {
+        cancelAnimationFrame(raf);
+        clearTimeout(guard);
+      }
+      function animate(to, ms, done) {
+        stop();
+        var from = p, t0 = performance.now(), ended = false;
+        function end() {
+          if (ended) return;
+          ended = true;
+          stop();
+          set(to);
+          if (done) done();
+        }
+        function step(now) {
+          var t = Math.min(1, (now - t0) / ms);
+          set(from + (to - from) * (1 - Math.pow(1 - t, 3)));
+          if (t < 1) raf = requestAnimationFrame(step);
+          else end();
+        }
+        raf = requestAnimationFrame(step);
+        guard = setTimeout(end, ms + 80); // если вкладка в фоне и кадры не идут
+      }
+      function open(fromKeyboard) {
+        if (opened) return;
+        opened = true;
+        dragging = false;
+        mode = "";
+        relax();
+        arrows.forEach(function (arrow) { arrow.disabled = true; });
+        pack.classList.remove("is-dragging");
+        animate(100, fromKeyboard ? 450 : 140, function () {
+          pack.classList.add("is-open");
+          if (fromKeyboard) {
+            var tab = pack.querySelector(".tab.on");
+            if (tab) tab.focus();
+          }
+          setTimeout(function () { pack.classList.add("is-done"); }, 800);
+        });
+      }
+      function release() {
+        if (!dragging) return;
+        // Быстрый жест может закончиться раньше кадра: доводим разрыв до точки отпускания.
+        if (dragRaf) {
+          cancelAnimationFrame(dragRaf);
+          dragRaf = 0;
+          set(dragTo);
+          if (p >= FINISH_AT) { open(false); return; }
+        }
+        dragging = false;
+        pack.classList.remove("is-dragging");
+        animate(0, 320);
+      }
+
+      /* Дизайны упаковки листаются по кругу. Соседние картинки раскодированы заранее. */
+      var SKINS = ["teal", "pink", "white", "leopard", "dalmatian"];
+      var foil = pack.querySelector(".pack-foil");
+      var ghostPrev = pack.querySelector(".ghost-prev");
+      var ghostNext = pack.querySelector(".ghost-next");
+      var arrows = pack.querySelectorAll(".pack-arrow");
+      var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var SHIFT = calm ? 0 : 52; // на сколько % ширины уезжает упаковка при смене
+      var skin = 0, warmed = {};
+      var t = 0, busy = false;   // t: -1 — уехали к следующей, 1 — к предыдущей
+      var slideRaf = 0, slideGuard = 0, swipeRaf = 0, swipeTo = 0;
+
+      function warm(i) {
+        var name = SKINS[(i + SKINS.length) % SKINS.length];
+        if (warmed[name]) return;
+        var img = new Image();
+        img.src = "pack-" + name + ".webp";
+        if (img.decode) img.decode().catch(function () {});
+        warmed[name] = img; // ссылка держит картинку готовой к показу
+      }
+      function dress() {
+        var n = SKINS.length;
+        pack.setAttribute("data-skin", SKINS[skin]);
+        ghostPrev.setAttribute("data-skin", SKINS[(skin + n - 1) % n]);
+        ghostNext.setAttribute("data-skin", SKINS[(skin + 1) % n]);
+        warm(skin - 1);
+        warm(skin + 1);
+      }
+      // Только transform и opacity: текущая упаковка уезжает, соседняя встаёт на её место.
+      function paint(value) {
+        t = Math.max(-1, Math.min(1, value));
+        var a = Math.abs(t);
+        var incoming = t < 0 ? ghostNext : ghostPrev;
+        var other = t < 0 ? ghostPrev : ghostNext;
+        // Как карта из колоды: верхняя съезжает и тает, под ней уже лежит соседняя.
+        foil.style.opacity = (a < 0.35 ? 1 : 1 - (a - 0.35) / 0.65).toFixed(3);
+        foil.style.transform = "translate3d(" + (t * SHIFT).toFixed(2) + "%,0,0) rotate(" + (calm ? 0 : t * 6).toFixed(2) + "deg)";
+        incoming.style.opacity = Math.min(1, a * 8).toFixed(3);
+        incoming.style.transform = "scale(" + (calm ? 1 : 0.94 + 0.06 * a).toFixed(3) + ")";
+        other.style.opacity = "0";
+      }
+      function rest() {
+        t = 0;
+        foil.style.opacity = foil.style.transform = "";
+        ghostPrev.style.opacity = ghostPrev.style.transform = "";
+        ghostNext.style.opacity = ghostNext.style.transform = "";
+        pack.classList.remove("is-swiping");
+      }
+      // Доводка: к соседней упаковке (to = ±1) или обратно на место (to = 0).
+      function slide(to, ms) {
+        cancelAnimationFrame(slideRaf);
+        clearTimeout(slideGuard);
+        var from = t, t0 = performance.now(), ended = false;
+        busy = true;
+        function end() {
+          if (ended) return;
+          ended = true;
+          cancelAnimationFrame(slideRaf);
+          clearTimeout(slideGuard);
+          busy = false;
+          if (to !== 0) {
+            skin = (skin + (to < 0 ? 1 : -1) + SKINS.length) % SKINS.length;
+            dress(); // новая картинка и сброс сдвига попадают в один кадр
+          }
+          rest();
+        }
+        function step(now) {
+          var k = Math.min(1, (now - t0) / ms);
+          paint(from + (to - from) * (1 - Math.pow(1 - k, 3)));
+          if (k < 1) slideRaf = requestAnimationFrame(step);
+          else end();
+        }
+        slideRaf = requestAnimationFrame(step);
+        slideGuard = setTimeout(end, ms + 80);
+      }
+      function go(dir) {
+        if (opened || busy || mode || p > 0) return;
+        pack.classList.add("is-swiping");
+        slide(-dir, calm ? 180 : 340);
+      }
+      function queueSwipe(value) {
+        swipeTo = value;
+        if (swipeRaf) return;
+        swipeRaf = requestAnimationFrame(function () {
+          swipeRaf = 0;
+          if (mode === "swipe") paint(swipeTo);
+        });
+      }
+      arrows.forEach(function (arrow) {
+        arrow.addEventListener("click", function () {
+          go(Number(arrow.getAttribute("data-dir")));
+        });
       });
-    }
+
+      /* Один жест — одно действие. Касание только мнёт фольгу; когда движение стало
+         явно горизонтальным, действие выбирается по месту старта: от левого надреза
+         вправо — разрыв, из центра — смена дизайна. Вертикальный жест уходит в скролл. */
+      var SLOP = 9;
+      var mode = "";  // "", "press", "tear", "swipe"
+      var zone = "", pid = -1, startY = 0, downAt = 0;
+
+      function beginTear(e) {
+        mode = "tear";
+        relax();
+        stop();
+        dragging = true;
+        startX = e.clientX; // разрыв идёт от точки, где жест распознан
+        startP = p;
+        span = Math.max(1, faceLeft + faceW * X1 / 100 - e.clientX);
+        pack.classList.add("is-dragging");
+      }
+      function beginSwipe(e) {
+        mode = "swipe";
+        relax();
+        startX = e.clientX;
+        pack.classList.add("is-swiping");
+      }
+      function finish(e) {
+        if (!mode || e.pointerId !== pid) return;
+        var was = mode;
+        mode = "";
+        if (was === "tear") { release(); return; }
+        if (was === "swipe") {
+          if (swipeRaf) {
+            cancelAnimationFrame(swipeRaf);
+            swipeRaf = 0;
+            paint(swipeTo);
+          }
+          var quick = performance.now() - downAt < 320 && Math.abs(t) > 0.08;
+          var commit = e.type === "pointerup" && (Math.abs(t) > 0.3 || quick);
+          slide(commit ? (t < 0 ? -1 : 1) : 0, 240);
+          return;
+        }
+        // Палец убрали — фольга расправляется. Мышь остаётся над упаковкой и мнёт дальше.
+        if (e.pointerType !== "mouse" || e.type !== "pointerup") relax();
+      }
+
+      face.addEventListener("pointerdown", function (e) {
+        if (opened || busy || mode || !e.isPrimary) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        mode = "press";
+        zone = pull.contains(e.target) ? "notch" : "center";
+        pid = e.pointerId;
+        startX = e.clientX;
+        startY = e.clientY;
+        downAt = performance.now();
+        measure();
+        try { face.setPointerCapture(pid); } catch (err) {}
+        if (e.pointerType === "mouse") e.preventDefault();
+        else poke(e); // палец мнёт фольгу сразу при касании
+      });
+      face.addEventListener("pointermove", function (e) {
+        if (!mode) {
+          if (e.pointerType === "mouse" && !opened && !busy) poke(e);
+          return;
+        }
+        if (e.pointerId !== pid) return;
+        if (mode === "press") {
+          var dx = e.clientX - startX, dy = e.clientY - startY;
+          var across = Math.abs(dx) > SLOP && Math.abs(dx) > Math.abs(dy) * 1.2;
+          if (across && zone === "notch" && dx > 0) beginTear(e);
+          else if (across && zone === "center" && p === 0) beginSwipe(e);
+          else poke(e);
+        } else if (mode === "tear") {
+          queue(startP + ((e.clientX - startX) / span) * (100 - startP));
+        } else {
+          queueSwipe((e.clientX - startX) / (faceW * 0.62));
+        }
+      });
+      face.addEventListener("pointerup", finish);
+      face.addEventListener("pointercancel", finish);
+      face.addEventListener("lostpointercapture", finish);
+      face.addEventListener("pointerleave", function () {
+        if (!mode) relax();
+      });
+      // Enter и Space на кнопке дают клик без нажатия указателя.
+      // Обычный клик мышью или тап без протяжки упаковку не открывает.
+      pull.addEventListener("click", function (e) {
+        if (e.detail === 0) open(true);
+      });
+      pull.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        open(true);
+      });
+
+      /* Сминание фольги под курсором или пальцем. Пишем только transform и opacity,
+         не чаще раза за кадр; когда вмятина расправилась, кадры останавливаются. */
+      var crumple = pack.querySelector(".crumple");
+      var dent = pack.querySelector(".dent");
+      var glint = pack.querySelector(".glint");
+      var box = { left: 0, top: 0, w: 1, h: 1 }; // «подушка» фольги в координатах окна
+      var faceLeft = 0, faceW = 1;
+      var stale = true;            // размеры перечитываются после скролла и ресайза
+      var hx = 0, hy = 0, hs = 0;  // текущее положение и сила вмятины
+      var tx = 0, ty = 0, ts = 0;  // к чему она стремится
+      var hoverRaf = 0;
+
+      function measure() {
+        var r = face.getBoundingClientRect();
+        faceLeft = r.left;
+        faceW = r.width;
+        box = { left: r.left + r.width * 0.15, top: r.top + r.height * 0.13, w: r.width * 0.7, h: r.height * 0.74 };
+        stale = false;
+      }
+      function tick() {
+        hoverRaf = 0;
+        hx += (tx - hx) * 0.3;
+        hy += (ty - hy) * 0.3;
+        hs += (ts - hs) * 0.16;
+        var settled = Math.abs(tx - hx) < 0.3 && Math.abs(ty - hy) < 0.3 && Math.abs(ts - hs) < 0.004;
+        if (settled) { hx = tx; hy = ty; hs = ts; }
+        crumple.style.opacity = hs.toFixed(3);
+        dent.style.transform = "translate3d(" + hx.toFixed(1) + "px," + hy.toFixed(1) + "px,0) scale(" + (0.82 + 0.18 * hs).toFixed(3) + ")";
+        glint.style.transform = "translate3d(" + ((box.w / 2 - hx) * 0.45).toFixed(1) + "px," + ((box.h / 2 - hy) * 0.45).toFixed(1) + "px,0) rotate(-32deg)";
+        if (!settled) hoverRaf = requestAnimationFrame(tick);
+        else if (hs === 0) pack.classList.remove("is-crumpling");
+      }
+      // Вмятина и блик идут за указателем.
+      function poke(e) {
+        if (calm) return;
+        if (stale) measure();
+        var x = e.clientX - box.left, y = e.clientY - box.top;
+        // У краёв подушки вмятина сходит на нет, поэтому края упаковки неподвижны.
+        var s = Math.max(0, Math.min(1, Math.min(x, box.w - x, y, box.h - y) / (box.w * 0.14)));
+        if (s === 0 && hs === 0) { ts = 0; return; }
+        if (hs === 0 && ts === 0) {
+          hx = x; hy = y;
+          pack.classList.add("is-crumpling");
+        }
+        tx = x; ty = y; ts = s;
+        if (!hoverRaf) hoverRaf = requestAnimationFrame(tick);
+      }
+      // Фольга мягко расправляется.
+      function relax() {
+        if (ts === 0 && hs === 0) return;
+        ts = 0;
+        if (!hoverRaf) hoverRaf = requestAnimationFrame(tick);
+      }
+      var forget = function () { stale = true; };
+      window.addEventListener("scroll", forget, { passive: true });
+      window.addEventListener("resize", forget);
+
+      // Остальные дизайны догружаются, когда страница готова.
+      dress();
+      window.addEventListener("load", function () {
+        for (var i = 0; i < SKINS.length; i++) warm(i);
+      });
+
+      render(0);
+    })();
 
     document.querySelectorAll(".tab").forEach(function (tab) {
       tab.addEventListener("click", function () {
