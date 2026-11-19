@@ -38,13 +38,24 @@
 
     * { box-sizing: border-box; }
     html, body { margin: 0; }
-    html { background: #050505; }
+    /* Страница держит ширину экрана: вбок её не сдвинуть ни свайпом, ни анимацией упаковки. */
+    html {
+      background: #050505;
+      overflow-x: hidden;
+      overflow-x: clip;
+      overscroll-behavior-x: none;
+      -webkit-text-size-adjust: 100%;
+    }
     body {
+      width: 100%;
       min-height: 100vh;
       color: var(--ink);
       font-family: Helvetica, Arial, sans-serif;
       background: #050505;
       overflow-x: hidden;
+      overflow-x: clip;
+      overscroll-behavior-x: none;
+      touch-action: pan-y pinch-zoom;
       -webkit-font-smoothing: antialiased;
     }
     img { max-width: 100%; display: block; }
@@ -73,6 +84,8 @@
       align-items: center;
       justify-content: center;
       padding: 36px 16px 48px;
+      overflow-x: hidden;
+      overflow-x: clip;
     }
 
     .poster {
