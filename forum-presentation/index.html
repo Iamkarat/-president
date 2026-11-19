@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#050505">
+  <title>Наш новый форум — PRESIDENT PRIVATE AGENCY</title>
+  <meta name="description" content="PRESIDENT — комьюнити моделей, где открыто обсуждают заработок, условия работы и опыт сотрудничества с агентствами.">
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" href="../favicon-32x32.png" type="image/png" sizes="32x32">
+  <style>
+    :root {
+      --teal: #6af6e8;
+      --teal-deep: #14d4c4;
+      --ink: #f4f7f6;
+      --muted: rgba(244, 247, 246, 0.78);
+      --serif: "Iowan Old Style", Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    html { background: #050505; }
+    body {
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Helvetica, Arial, sans-serif;
+      background: #050505;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    button, a { font: inherit; }
+
+    .marble {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 42% 28% at 18% 12%, rgba(255, 255, 255, 0.07), transparent 70%),
+        radial-gradient(ellipse 34% 26% at 78% 18%, rgba(90, 245, 230, 0.09), transparent 72%),
+        radial-gradient(ellipse 40% 32% at 84% 82%, rgba(40, 210, 195, 0.14), transparent 70%),
+        radial-gradient(ellipse 55% 28% at 42% 100%, rgba(20, 170, 160, 0.16), transparent 62%),
+        #050505;
+    }
+    .marble svg { width: 100%; height: 100%; }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 16px 48px;
+    }
+
+    .poster {
+      position: relative;
+      width: min(1080px, 100%);
+      padding: 54px 58px 36px;
+    }
+
+    .vines {
+      position: absolute;
+      inset: -8px -6px;
+      width: calc(100% + 12px);
+      height: calc(100% + 16px);
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .sky {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .gem, .star {
+      position: absolute;
+      display: block;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      animation: drift 8s ease-in-out infinite;
+    }
+    .gem {
+      width: 46px;
+      height: 78px;
+      background-image: url("crystal.png");
+      filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.4));
+    }
+    .gem.lg { width: 72px; height: 120px; }
+    .gem-tl { top: 28px; left: 28px; animation-duration: 9s; }
+    .gem-tr { top: 36px; right: 28px; animation-duration: 7.5s; animation-delay: -2s; }
+    .gem-ml { top: 42%; left: 18px; width: 40px; height: 68px; animation-duration: 10s; animation-delay: -4s; }
+    .gem-mr { top: 48%; right: 18px; width: 40px; height: 68px; animation-duration: 8.6s; animation-delay: -1s; }
+    .gem-bl { bottom: 28px; left: 28px; animation-duration: 9.4s; animation-delay: -3s; }
+    .gem-br { bottom: 36px; right: 28px; animation-duration: 7.8s; animation-delay: -5s; }
+
+    .star-a { top: 22%; left: 5%; width: 28px; height: 28px; background-image: url("spark-7.png"); animation-duration: 6.5s; }
+    .star-b { top: 16%; right: 6%; width: 22px; height: 22px; background-image: url("spark-5.png"); animation-duration: 7.2s; animation-delay: -2.4s; }
+    .star-c { top: 62%; right: 5%; width: 30px; height: 30px; background-image: url("spark-2.png"); animation-duration: 8s; animation-delay: -1.2s; }
+    .star-d { bottom: 24%; left: 6%; width: 20px; height: 20px; background-image: url("spark-8.png"); animation-duration: 6.8s; animation-delay: -3.5s; }
+    .star-e { top: 30%; left: 7%; width: 16px; height: 16px; background-image: url("spark-4.png"); animation-duration: 7.6s; animation-delay: -0.8s; }
+    .star-f { top: 74%; left: 4%; width: 18px; height: 18px; background-image: url("spark-6.png"); animation-duration: 9s; animation-delay: -4.2s; }
+    .star-g { bottom: 20%; right: 7%; width: 26px; height: 26px; background-image: url("spark-3.png"); animation-duration: 7s; animation-delay: -2.8s; }
+
+    @keyframes drift {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(0, -10px, 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .gem, .star { animation: none; }
+    }
+
+    .poster-body { position: relative; z-index: 2; }
+
+    .brand {
+      display: flex;
+      justify-content: center;
+      margin: 0 0 18px;
+    }
+    .brand img {
+      width: auto;
+      height: 108px;
+      object-fit: contain;
+      filter:
+        drop-shadow(0 0 10px rgba(90, 245, 230, 0.45))
+        drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
+    }
+
+    h1 {
+      margin: 0 auto 14px;
+      max-width: 760px;
+      text-align: center;
+      font-size: clamp(32px, 4.4vw, 52px);
+      font-weight: 700;
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+    }
+    h1 em {
+      display: block;
+      margin-top: 2px;
+      font-family: var(--serif);
+      font-style: italic;
+      font-weight: 500;
+      letter-spacing: 0;
+      color: var(--teal);
+      text-shadow: 0 0 18px rgba(80, 245, 230, 0.45);
+    }
+
+    .lead {
+      max-width: 640px;
+      margin: 0 auto 28px;
+      text-align: center;
+      color: var(--muted);
+      font-size: clamp(15px, 1.5vw, 18px);
+      line-height: 1.45;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+      gap: 18px 26px;
+      align-items: center;
+    }
+
+    .pack {
+      width: min(100%, 420px);
+      margin: 0 auto;
+    }
+    .pack-face {
+      position: relative;
+      aspect-ratio: 1;
+      filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.45));
+    }
+    .screen {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: 18px;
+      background:
+        radial-gradient(120% 80% at 80% 0%, rgba(60, 210, 195, 0.16), transparent 42%),
+        linear-gradient(180deg, #102220, #07110f);
+      color: #e8eeec;
+      box-shadow: inset 0 0 0 1px rgba(150, 245, 235, 0.2);
+    }
+    .screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, rgba(255, 255, 255, 0.2), transparent 26%, transparent 58%, rgba(110, 245, 230, 0.08));
+      pointer-events: none;
+    }
+    .screen-ui {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      padding: 22% 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+    .screen-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: rgba(232, 238, 236, 0.82);
+    }
+    .mark {
+      width: 18px;
+      height: 14px;
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+    .mark img { width: 18px; height: auto; margin-top: -1px; }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tab {
+      appearance: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 9px;
+      color: rgba(232, 238, 236, 0.82);
+      border: 1px solid rgba(190, 230, 225, 0.28);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    .tab:hover {
+      border-color: rgba(120, 245, 230, 0.55);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 10px rgba(60, 220, 205, 0.28);
+    }
+    .tab.on {
+      color: #06211e;
+      background: linear-gradient(180deg, #d9fff8, #5ee6d6 42%, #2ec9b8);
+      border-color: rgba(220, 255, 250, 0.9);
+      font-weight: 700;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        0 0 12px rgba(80, 245, 230, 0.65);
+    }
+    .topics { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+    .topic {
+      display: grid;
+      grid-template-columns: 16px minmax(0, 1fr) auto;
+      gap: 6px;
+      align-items: center;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .topics[hidden] { display: none; }
+    .topic svg { width: 14px; height: 14px; color: #8ef6ea; filter: drop-shadow(0 0 4px rgba(80, 240, 225, 0.65)); }
+    .topic b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meta {
+      display: inline-flex;
+      gap: 7px;
+      color: rgba(200, 214, 210, 0.55);
+      font-size: 9px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .pack-foil {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      background: url("sticker.webp") center / cover no-repeat;
+      transition: clip-path 0.55s ease, transform 0.55s ease;
+      transform-origin: 100% 0;
+    }
+    .pack:hover .pack-foil,
+    .pack.is-open .pack-foil {
+      clip-path: polygon(0 0, 100% 0, 100% 8%, 78% 18%, 46% 9%, 18% 20%, 0 11%);
+      transform: none;
+    }
+    .pack-note {
+      margin: 14px 0 0;
+      text-align: center;
+      color: rgba(244, 247, 246, 0.78);
+      font-size: 14px;
+      letter-spacing: 0.04em;
+    }
+
+    .perks {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+    .perk, .note {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 12px 16px;
+      color: #f7fbfa;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03) 28%, rgba(6, 24, 24, 0.45));
+      border: 1px solid rgba(170, 245, 235, 0.42);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),
+        inset 0 0 18px rgba(40, 200, 190, 0.05),
+        0 0 16px rgba(40, 210, 195, 0.16),
+        0 12px 24px rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(14px);
+    }
+    .perk {
+      border-radius: 999px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+    .perk i {
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(140, 245, 230, 0.55);
+      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.22), rgba(16, 70, 66, 0.35));
+      color: #bffff6;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        0 0 12px rgba(60, 230, 215, 0.4);
+    }
+    .perk svg { width: 18px; height: 18px; display: block; }
+    .perk span { min-width: 0; }
+
+    .note {
+      margin-top: 4px;
+      border-radius: 22px;
+      border-color: rgba(120, 245, 230, 0.7);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        0 0 22px rgba(50, 230, 215, 0.38),
+        0 0 1px rgba(180, 255, 245, 0.8);
+    }
+    .note p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.35;
+      color: rgba(244, 247, 246, 0.9);
+    }
+
+    .actions {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-top: 28px;
+    }
+    .actions::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 28px;
+      width: min(420px, 80%);
+      height: 70px;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse, rgba(60, 245, 225, 0.7), rgba(40, 220, 200, 0) 70%);
+      filter: blur(6px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .go, .socials { position: relative; z-index: 1; }
+
+    .go {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(560px, 100%);
+      min-height: 56px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+      color: #f6fffd;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06));
+      border: 1px solid rgba(230, 245, 242, 0.85);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.75),
+        inset 0 -8px 16px rgba(40, 200, 190, 0.12),
+        0 0 34px rgba(70, 230, 215, 0.5),
+        0 12px 28px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .go:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 0 36px rgba(70, 220, 205, 0.55),
+        0 14px 30px rgba(0, 0, 0, 0.4);
+    }
+    .go:focus-visible, .social:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+    }
+
+    .socials {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      width: min(560px, 100%);
+    }
+    .social {
+      flex: 1 1 140px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: #f4f7f6;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(8, 24, 24, 0.35));
+      border: 1px solid rgba(170, 240, 230, 0.38);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 0 14px rgba(40, 210, 195, 0.16);
+      backdrop-filter: blur(8px);
+    }
+    .social svg { width: 16px; height: 16px; flex: 0 0 auto; }
+    .social.is-off {
+      opacity: 0.38;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    @media (max-width: 860px) {
+      .page { align-items: flex-start; padding: 78px 12px 32px; }
+      .poster { padding: 42px 18px 22px; }
+      .brand img { height: 84px; }
+      .stage { grid-template-columns: 1fr; gap: 22px; }
+      .pack { width: min(100%, 460px); }
+      .perk { border-radius: 18px; font-size: 15px; }
+      .go { font-size: 17px; }
+      .gem.lg { width: 42px; height: 70px; }
+      .gem-ml, .gem-mr, .gem-bl, .gem-br,
+      .star-a, .star-b, .star-c, .star-d, .star-e, .star-g { display: none; }
+      .gem-tl, .gem-tr { top: 8px; }
+      .gem-tl { left: 12px; }
+      .gem-tr { right: 12px; }
+      .star-d, .star-f { width: 14px; height: 14px; }
+      .vines { inset: -4px 0; width: 100%; height: calc(100% + 8px); }
+    }
+
+    @media (max-width: 420px) {
+      h1 { font-size: 30px; }
+      .lead { font-size: 15px; }
+      .topic { font-size: 12px; }
+      .screen-head { font-size: 8px; }
+      .social { flex-basis: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="marble" aria-hidden="true">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+      <g fill="none" stroke="rgba(230,245,242,0.28)" stroke-width="1.15">
+        <path d="M-20 120 C 180 40, 320 220, 520 90 S 860 20, 1100 140 1460 80, 1500 160"/>
+        <path d="M-40 340 C 160 260, 280 460, 540 330 S 900 250, 1180 390 1480 300, 1520 420"/>
+        <path d="M80 820 C 260 700, 420 860, 680 740 S 980 680, 1240 820"/>
+        <path d="M900 -20 C 820 180, 1040 260, 930 460 S 1080 700, 980 920"/>
+        <path d="M220 -30 C 140 160, 360 240, 250 430 S 80 640, 260 900"/>
+      </g>
+      <g fill="none" stroke="rgba(120,230,220,0.22)" stroke-width="0.7">
+        <path d="M40 200 C 200 160, 260 280, 430 210"/>
+        <path d="M1040 240 C 1160 180, 1280 320, 1420 250"/>
+        <path d="M480 760 C 640 700, 760 820, 980 740"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="sky" aria-hidden="true">
+    <i class="gem lg gem-tl"></i>
+    <i class="gem lg gem-tr"></i>
+    <i class="gem gem-ml"></i>
+    <i class="gem gem-mr"></i>
+    <i class="gem lg gem-bl"></i>
+    <i class="gem lg gem-br"></i>
+    <i class="star star-a"></i>
+    <i class="star star-b"></i>
+    <i class="star star-c"></i>
+    <i class="star star-d"></i>
+    <i class="star star-e"></i>
+    <i class="star star-f"></i>
+    <i class="star star-g"></i>
+  </div>
+
+  <main class="page">
+    <article class="poster">
+      <svg class="vines" viewBox="0 0 1000 1180" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f7f8f8"/>
+            <stop offset="0.35" stop-color="#9aa3a8"/>
+            <stop offset="0.62" stop-color="#f3f5f6"/>
+            <stop offset="1" stop-color="#6e777c"/>
+          </linearGradient>
+          <filter id="soft" x="-12%" y="-12%" width="124%" height="124%">
+            <feGaussianBlur stdDeviation="0.7" result="b"/>
+            <feMerge>
+              <feMergeNode in="b"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <path stroke="rgba(110,245,230,0.45)" stroke-width="2.2" filter="url(#soft)" d="M96 118
+          C96 72 150 46 230 58
+          C350 74 410 34 500 40
+          C600 46 670 86 790 58
+          C880 36 930 72 930 128
+          C952 300 904 430 942 560
+          C974 690 928 860 940 990
+          C948 1088 870 1132 770 1118
+          C640 1100 560 1144 500 1134
+          C420 1122 330 1092 214 1116
+          C120 1136 68 1084 66 990
+          C60 820 98 680 58 540
+          C24 400 72 270 96 118"/>
+        <path filter="url(#soft)" stroke="url(#silver)" stroke-width="2.4" d="M96 118
+          C96 72 150 46 230 58
+          C350 74 410 34 500 40
+          C600 46 670 86 790 58
+          C880 36 930 72 930 128
+          C952 300 904 430 942 560
+          C974 690 928 860 940 990
+          C948 1088 870 1132 770 1118
+          C640 1100 560 1144 500 1134
+          C420 1122 330 1092 214 1116
+          C120 1136 68 1084 66 990
+          C60 820 98 680 58 540
+          C24 400 72 270 96 118"/>
+        <path stroke="rgba(255,255,255,0.35)" stroke-width="0.8" d="M112 132
+          C130 92 210 78 300 86
+          C390 94 450 62 520 66
+          C610 72 680 108 790 82
+          C860 66 900 96 908 146
+          C924 300 888 420 916 540
+          C942 660 910 830 918 970
+          C924 1050 860 1096 780 1086
+          C660 1072 580 1110 510 1102
+          C430 1092 350 1068 250 1088
+          C160 1106 104 1060 100 980
+          C94 830 126 700 96 560
+          C70 430 100 280 112 132"/>
+      </svg>
+
+      <div class="poster-body">
+        <div class="brand">
+          <img src="../assets/president-logo-original-transparent.png" width="320" height="320" alt="PRESIDENT PRIVATE AGENCY">
+        </div>
+
+        <h1>Наш новый форум —<em>для вас.</em></h1>
+
+        <p class="lead">PRESIDENT — комьюнити моделей, где открыто обсуждают заработок, условия работы и опыт сотрудничества с агентствами</p>
+
+        <div class="stage">
+          <div class="pack">
+            <div class="pack-face">
+              <div class="screen">
+                  <div class="screen-ui">
+                    <div class="screen-head">
+                      <span class="mark"><img src="../assets/president-logo-original-transparent.png" alt=""></span>
+                      <span>PRESIDENT PRIVATE AGENCY COMMUNITY</span>
+                    </div>
+                    <div class="tabs" role="tablist" aria-label="Разделы форума">
+                      <button class="tab on" type="button" role="tab" id="tab-talk" aria-selected="true" aria-controls="panel-talk" data-panel="talk">Обсуждения</button>
+                      <button class="tab" type="button" role="tab" id="tab-reviews" aria-selected="false" aria-controls="panel-reviews" data-panel="reviews">Отзывы</button>
+                      <button class="tab" type="button" role="tab" id="tab-questions" aria-selected="false" aria-controls="panel-questions" data-panel="questions">Вопросы</button>
+                      <button class="tab" type="button" role="tab" id="tab-guides" aria-selected="false" aria-controls="panel-guides" data-panel="guides">Гайды</button>
+                    </div>
+                    <div class="topics" id="panel-talk" role="tabpanel" aria-labelledby="tab-talk" data-panel="talk">
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H12l-4 3.5V15H7.5A2.5 2.5 0 0 1 5 12.5v-6Z"/></svg>
+                        <b>Как не попасть на обман?</b>
+                        <span class="meta"><span>128</span><span>24</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H12l-4 3.5V15H7.5A2.5 2.5 0 0 1 5 12.5v-6Z"/></svg>
+                        <b>Опыт работы с агентствами</b>
+                        <span class="meta"><span>316</span><span>57</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H12l-4 3.5V15H7.5A2.5 2.5 0 0 1 5 12.5v-6Z"/></svg>
+                        <b>Реальные условия и заработок</b>
+                        <span class="meta"><span>420</span><span>89</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H12l-4 3.5V15H7.5A2.5 2.5 0 0 1 5 12.5v-6Z"/></svg>
+                        <b>Инди или агентство?</b>
+                        <span class="meta"><span>201</span><span>36</span></span>
+                      </div>
+                    </div>
+                    <div class="topics" id="panel-reviews" role="tabpanel" aria-labelledby="tab-reviews" data-panel="reviews" hidden>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3.5 2.1 4.4 4.8.7-3.5 3.4.8 4.8L12 14.5 7.8 16.8l.8-4.8L5.1 8.6l4.8-.7L12 3.5Z"/></svg>
+                        <b>Первый месяц в агентстве</b>
+                        <span class="meta"><span>184</span><span>41</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3.5 2.1 4.4 4.8.7-3.5 3.4.8 4.8L12 14.5 7.8 16.8l.8-4.8L5.1 8.6l4.8-.7L12 3.5Z"/></svg>
+                        <b>Как ведёт себя менеджер</b>
+                        <span class="meta"><span>263</span><span>52</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3.5 2.1 4.4 4.8.7-3.5 3.4.8 4.8L12 14.5 7.8 16.8l.8-4.8L5.1 8.6l4.8-.7L12 3.5Z"/></svg>
+                        <b>Условия, которые обещали</b>
+                        <span class="meta"><span>347</span><span>68</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 3.5 2.1 4.4 4.8.7-3.5 3.4.8 4.8L12 14.5 7.8 16.8l.8-4.8L5.1 8.6l4.8-.7L12 3.5Z"/></svg>
+                        <b>Что изменилось после договора</b>
+                        <span class="meta"><span>156</span><span>29</span></span>
+                      </div>
+                    </div>
+                    <div class="topics" id="panel-questions" role="tabpanel" aria-labelledby="tab-questions" data-panel="questions" hidden>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9.6 9.4a2.4 2.4 0 1 1 3.5 2.1c-.8.5-1.1 1-1.1 1.8"/><path d="M12 17h.01"/></svg>
+                        <b>Какие документы спрашивают?</b>
+                        <span class="meta"><span>96</span><span>18</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9.6 9.4a2.4 2.4 0 1 1 3.5 2.1c-.8.5-1.1 1-1.1 1.8"/><path d="M12 17h.01"/></svg>
+                        <b>Как понять, что агентство своё?</b>
+                        <span class="meta"><span>214</span><span>46</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9.6 9.4a2.4 2.4 0 1 1 3.5 2.1c-.8.5-1.1 1-1.1 1.8"/><path d="M12 17h.01"/></svg>
+                        <b>Что входит в проживание?</b>
+                        <span class="meta"><span>173</span><span>33</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M9.6 9.4a2.4 2.4 0 1 1 3.5 2.1c-.8.5-1.1 1-1.1 1.8"/><path d="M12 17h.01"/></svg>
+                        <b>Когда приходят первые выплаты?</b>
+                        <span class="meta"><span>289</span><span>61</span></span>
+                      </div>
+                    </div>
+                    <div class="topics" id="panel-guides" role="tabpanel" aria-labelledby="tab-guides" data-panel="guides" hidden>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 5.5h9.5A2.5 2.5 0 0 1 17 8v11.5H7.5A2.5 2.5 0 0 0 5 17V5.5Z"/><path d="M5 17a2.5 2.5 0 0 1 2.5-2.5H17"/></svg>
+                        <b>Как читать договор</b>
+                        <span class="meta"><span>142</span><span>19</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 5.5h9.5A2.5 2.5 0 0 1 17 8v11.5H7.5A2.5 2.5 0 0 0 5 17V5.5Z"/><path d="M5 17a2.5 2.5 0 0 1 2.5-2.5H17"/></svg>
+                        <b>Чеклист перед стартом</b>
+                        <span class="meta"><span>208</span><span>27</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 5.5h9.5A2.5 2.5 0 0 1 17 8v11.5H7.5A2.5 2.5 0 0 0 5 17V5.5Z"/><path d="M5 17a2.5 2.5 0 0 1 2.5-2.5H17"/></svg>
+                        <b>Как считать свой заработок</b>
+                        <span class="meta"><span>331</span><span>44</span></span>
+                      </div>
+                      <div class="topic">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 5.5h9.5A2.5 2.5 0 0 1 17 8v11.5H7.5A2.5 2.5 0 0 0 5 17V5.5Z"/><path d="M5 17a2.5 2.5 0 0 1 2.5-2.5H17"/></svg>
+                        <b>Первая неделя: что спросить</b>
+                        <span class="meta"><span>119</span><span>22</span></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button class="pack-foil" type="button" aria-expanded="false" aria-label="Надорвать и посмотреть, что внутри"></button>
+              </div>
+              <p class="pack-note">Это для вашей безопасности</p>
+            </div>
+
+          <div class="perks">
+            <div class="perk">
+              <i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 8.5h7.5A2.5 2.5 0 0 1 17 11v.5"/><path d="M5 7.5A2.5 2.5 0 0 1 7.5 5H15a2.5 2.5 0 0 1 2.5 2.5V12A2.5 2.5 0 0 1 15 14.5h-2.2L9 17.5v-3H7.5A2.5 2.5 0 0 1 5 12V7.5Z"/><path d="M8 16.5h.5A2.5 2.5 0 0 0 11 19h2l3 2.5V19h.2A2.5 2.5 0 0 0 19 16.5V14"/></svg></i>
+              <span>Открытые обсуждения о работе и заработке</span>
+            </div>
+            <div class="perk">
+              <i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="2.4"/><circle cx="16" cy="10" r="2"/><path d="M4.8 17.2c.6-2 2.2-3 4.2-3s3.6 1 4.2 3"/><path d="M13.2 16.8c.4-1.4 1.5-2.2 2.9-2.2 1.6 0 2.8.9 3.3 2.4"/></svg></i>
+              <span>Отзывы о сотрудничестве с агентствами</span>
+            </div>
+            <div class="perk">
+              <i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9.5 12 5l8 4.5-8 4.5-8-4.5Z"/><path d="M7 11.2V15c1.6 1.4 3.2 2 5 2s3.4-.6 5-2v-3.8"/></svg></i>
+              <span>Опыт моделей и практические гайды</span>
+            </div>
+            <div class="perk">
+              <i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3.5 19 6.2v5.2c0 4.2-2.8 6.8-7 8.1-4.2-1.3-7-3.9-7-8.1V6.2L12 3.5Z"/><path d="m8.8 11.6 2.2 2.2 4.2-4.4"/></svg></i>
+              <span>Вопросы, ответы и поддержка комьюнити</span>
+            </div>
+            <div class="note">
+              <p>Сравнивай условия, задавай вопросы и принимай решения на основе опыта других моделей</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a class="go" href="https://presidentmodel.io/forum/">Перейти →</a>
+          <div class="socials" role="group" aria-label="Соцсети PRESIDENT">
+            <a class="social" data-network="telegram">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.5 4.4 3.7 11.2c-1.2.5-1.2 1.1-.2 1.4l4.6 1.4 10.6-6.7c.5-.3 1-.1.6.2l-8.6 7.8-.3 4.6c.5 0 .7-.2 1-.5l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.2-.4-1.8-1.3-1.4Z"/></svg>
+              Telegram
+            </a>
+            <a class="social" data-network="instagram">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 3h8a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V8a5 5 0 0 1 5-5Zm8 2H8a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3Zm-4 3.2A3.8 3.8 0 1 1 8.2 12 3.8 3.8 0 0 1 12 8.2Zm0 2A1.8 1.8 0 1 0 13.8 12 1.8 1.8 0 0 0 12 10.2ZM17.4 7.1a1 1 0 1 1-1 1 1 1 0 0 1 1-1Z"/></svg>
+              Instagram
+            </a>
+            <a class="social" data-network="tiktok">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M14.2 3c.4 2.4 1.7 4 4.3 4.2v2.4c-1.5 0-2.8-.5-4.1-1.3v6.6c0 3.4-2.6 6.1-6.1 6.1S2.2 18.3 2.2 14.9a6.1 6.1 0 0 1 8.2-5.7v2.6a3.6 3.6 0 0 0-1.2-.2 3.4 3.4 0 1 0 3.4 3.4V3h1.6Z"/></svg>
+              TikTok
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <script>
+    /*
+      Ссылки на соцсети этой страницы.
+      Пустая строка — кнопка остаётся неактивной.
+      Замените адрес здесь, больше нигде его указывать не нужно.
+    */
+    var PRESIDENT_SOCIAL = {
+      telegram: "https://t.me/+LNWj--9z2epiYjUy",
+      instagram: "",
+      tiktok: "https://www.tiktok.com/@president_age/"
+    };
+
+    var foil = document.querySelector(".pack-foil");
+    if (foil) {
+      foil.addEventListener("click", function () {
+        var pack = foil.closest(".pack");
+        var open = pack.classList.toggle("is-open");
+        foil.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+    }
+
+    document.querySelectorAll(".tab").forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var id = tab.getAttribute("data-panel");
+        document.querySelectorAll(".tab").forEach(function (item) {
+          var on = item === tab;
+          item.classList.toggle("on", on);
+          item.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        document.querySelectorAll(".topics").forEach(function (panel) {
+          panel.hidden = panel.getAttribute("data-panel") !== id;
+        });
+      });
+    });
+
+    var names = { telegram: "Telegram", instagram: "Instagram", tiktok: "TikTok" };
+    document.querySelectorAll("[data-network]").forEach(function (el) {
+      var key = el.getAttribute("data-network");
+      var url = (PRESIDENT_SOCIAL[key] || "").trim();
+      if (!url) {
+        el.classList.add("is-off");
+        el.setAttribute("role", "link");
+        el.setAttribute("aria-disabled", "true");
+        el.setAttribute("aria-label", names[key] + ", ссылка пока не указана");
+        el.removeAttribute("href");
+        return;
+      }
+      el.href = url;
+      el.target = "_blank";
+      el.rel = "noopener noreferrer";
+      el.setAttribute("aria-label", names[key] + " PRESIDENT");
+    });
+  </script>
+</body>
+</html>
