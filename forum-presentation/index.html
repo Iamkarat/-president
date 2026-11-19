@@ -207,6 +207,22 @@
       -webkit-tap-highlight-color: transparent;
     }
     .pack.is-swiping .pack-face { cursor: grabbing; }
+    /* Вибрация при прокрутке вниз. Любое касание упаковки её останавливает. */
+    .pack.is-buzzing:not(.is-open):not(.is-dragging):not(.is-tearing):not(.is-swiping):not(.is-crumpling) .pack-face {
+      animation: buzz 0.5s linear;
+    }
+    @keyframes buzz {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(0); }
+      10% { transform: translate3d(-3px, 1px, 0) rotate(-1.4deg); }
+      20% { transform: translate3d(3px, -1px, 0) rotate(1.4deg); }
+      30% { transform: translate3d(-3px, -1px, 0) rotate(-1.2deg); }
+      40% { transform: translate3d(3px, 1px, 0) rotate(1.2deg); }
+      50% { transform: translate3d(-2px, 1px, 0) rotate(-1deg); }
+      60% { transform: translate3d(2px, -1px, 0) rotate(1deg); }
+      70% { transform: translate3d(-2px, 0, 0) rotate(-0.7deg); }
+      80% { transform: translate3d(2px, 0, 0) rotate(0.7deg); }
+      90% { transform: translate3d(-1px, 0, 0) rotate(-0.3deg); }
+    }
     .pack.is-open .pack-face {
       cursor: auto;
       touch-action: auto;
@@ -1322,8 +1338,27 @@
         if (!hoverRaf) hoverRaf = requestAnimationFrame(tick);
       }
       var forget = function () { stale = true; };
-      window.addEventListener("scroll", forget, { passive: true });
       window.addEventListener("resize", forget);
+
+      /* При прокрутке вниз упаковка коротко вибрирует, пока она на экране и её не трогают.
+         Пока страницу листают, вибрация повторяется; после вскрытия не включается. */
+      var inView = false, lastY = window.scrollY;
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver(function (entries) {
+          inView = entries[0].isIntersecting;
+        }, { threshold: 0.35 }).observe(face);
+      }
+      var calmDown = function (e) {
+        if (e.target === face) pack.classList.remove("is-buzzing");
+      };
+      face.addEventListener("animationend", calmDown);
+      face.addEventListener("animationcancel", calmDown);
+      window.addEventListener("scroll", function () {
+        stale = true;
+        var y = window.scrollY, down = y > lastY + 2;
+        lastY = y;
+        if (down && inView && !calm && !opened && !busy && !mode) pack.classList.add("is-buzzing");
+      }, { passive: true });
 
       // Остальные дизайны догружаются, когда страница готова.
       dress();
