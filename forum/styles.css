@@ -1683,6 +1683,14 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
 @media (prefers-reduced-motion: reduce) { .m-hang, .m-bubble { animation: none; } .m-below { transform: translateX(-50%); } }
 
 /* ---------- Обсуждения ---------- */
+.preview-block,
+.preview-rest { display: grid; gap: 12px; }
+.preview-rest[hidden] { display: none; }
+.preview-block > .post,
+.preview-rest > .post,
+.preview-block > .discussion,
+.preview-rest > .discussion { margin-bottom: 0; }
+.preview-more { justify-self: start; }
 .external-model-reviews { display: grid; gap: 12px; margin-bottom: 16px; }
 .external-model-reviews > h3 { margin: 0; font-size: 1.08rem; }
 .external-model-reviews > .eyebrow { margin-top: -7px; }

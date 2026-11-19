@@ -150,6 +150,31 @@ const avatarPicker = () => `
     <div class="note" data-avatar-status role="status"></div>
   </fieldset>`;
 
+const PREVIEW_LIMIT = 4;
+const previewOpen = new Set();
+
+function previewMarkup(key, pieces) {
+  if (pieces.length <= PREVIEW_LIMIT) return pieces.join("");
+  const open = previewOpen.has(key);
+  return `<div class="preview-block" data-preview="${key}">
+    ${pieces.slice(0, PREVIEW_LIMIT).join("")}
+    <div class="preview-rest" data-preview-rest${open ? "" : " hidden"}>${pieces.slice(PREVIEW_LIMIT).join("")}</div>
+    <button class="btn btn-ghost preview-more" type="button" data-show-all="${key}" aria-expanded="${open}">${open ? "Свернуть" : "Посмотреть все"}</button>
+  </div>`;
+}
+
+function togglePreview(button) {
+  const key = button.dataset.showAll;
+  const open = previewOpen.has(key);
+  if (open) previewOpen.delete(key);
+  else previewOpen.add(key);
+  const block = button.closest("[data-preview]");
+  const rest = block && block.querySelector("[data-preview-rest]");
+  if (rest) rest.hidden = open;
+  button.setAttribute("aria-expanded", String(!open));
+  button.textContent = open ? "Посмотреть все" : "Свернуть";
+}
+
 const emptyState = (title, text) => `
   <div class="glass empty">
     <div class="empty-icon">${ICON.chat}</div>
@@ -219,7 +244,7 @@ function externalModelReviewsMarkup() {
     return `<section class="external-model-reviews"><h3>Лжесотрудники</h3><span class="eyebrow">Внешний материал · без AI-пересказа</span><div class="glass external-model-review-status"><p class="muted">Загрузка сохранённых карточек…</p></div></section>`;
   }
   if (!externalModelReviews) return "";
-  const cards = externalModelReviews.length ? externalModelReviews.map((item) => {
+  const cards = externalModelReviews.length ? previewMarkup("external-model-reviews", externalModelReviews.map((item) => {
     const photo = item.image
       ? `<img class="external-model-review-photo" src="${esc(apiUrl(`/api/model-review-images/${item.image}`))}" alt="" loading="lazy">`
       : `<span class="avatar avatar-default" aria-hidden="true">↗</span>`;
@@ -232,7 +257,7 @@ function externalModelReviewsMarkup() {
         <div class="external-model-review-detail" data-external-model-review-detail="${esc(item.id)}" hidden></div>
       </div>
     </article>`;
-  }).join("") : `<div class="glass external-model-review-status"><p class="muted">Карточки пока готовятся к импорту.</p></div>`;
+  })) : `<div class="glass external-model-review-status"><p class="muted">Карточки пока готовятся к импорту.</p></div>`;
   return `<section class="external-model-reviews"><h3>Лжесотрудники</h3><span class="eyebrow">Внешний материал · без AI-пересказа</span>${cards}</section>`;
 }
 
@@ -299,7 +324,8 @@ function drawQA() {
   const items = questions.filter((q) => qaKind(q) === qaTab)
     .map((q) => (kind.prefix ? { ...q, text: q.text.slice(kind.prefix.length) } : q));
   const externalReviewCard = qaTab === "model-review" ? externalModelReviewsMarkup() : "";
-  list.innerHTML = items.length ? `${externalReviewCard}${items.map(qaItem).join("")}` : (externalReviewCard || emptyState(...kind.empty));
+  const posts = items.length ? previewMarkup(qaTab, items.map(qaItem)) : "";
+  list.innerHTML = posts ? `${externalReviewCard}${posts}` : (externalReviewCard || emptyState(...kind.empty));
 }
 
 async function loadQA() {
@@ -548,6 +574,11 @@ function bindQA() {
   }));
 
   $("#qa-list").addEventListener("click", (e) => {
+    const more = e.target.closest("[data-show-all]");
+    if (more) {
+      togglePreview(more);
+      return;
+    }
     if (e.target.closest("[data-retry]")) {
       loadQA();
       return;
@@ -611,14 +642,14 @@ function renderDiscussionList() {
   }
   const query = $("#discussion-search").value.trim().toLocaleLowerCase("ru-RU");
   const filtered = discussionIndex.filter((item) => item.title.toLocaleLowerCase("ru-RU").includes(query));
-  list.innerHTML = filtered.length ? filtered.map((item) => `
+  list.innerHTML = filtered.length ? previewMarkup("discussions", filtered.map((item) => `
     <details class="discussion glass" data-discussion-id="${esc(item.id)}">
       <summary>
         <span><span class="discussion-title">${esc(item.title)}</span><small>Внешнее обсуждение · ${item.ready ? `обновлено ${discussionDate(item.updated_at)}` : "готовится к импорту"}</small></span>
         <i class="chev" aria-hidden="true"></i>
       </summary>
       <div class="discussion-loading"><p class="muted">Загрузка сохранённого текста…</p></div>
-    </details>`).join("")
+    </details>`))
     : emptyState("Ничего не найдено", "Попробуйте изменить запрос.");
 }
 
@@ -674,6 +705,11 @@ function bindExternalDiscussions() {
     if (target) loadDiscussionBody(details.dataset.discussionId, target);
   }, true);
   list.addEventListener("click", (event) => {
+    const more = event.target.closest("[data-show-all]");
+    if (more) {
+      togglePreview(more);
+      return;
+    }
     const retry = event.target.closest("[data-discussion-retry]");
     if (!retry) return;
     const target = retry.closest(".discussion-loading");
