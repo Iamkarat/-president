@@ -33,7 +33,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261119b">
+  <link rel="stylesheet" href="styles.css?v=20261121a">
   <!-- Собственная аналитика (president-analytics.vercel.app), та же, что на основном сайте -->
   <script defer src="https://president-analytics.vercel.app/s.js"></script>
   <!-- Yandex.Metrika counter (тот же, что на основном сайте) -->
@@ -211,18 +211,20 @@
     <section class="section" id="qa">
       <div class="section-head"><h2>Отзывы о моделях и вопросы</h2><span class="muted" style="font-size:14px">Отзывы — сначала новые</span></div>
       <div class="qa-tabs" role="tablist" aria-label="Разделы">
-        <button class="qa-tab" type="button" role="tab" aria-selected="false" data-qa-tab="external-discussions">Обсуждения</button>
         <button class="qa-tab" type="button" role="tab" aria-selected="false" data-qa-tab="question">Вопросы <span data-qa-count="question"></span></button>
+        <button class="qa-tab" type="button" role="tab" aria-selected="false" data-qa-tab="external-discussions">Обсуждения <span data-qa-count="external-discussions"></span></button>
         <button class="qa-tab active" type="button" role="tab" aria-selected="true" data-qa-tab="model-review"><span class="qa-full">Отзывы о моделях</span><span class="qa-short">О моделях</span> <span data-qa-count="model-review"></span></button>
         <button class="qa-tab" type="button" role="tab" aria-selected="false" data-qa-tab="agency-review"><span class="qa-full">Отзывы об агентствах</span><span class="qa-short">Об агентствах</span> <span data-qa-count="agency-review"></span></button>
       </div>
+      <div class="discussion-tools glass light" id="question-tools" hidden>
+        <label class="discussion-search" for="question-search">Поиск по вопросам<input class="input" id="question-search" type="search" autocomplete="off" placeholder="Например, возраст или документы"></label>
+      </div>
+      <p class="qa-stats" id="question-stats" hidden></p>
       <div class="m-qa-wrap"><img class="mascot m-lie" src="assets/mascots/red-phone.webp" alt="" aria-hidden="true" loading="lazy" decoding="async"><div id="qa-list" aria-live="polite"></div></div>
       <div id="external-discussions" hidden>
         <div class="discussion-tools glass light">
           <label class="discussion-search" for="discussion-search">Поиск по темам<input class="input" id="discussion-search" type="search" autocomplete="off" placeholder="Например, работа или ВПН"></label>
-          <button class="btn btn-ghost btn-sm" type="button" id="discussion-collapse">Свернуть</button>
         </div>
-        <p class="note discussion-disclaimer">Материалы помечены как внешние; это не сообщения пользователей форума PRESIDENT.</p>
         <div id="discussion-list" aria-live="polite"></div>
       </div>
     </section>
@@ -331,6 +333,6 @@
     </section>
   </main>
   <script src="config.js?v=20261109a"></script>
-  <script src="app.js?v=20261119b"></script>
+  <script src="app.js?v=20261121a"></script>
 </body>
 </html>

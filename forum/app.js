@@ -69,6 +69,43 @@ const AVATARS = [
   { src: "assets/avatars/avatar-6.webp", label: "Блондинка с чокером" },
 ];
 const DEFAULT_AVATAR = AVATARS[0].src;
+const BASE_NICKS = ["Аноним", "Гость", "Участница", "Новенькая", "Наблюдатель", "Читатель"];
+const SERVICE_NAME = /внешн|автор|скрыт|сохран[её]н|импорт|лжесотрудник/i;
+const LOCAL_REPLIES_KEY = "forum-local-replies";
+
+function seedIndex(seed) {
+  let h = 2166136261;
+  for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  return (h >>> 0) % BASE_NICKS.length;
+}
+
+function baseProfile(seed) {
+  const i = seedIndex(seed);
+  return { name: BASE_NICKS[i], avatar: AVATARS[i].src };
+}
+
+function displayName(name, seed) {
+  const clean = String(name || "").replace(/\s+/g, " ").trim();
+  if (!clean || SERVICE_NAME.test(clean)) return baseProfile(seed || clean || "anon").name;
+  return clean;
+}
+
+function readLocalReplies() {
+  try {
+    const data = JSON.parse(localStorage.getItem(LOCAL_REPLIES_KEY) || "{}");
+    return data && typeof data === "object" ? data : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+let localReplies = readLocalReplies();
+const threadReplies = (key) => (Array.isArray(localReplies[key]) ? localReplies[key] : []);
+
+function addLocalReply(key, reply) {
+  localReplies[key] = threadReplies(key).concat(reply);
+  try { localStorage.setItem(LOCAL_REPLIES_KEY, JSON.stringify(localReplies)); } catch (e) {}
+}
 
 // Safari и WebView на iOS (в т.ч. браузер Telegram) не показывают прозрачность webm —
 // там и на мобильных логотип — прозрачная PNG, как на основном сайте.
@@ -129,11 +166,12 @@ function shell() {
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = (ts) => new Date(ts).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 const initials = (name) => esc(name.trim().slice(0, 2).toUpperCase());
+const allowedAvatar = (src) => AVATARS.some((avatar) => avatar.src === src)
+  || /^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/]+=*$/.test(src)
+  || /\/api\/model-review-images\/[a-z0-9]+\.webp$/i.test(src);
 const avatarMarkup = (name, src, className = "") => {
   const avatarSrc = src || DEFAULT_AVATAR;
-  const safeSrc = AVATARS.some((avatar) => avatar.src === avatarSrc) || /^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/]+=*$/.test(avatarSrc)
-    ? avatarSrc
-    : DEFAULT_AVATAR;
+  const safeSrc = allowedAvatar(avatarSrc) ? avatarSrc : DEFAULT_AVATAR;
   return safeSrc
     ? `<img class="avatar ${className}" src="${esc(safeSrc)}" alt="" loading="lazy">`
     : `<span class="avatar ${className}" aria-hidden="true">${initials(name)}</span>`;
@@ -175,37 +213,80 @@ function togglePreview(button) {
   button.textContent = open ? "Посмотреть все" : "Свернуть";
 }
 
+function answerMarkup(answer, attr, value) {
+  const name = displayName(answer.name, `${value}:${answer.created}`);
+  return `<div class="answer">
+    <div class="post-head">${avatarMarkup(name, answer.avatar, "avatar-small")}<b>${esc(name)}</b><span class="meta">${fmt(answer.created)}</span></div>
+    <p>${esc(answer.text)}</p>
+    <div class="post-actions"><button class="link-btn" type="button" ${attr}="${esc(value)}">Ответить</button></div>
+  </div>`;
+}
+
+function replyFormMarkup(attr, value) {
+  return `<form class="reply-form" ${attr}="${esc(value)}" hidden novalidate>
+    <input class="input" name="name" maxlength="40" autocomplete="nickname" placeholder="Имя (необязательно)">
+    <textarea class="textarea" name="text" required minlength="2" maxlength="1000" placeholder="Ваш ответ"></textarea>
+    ${avatarPicker()}
+    <div class="hp" aria-hidden="true"><input tabindex="-1" autocomplete="off" name="website"></div>
+    <button class="btn btn-light btn-sm" style="justify-self:start">Отправить ответ</button>
+    <div data-status role="status"></div>
+  </form>`;
+}
+
+async function saveLocalForm(form) {
+  if ($(".hp input", form).value) return;
+  const text = form.elements.text;
+  if (text.value.trim().length < 2) {
+    setStatus(form, "error", "Напишите хотя бы 2 символов.");
+    text.focus();
+    return;
+  }
+  const name = form.elements.name.value.trim() || "Аноним";
+  addLocalReply(form.dataset.localKey, {
+    name: displayName(name, name),
+    avatar: form.elements.avatar?.value || DEFAULT_AVATAR,
+    text: text.value.trim(),
+    created: Date.now(),
+  });
+  track("forum_reply", { thread: form.dataset.localKey });
+  if (form.dataset.localKey.startsWith("discussion:")) renderDiscussionList();
+  else drawQA();
+}
+
+function openReplyForm(button, selector) {
+  const card = button.closest("article");
+  const form = card && $(selector, card);
+  if (!form) return;
+  form.hidden = !form.hidden;
+  if (!form.hidden) {
+    track("forum_reply_open");
+    form.elements.text.focus();
+  }
+}
+
 const emptyState = (title, text) => `
   <div class="glass empty">
     <div class="empty-icon">${ICON.chat}</div>
     <h3>${title}</h3><p>${text}</p>
   </div>`;
 
-const qaItem = (q) => `
+const qaItem = (q) => {
+  const name = displayName(q.name, q.id);
+  return `
   <article class="post glass" id="q-${q.id}">
-    ${avatarMarkup(q.name, q.avatar)}
+    ${avatarMarkup(name, q.avatar)}
     <div>
-      <div class="post-head"><b>${esc(q.name)}</b><span class="meta">${fmt(q.created)}</span></div>
+      <div class="post-head"><b>${esc(name)}</b><span class="meta">${fmt(q.created)}</span></div>
       <p class="q-text">${esc(q.text)}</p>
       ${q.image ? `<a class="post-image" href="${esc(apiUrl(`/api/uploads/${q.image}`))}" target="_blank" rel="noopener"><img src="${esc(apiUrl(`/api/uploads/${q.image}`))}" alt="Изображение к записи" loading="lazy"></a>` : ""}
-      ${q.answers.map((a) => `
-        <div class="answer">
-          <div class="post-head">${avatarMarkup(a.name, a.avatar, "avatar-small")}<b>${esc(a.name)}</b><span class="meta">${fmt(a.created)}</span></div>
-          <p>${esc(a.text)}</p>
-        </div>`).join("")}
+      ${(q.answers || []).map((a) => answerMarkup(a, "data-reply", q.id)).join("")}
       <div class="post-actions">
-        <button class="link-btn" data-reply="${q.id}">Ответить${q.answers.length ? ` · ${q.answers.length}` : ""}</button>
+        <button class="link-btn" type="button" data-reply="${q.id}">Ответить${q.answers.length ? ` · ${q.answers.length}` : ""}</button>
       </div>
-      <form class="reply-form" data-qid="${q.id}" hidden novalidate>
-        <input class="input" name="name" maxlength="40" placeholder="Имя (необязательно)">
-        <textarea class="textarea" name="text" required minlength="2" maxlength="1000" placeholder="Ваш ответ"></textarea>
-        ${avatarPicker()}
-        <div class="hp" aria-hidden="true"><input tabindex="-1" autocomplete="off" name="website"></div>
-        <button class="btn btn-light btn-sm" style="justify-self:start">Отправить ответ</button>
-        <div data-status role="status"></div>
-      </form>
+      ${replyFormMarkup("data-qid", q.id)}
     </div>
   </article>`;
+};
 
 let questions = [];
 // Это не отзывы, оставленные на PRESIDENT. Внешние карточки сервер сохраняет
@@ -239,26 +320,37 @@ const isTestPost = (q) => q.name === "Тест" && [
 ].includes(q.text);
 let qaTab = "model-review";
 
+const serviceLine = (text) => /^(лжесотрудники|внешний материал|внешнее обсуждение|внешний автор|автор:\s*скрыт)$/i.test(String(text || "").trim());
+
+function externalReviewBlocks(blocks) {
+  return (Array.isArray(blocks) ? blocks : []).filter((block) => !serviceLine(block));
+}
+
 function externalModelReviewsMarkup() {
   if (externalModelReviews === undefined) {
-    return `<section class="external-model-reviews"><h3>Лжесотрудники</h3><span class="eyebrow">Внешний материал · без AI-пересказа</span><div class="glass external-model-review-status"><p class="muted">Загрузка сохранённых карточек…</p></div></section>`;
+    return `<section class="external-model-reviews"><h3>Лжесотрудники</h3><div class="glass external-model-review-status"><p class="muted">Загрузка сохранённых карточек…</p></div></section>`;
   }
   if (!externalModelReviews) return "";
   const cards = externalModelReviews.length ? previewMarkup("external-model-reviews", externalModelReviews.map((item) => {
-    const photo = item.image
-      ? `<img class="external-model-review-photo" src="${esc(apiUrl(`/api/model-review-images/${item.image}`))}" alt="" loading="lazy">`
-      : `<span class="avatar avatar-default" aria-hidden="true">↗</span>`;
-    return `<article class="glass external-model-review" data-external-model-review="${esc(item.id)}">
-      ${photo}
+    const profile = baseProfile(item.id);
+    const key = `model:${item.id}`;
+    const photo = item.image ? apiUrl(`/api/model-review-images/${item.image}`) : profile.avatar;
+    const replies = threadReplies(key);
+    return `<article class="post glass external-model-review" data-external-model-review="${esc(item.id)}">
+      ${avatarMarkup(profile.name, photo)}
       <div class="external-model-review-main">
-        <div class="post-head"><b>${esc(item.title)}</b><span class="meta">${item.ready ? discussionDate(item.updated_at) : "готовится"}</span></div>
+        <div class="post-head"><b>${esc(profile.name)}</b><span class="meta">${item.ready ? discussionDate(item.updated_at) : "готовится"}</span></div>
+        <p class="q-text">${esc(item.title)}</p>
         ${item.excerpt ? `<p class="external-model-review-excerpt">${esc(item.excerpt)}</p>` : ""}
         <button class="link-btn" type="button" data-external-model-review-open="${esc(item.id)}">Открыть подробный ответ</button>
         <div class="external-model-review-detail" data-external-model-review-detail="${esc(item.id)}" hidden></div>
+        ${replies.map((reply) => answerMarkup(reply, "data-reply-local", key)).join("")}
+        <div class="post-actions"><button class="link-btn" type="button" data-reply-local="${esc(key)}">Ответить${replies.length ? ` · ${replies.length}` : ""}</button></div>
+        ${replyFormMarkup("data-local-key", key)}
       </div>
     </article>`;
   })) : `<div class="glass external-model-review-status"><p class="muted">Карточки пока готовятся к импорту.</p></div>`;
-  return `<section class="external-model-reviews"><h3>Лжесотрудники</h3><span class="eyebrow">Внешний материал · без AI-пересказа</span>${cards}</section>`;
+  return `<section class="external-model-reviews"><h3>Лжесотрудники</h3>${cards}</section>`;
 }
 
 async function loadExternalModelReviews() {
@@ -273,6 +365,7 @@ async function loadExternalModelReviews() {
     externalModelReviews = null;
   } finally {
     externalModelReviewsRequest = null;
+    renderCounts();
     if (qaTab === "model-review") drawQA();
   }
 }
@@ -280,7 +373,7 @@ async function loadExternalModelReviews() {
 async function loadExternalModelReviewBody(id, target) {
   const cached = externalModelReviewBodies.get(id);
   if (cached) {
-    target.innerHTML = `<div class="external-model-review-text">${cached.blocks.map((block) => `<p>${esc(block)}</p>`).join("")}</div>`;
+    target.innerHTML = `<div class="external-model-review-text">${externalReviewBlocks(cached.blocks).map((block) => `<p>${esc(block)}</p>`).join("")}</div>`;
     return;
   }
   let request = externalModelReviewRequests.get(id);
@@ -294,7 +387,7 @@ async function loadExternalModelReviewBody(id, target) {
     const item = await request;
     if (!item || !Array.isArray(item.blocks)) throw new Error("Некорректный ответ.");
     externalModelReviewBodies.set(id, item);
-    target.innerHTML = `<div class="external-model-review-text">${item.blocks.map((block) => `<p>${esc(block)}</p>`).join("")}</div>`;
+    target.innerHTML = `<div class="external-model-review-text">${externalReviewBlocks(item.blocks).map((block) => `<p>${esc(block)}</p>`).join("")}</div>`;
   } catch (error) {
     target.innerHTML = `<p class="alert">Не удалось загрузить сохранённый ответ. <button class="link-btn" type="button" data-external-model-review-open="${esc(id)}">Повторить</button></p>`;
   } finally {
@@ -302,15 +395,39 @@ async function loadExternalModelReviewBody(id, target) {
   }
 }
 
+function countOf(kind) {
+  return questions.filter((q) => qaKind(q) === kind).length;
+}
+
+function renderCounts() {
+  const modelReviews = countOf("model-review") + (Array.isArray(externalModelReviews) ? externalModelReviews.length : 0);
+  const counts = {
+    "external-discussions": discussionCountKnown ? discussionIndex.length : "",
+    question: countOf("question"),
+    "model-review": modelReviews,
+    "agency-review": countOf("agency-review"),
+  };
+  document.querySelectorAll("[data-qa-count]").forEach((el) => {
+    const n = counts[el.dataset.qaCount];
+    el.textContent = n === "" || n === undefined ? "" : String(n);
+  });
+  const stats = $("#question-stats");
+  if (!stats) return;
+  const asked = questions.filter((q) => qaKind(q) === "question");
+  const answers = asked.reduce((sum, q) => sum + (q.answers?.length || 0), 0);
+  stats.textContent = `Вопросов: ${asked.length} · Ответов: ${answers}`;
+}
+
 function drawQA() {
   const list = $("#qa-list");
   const external = qaTab === "external-discussions";
   list.hidden = external;
   $("#external-discussions").hidden = !external;
-  document.querySelectorAll("[data-qa-count]").forEach((el) => {
-    const n = questions.filter((q) => qaKind(q) === el.dataset.qaCount).length;
-    el.textContent = n ? n : "";
-  });
+  const questionTools = $("#question-tools");
+  const questionStats = $("#question-stats");
+  if (questionTools) questionTools.hidden = qaTab !== "question";
+  if (questionStats) questionStats.hidden = qaTab !== "question";
+  renderCounts();
   document.querySelectorAll("[data-qa-tab]").forEach((b) => {
     const on = b.dataset.qaTab === qaTab;
     b.classList.toggle("active", on);
@@ -321,11 +438,16 @@ function drawQA() {
     return;
   }
   const kind = QA_KINDS[qaTab];
-  const items = questions.filter((q) => qaKind(q) === qaTab)
+  const query = qaTab === "question" ? ($("#question-search")?.value || "").trim().toLocaleLowerCase("ru-RU") : "";
+  let items = questions.filter((q) => qaKind(q) === qaTab)
     .map((q) => (kind.prefix ? { ...q, text: q.text.slice(kind.prefix.length) } : q));
+  if (query) items = items.filter((q) => `${q.name}\n${q.text}`.toLocaleLowerCase("ru-RU").includes(query));
   const externalReviewCard = qaTab === "model-review" ? externalModelReviewsMarkup() : "";
   const posts = items.length ? previewMarkup(qaTab, items.map(qaItem)) : "";
-  list.innerHTML = posts ? `${externalReviewCard}${posts}` : (externalReviewCard || emptyState(...kind.empty));
+  const empty = query
+    ? emptyState("Ничего не найдено", "Попробуйте изменить запрос.")
+    : emptyState(...kind.empty);
+  list.innerHTML = posts ? `${externalReviewCard}${posts}` : (externalReviewCard || empty);
 }
 
 async function loadQA() {
@@ -334,7 +456,7 @@ async function loadQA() {
   try {
     questions = (await api("/api/questions")).filter((q) => !isTestPost(q));
     drawQA();
-    if (qaTab === "model-review") loadExternalModelReviews();
+    loadExternalModelReviews();
   } catch (e) {
     console.error("loadQA:", e);
     if (qaTab !== "external-discussions") list.innerHTML = emptyState("Вопросы временно недоступны", `Попробуйте обновить чуть позже. <button class="link-btn" data-retry>Повторить</button>`);
@@ -591,15 +713,23 @@ function bindQA() {
       if (target) loadExternalModelReviewBody(id, target);
       return;
     }
+    const localReply = e.target.closest("[data-reply-local]");
+    if (localReply) {
+      openReplyForm(localReply, `form[data-local-key="${CSS.escape(localReply.dataset.replyLocal)}"]`);
+      return;
+    }
     const b = e.target.closest("[data-reply]");
     if (!b) return;
-    const f = $(`.reply-form[data-qid="${b.dataset.reply}"]`);
-    f.hidden = !f.hidden;
-    if (!f.hidden) { track("forum_reply_open"); f.elements.text.focus(); }
+    openReplyForm(b, `form[data-qid="${CSS.escape(b.dataset.reply)}"]`);
   });
+  $("#question-search").addEventListener("input", drawQA);
   $("#qa-list").addEventListener("submit", (e) => {
     e.preventDefault();
     const f = e.target;
+    if (f.dataset.localKey) {
+      saveLocalForm(f);
+      return;
+    }
     const id = Number(f.dataset.qid);
     submit(f, `/api/questions/${id}/answers`, (a) => {
       track("forum_reply", { question_id: id });
@@ -612,6 +742,7 @@ function bindQA() {
 // Внешние обсуждения: API отдаёт сначала только названия. Сохранённый текст
 // загружается при первом раскрытии и остаётся в браузерном кеше этой вкладки.
 let discussionIndex = [];
+let discussionCountKnown = false;
 const discussionBodies = new Map();
 const discussionRequests = new Map();
 let discussionIndexRequest = null;
@@ -619,18 +750,18 @@ let discussionIndexRequest = null;
 const discussionDate = (value) => value ? fmt(value) : "ещё не обновлялось";
 
 function discussionBodyMarkup(item) {
-  let content = "";
-  if (item.mode === "full") {
-    const messages = Array.isArray(item.messages) ? item.messages : [];
-    content = messages.length
-      ? `<div class="discussion-messages">${messages.map((text) => `<p>${esc(text)}</p>`).join("")}</div>`
-      : "<p class=\"muted\">Текст ещё готовится фоновым импортом.</p>";
-  } else {
-    content = item.summary
-      ? `<p class="discussion-summary">${esc(item.summary)}</p>`
-      : "<p class=\"muted\">Пересказ ещё готовится фоновым импортом.</p>";
+  const messages = Array.isArray(item.messages) ? item.messages.filter((text) => !serviceLine(text)) : [];
+  if (item.mode === "full" && messages.length) {
+    return messages.map((text, index) => answerMarkup({
+      name: baseProfile(`${item.id}:${index}`).name,
+      avatar: baseProfile(`${item.id}:${index}`).avatar,
+      created: item.updated_at,
+      text,
+    }, "data-reply-local", `discussion:${item.id}`)).join("");
   }
-  return `<div class="discussion-answer"><span class="eyebrow">Внешний материал · ${item.mode === "full" ? "сохранённый текст" : "сохранённый пересказ"}</span>${content}</div>`;
+  return item.summary
+    ? `<p class="discussion-summary">${esc(item.summary)}</p>`
+    : "<p class=\"muted\">Текст ещё готовится.</p>";
 }
 
 function renderDiscussionList() {
@@ -642,14 +773,23 @@ function renderDiscussionList() {
   }
   const query = $("#discussion-search").value.trim().toLocaleLowerCase("ru-RU");
   const filtered = discussionIndex.filter((item) => item.title.toLocaleLowerCase("ru-RU").includes(query));
-  list.innerHTML = filtered.length ? previewMarkup("discussions", filtered.map((item) => `
-    <details class="discussion glass" data-discussion-id="${esc(item.id)}">
-      <summary>
-        <span><span class="discussion-title">${esc(item.title)}</span><small>Внешнее обсуждение · ${item.ready ? `обновлено ${discussionDate(item.updated_at)}` : "готовится к импорту"}</small></span>
-        <i class="chev" aria-hidden="true"></i>
-      </summary>
-      <div class="discussion-loading"><p class="muted">Загрузка сохранённого текста…</p></div>
-    </details>`))
+  list.innerHTML = filtered.length ? previewMarkup("discussions", filtered.map((item) => {
+    const profile = baseProfile(item.id);
+    const key = `discussion:${item.id}`;
+    const cached = discussionBodies.get(item.id);
+    const replies = threadReplies(key);
+    return `<article class="post glass" data-discussion-id="${esc(item.id)}">
+      ${avatarMarkup(profile.name, profile.avatar)}
+      <div>
+        <div class="post-head"><b>${esc(profile.name)}</b><span class="meta">${item.ready ? discussionDate(item.updated_at) : "готовится"}</span></div>
+        <p class="q-text">${esc(item.title)}</p>
+        <div data-discussion-body>${cached ? discussionBodyMarkup(cached) : `<button class="link-btn" type="button" data-discussion-open="${esc(item.id)}">Читать обсуждение</button>`}</div>
+        ${replies.map((reply) => answerMarkup(reply, "data-reply-local", key)).join("")}
+        <div class="post-actions"><button class="link-btn" type="button" data-reply-local="${esc(key)}">Ответить${replies.length ? ` · ${replies.length}` : ""}</button></div>
+        ${replyFormMarkup("data-local-key", key)}
+      </div>
+    </article>`;
+  }))
     : emptyState("Ничего не найдено", "Попробуйте изменить запрос.");
 }
 
@@ -683,10 +823,12 @@ async function loadDiscussionIndex() {
     if (!Array.isArray(data) || data.some((item) => !item || !item.id || !item.title)) throw new Error("Некорректный список обсуждений.");
     const ids = new Set();
     discussionIndex = data.filter((item) => !ids.has(item.id) && ids.add(item.id));
-    renderDiscussionList();
+    discussionCountKnown = true;
+    renderCounts();
+    if (qaTab === "external-discussions") renderDiscussionList();
   } catch (error) {
     const list = $("#discussion-list");
-    list.innerHTML = emptyState("Обсуждения временно недоступны", "Попробуйте открыть этот раздел чуть позже.");
+    if (list && qaTab === "external-discussions") list.innerHTML = emptyState("Обсуждения временно недоступны", "Попробуйте открыть этот раздел чуть позже.");
   } finally {
     discussionIndexRequest = null;
   }
@@ -695,25 +837,33 @@ async function loadDiscussionIndex() {
 function bindExternalDiscussions() {
   const list = $("#discussion-list");
   $("#discussion-search").addEventListener("input", renderDiscussionList);
-  $("#discussion-collapse").addEventListener("click", () => {
-    list.querySelectorAll("details[open]").forEach((item) => item.removeAttribute("open"));
-  });
-  list.addEventListener("toggle", (event) => {
-    const details = event.target;
-    if (!(details instanceof HTMLDetailsElement) || !details.open) return;
-    const target = $(".discussion-loading", details);
-    if (target) loadDiscussionBody(details.dataset.discussionId, target);
-  }, true);
   list.addEventListener("click", (event) => {
     const more = event.target.closest("[data-show-all]");
     if (more) {
       togglePreview(more);
       return;
     }
+    const open = event.target.closest("[data-discussion-open]");
+    if (open) {
+      const card = open.closest("[data-discussion-id]");
+      const target = card && $("[data-discussion-body]", card);
+      if (target) loadDiscussionBody(open.dataset.discussionOpen, target);
+      return;
+    }
     const retry = event.target.closest("[data-discussion-retry]");
-    if (!retry) return;
-    const target = retry.closest(".discussion-loading");
-    if (target) loadDiscussionBody(retry.dataset.discussionRetry, target);
+    if (retry) {
+      const target = retry.closest("[data-discussion-body]");
+      if (target) loadDiscussionBody(retry.dataset.discussionRetry, target);
+      return;
+    }
+    const localReply = event.target.closest("[data-reply-local]");
+    if (localReply) openReplyForm(localReply, `form[data-local-key="${CSS.escape(localReply.dataset.replyLocal)}"]`);
+  });
+  list.addEventListener("submit", (event) => {
+    const form = event.target.closest("form[data-local-key]");
+    if (!form) return;
+    event.preventDefault();
+    saveLocalForm(form);
   });
 }
 
@@ -1303,6 +1453,7 @@ function start() {
   bindExternalDiscussions();
   bindQA();
   loadQA();
+  loadDiscussionIndex();
 }
 
 // Режим «password» из config.js: форум показывается после ввода пароля.

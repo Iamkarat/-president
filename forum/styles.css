@@ -1854,6 +1854,43 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 .discussion-summary { margin: 0; white-space: pre-line; line-height: 1.65; color: var(--c-text-2); overflow-wrap: anywhere; }
 .discussion-messages { display: grid; gap: 10px; }
 .discussion-messages p { margin: 0; padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.045); color: var(--c-text-2); white-space: pre-line; overflow-wrap: anywhere; }
+.qa-stats { margin: 0 0 14px; font-size: 14px; color: var(--c-text-2); }
+#question-tools { margin-bottom: 12px; }
+img.avatar,
+.post > .avatar,
+.answer .avatar,
+.external-model-review > .avatar,
+.external-model-review-photo {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 40px;
+  max-height: 40px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 12px;
+  overflow: hidden;
+  align-self: start;
+  flex: none;
+  display: block;
+  background: #1a1e1d;
+}
+.post-head .avatar.avatar-small {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+}
+.external-model-review { grid-template-columns: 40px minmax(0, 1fr); align-items: start; }
+@media (max-width: 720px) {
+  .post { grid-template-columns: 40px minmax(0, 1fr); }
+  .post > .avatar.avatar,
+  .post .avatar { display: block; width: 40px; height: 40px; }
+}
 @media (max-width: 520px) {
   .discussion-tools { align-items: stretch; flex-direction: column; padding: 12px; }
   .discussion-tools .btn { width: 100%; }
