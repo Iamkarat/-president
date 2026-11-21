@@ -1216,7 +1216,8 @@ body { background: #000000; }
 }
 .mobile-menu a { color: var(--c-text-2); }
 .mobile-menu a[aria-current="page"] { color: var(--c-text); background: transparent; }
-.mobile-menu a[href="#ask"] { color: #071311; background: #00A994; }
+.mobile-menu a[href="#ask"],
+.mobile-menu a[href="https://t.me/PRESIDENT2002"] { color: #071311; background: #00A994; }
 .ask.glass {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 45%),
@@ -1574,7 +1575,8 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
 .mobile-menu a { color: #1E2523; }
 .mobile-menu a:hover,
 .mobile-menu a[aria-current="page"] { color: #0B0F0E; background: rgba(255, 255, 255, 0.50); }
-.mobile-menu a[href="#ask"] { color: #071311; background: #00A994; }
+.mobile-menu a[href="#ask"],
+.mobile-menu a[href="https://t.me/PRESIDENT2002"] { color: #071311; background: #00A994; }
 @media (prefers-reduced-transparency: reduce) {
   .nav, .mobile-menu { background: rgba(240, 245, 244, 0.96); }
 }

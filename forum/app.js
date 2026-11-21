@@ -125,12 +125,14 @@ function shell() {
           ${NAV.map((n) => `<li><a href="${n.href}">${n.label}</a></li>`).join("")}
         </ul>
         <div class="nav-actions">
+          <a class="btn btn-light btn-sm" href="https://t.me/PRESIDENT2002" target="_blank" rel="noopener noreferrer">Telegram</a>
           <a class="btn btn-light btn-sm" href="#ask">Задать вопрос</a>
           <button class="icon-btn burger" aria-label="Меню" aria-expanded="false">${ICON.menu}</button>
         </div>
       </nav>
       <div class="mobile-menu glass">
         ${NAV.map((n) => `<a href="${n.href}">${n.label}</a>`).join("")}
+        <a href="https://t.me/PRESIDENT2002" target="_blank" rel="noopener noreferrer">Telegram</a>
         <a href="#ask">Задать вопрос</a>
       </div>
     </div>`);
