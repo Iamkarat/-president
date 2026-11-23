@@ -328,6 +328,41 @@ function externalReviewBlocks(blocks) {
   return (Array.isArray(blocks) ? blocks : []).filter((block) => !serviceLine(block));
 }
 
+function externalReviewParts(blocks) {
+  const clean = externalReviewBlocks(blocks);
+  const headIndex = clean.findIndex((block) => {
+    const text = String(block || "").trim();
+    return text.length < 120 && /комментари/i.test(text);
+  });
+  if (headIndex < 0) return { intro: clean, title: "", comments: [] };
+  const comments = [];
+  clean.slice(headIndex + 1).forEach((block) => {
+    const text = String(block || "").trim();
+    if (!text || /^ваш комментарий$/i.test(text)) return;
+    const dated = text.match(/^(\d{2}\.\d{2}\.\d{4})(?:\s+|$)/);
+    const body = dated ? text.slice(dated[0].length).trim() : text;
+    if (!body) return;
+    comments.push({ date: dated ? dated[1] : "", text: body });
+  });
+  return { intro: clean.slice(0, headIndex), title: String(clean[headIndex]).trim(), comments };
+}
+
+function externalCommentMarkup(comment, seed) {
+  const profile = baseProfile(seed);
+  return `<div class="answer external-model-review-comment">
+    <div class="post-head">${avatarMarkup(profile.name, profile.avatar, "avatar-small")}<b>${esc(profile.name)}</b>${comment.date ? `<span class="meta">${esc(comment.date)}</span>` : ""}</div>
+    <p>${esc(comment.text)}</p>
+  </div>`;
+}
+
+function externalReviewBody(id, blocks) {
+  const parts = externalReviewParts(blocks);
+  const intro = parts.intro.map((block) => `<p>${esc(block)}</p>`).join("");
+  const comments = parts.comments.map((comment, index) => externalCommentMarkup(comment, `${id}:${index}:${comment.date}:${comment.text.slice(0, 24)}`)).join("");
+  const title = parts.title ? `<p class="external-model-review-comments-title">${esc(parts.title)}</p>` : "";
+  return `<div class="external-model-review-text">${intro}${comments ? `${title}<div class="external-model-review-comments">${comments}</div>` : ""}</div>`;
+}
+
 function externalModelReviewsMarkup() {
   if (externalModelReviews === undefined) {
     return `<section class="external-model-reviews"><h3>Лжесотрудники</h3><div class="glass external-model-review-status"><p class="muted">Загрузка сохранённых карточек…</p></div></section>`;
@@ -336,13 +371,14 @@ function externalModelReviewsMarkup() {
   const cards = externalModelReviews.length ? previewMarkup("external-model-reviews", externalModelReviews.map((item) => {
     const profile = baseProfile(item.id);
     const key = `model:${item.id}`;
-    const photo = item.image ? apiUrl(`/api/model-review-images/${item.image}`) : profile.avatar;
+    const photo = item.image ? `<img class="external-model-review-photo" src="${esc(apiUrl(`/api/model-review-images/${item.image}`))}" alt="" loading="lazy" decoding="async">` : "";
     const replies = threadReplies(key);
     return `<article class="post glass external-model-review" data-external-model-review="${esc(item.id)}">
-      ${avatarMarkup(profile.name, photo)}
+      ${avatarMarkup(profile.name, profile.avatar)}
       <div class="external-model-review-main">
         <div class="post-head"><b>${esc(profile.name)}</b><span class="meta">${item.ready ? discussionDate(item.updated_at) : "готовится"}</span></div>
         <p class="q-text">${esc(item.title)}</p>
+        ${photo}
         ${item.excerpt ? `<p class="external-model-review-excerpt">${esc(item.excerpt)}</p>` : ""}
         <button class="link-btn" type="button" data-external-model-review-open="${esc(item.id)}">Открыть подробный ответ</button>
         <div class="external-model-review-detail" data-external-model-review-detail="${esc(item.id)}" hidden></div>
@@ -375,7 +411,7 @@ async function loadExternalModelReviews() {
 async function loadExternalModelReviewBody(id, target) {
   const cached = externalModelReviewBodies.get(id);
   if (cached) {
-    target.innerHTML = `<div class="external-model-review-text">${externalReviewBlocks(cached.blocks).map((block) => `<p>${esc(block)}</p>`).join("")}</div>`;
+    target.innerHTML = externalReviewBody(id, cached.blocks);
     return;
   }
   let request = externalModelReviewRequests.get(id);
@@ -389,7 +425,7 @@ async function loadExternalModelReviewBody(id, target) {
     const item = await request;
     if (!item || !Array.isArray(item.blocks)) throw new Error("Некорректный ответ.");
     externalModelReviewBodies.set(id, item);
-    target.innerHTML = `<div class="external-model-review-text">${externalReviewBlocks(item.blocks).map((block) => `<p>${esc(block)}</p>`).join("")}</div>`;
+    target.innerHTML = externalReviewBody(id, item.blocks);
   } catch (error) {
     target.innerHTML = `<p class="alert">Не удалось загрузить сохранённый ответ. <button class="link-btn" type="button" data-external-model-review-open="${esc(id)}">Повторить</button></p>`;
   } finally {

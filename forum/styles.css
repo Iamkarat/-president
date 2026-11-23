@@ -1900,3 +1900,37 @@ img.avatar,
   .discussion-answer, .discussion-loading { padding: 14px; }
   .discussion-messages p { padding: 11px 12px; }
 }
+
+/* Фото отзыва о модели: крупно на телефоне, ограниченно на компьютере.
+   Иконка карточки остаётся нашей аватаркой и в это правило не входит. */
+img.external-model-review-photo {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  max-height: 520px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center top;
+  margin: 4px 0 12px;
+  border-radius: 16px;
+  border: 1px solid var(--c-glass-border);
+  background: #1a1e1d;
+}
+@media (min-width: 860px) {
+  img.external-model-review-photo {
+    width: 280px;
+    max-width: 280px;
+    max-height: 374px;
+  }
+}
+.external-model-review-comments-title {
+  margin: 16px 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+.external-model-review-comments { display: grid; gap: 8px; }
+.external-model-review-comment { margin: 0; }
