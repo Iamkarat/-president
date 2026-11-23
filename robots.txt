@@ -4,5 +4,7 @@ Allow: /faq
 Allow: /conditions
 Allow: /safety
 Allow: /reviews
+Allow: /forum-presentation/
+Allow: /premium-soprovozhdenie-moskva.html
 
 Sitemap: https://presidentmodel.io/sitemap.xml
