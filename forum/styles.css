@@ -1605,6 +1605,7 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
   .side-banner-left { left: 12px; }
   .side-banner-right { right: 12px; }
   .nav,
+  .mobile-menu,
   .container {
     max-width: min(var(--container), calc(100vw - 2 * (var(--side-w) + 22px)));
   }
@@ -1619,6 +1620,17 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .mobile-menu.open {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .mobile-menu a {
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .mobile-menu a[href="#ask"] { grid-column: span 2; }
 }
 
 /* ---------- Разделы: вопросы / отзывы ---------- */
