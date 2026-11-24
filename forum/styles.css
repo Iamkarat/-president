@@ -1587,7 +1587,7 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
 .side-banner { display: none; }
 @media (min-width: 980px) and (min-height: 520px) {
   :root {
-    --side-w: clamp(132px, calc((100vh - 24px) / 2.73), calc((100vw - 680px) / 2 - 18px));
+    --side-w: clamp(132px, calc((100vh - 24px) / 2.73), calc((100vw - 600px) / 2 - 18px));
   }
   .side-banner {
     display: block;
@@ -1607,6 +1607,17 @@ main.container { padding-top: 98px; padding-bottom: 48px; }
   .nav,
   .container {
     max-width: min(var(--container), calc(100vw - 2 * (var(--side-w) + 22px)));
+  }
+}
+@media (min-width: 980px) and (max-width: 1599px) {
+  .nav-links { display: none; }
+  .burger { display: grid; }
+  .nav-actions { margin-left: auto; }
+  .nav .logo { min-width: 0; }
+  .nav .logo > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
